@@ -156,11 +156,6 @@ private:
 
 	/// Read XML configuration file from heli::calibration_filename
 	void loadFile();
-	/**
-	 * Determine type of xml node and apply approprate configuration to this class.
-	 * @param setpoint pointer to xml node with configuration information.
-	 */
-	void parseSetpoint(const rapidxml::xml_node<> *setpoint);
 
 	/**
 	 * Write the calibration info into an xml file.  The file is stored in

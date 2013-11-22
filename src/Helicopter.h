@@ -217,13 +217,6 @@ private:
   mutable boost::mutex config_file_lock;
   /// Save the configuration to the file heli::physical_param_filename
   void saveFile() const;
-  /// load the parameters stored in the configuration file heli::physical_param_filename
-  void loadFile();
-  /// parse a vector xml node
-  void parse_vector_node(rapidxml::xml_node<> *vector_node);
-  /// pasrse a scalar xml node
-  void parse_scalar_node(rapidxml::xml_node<> *scalar_node);
-
 };
 
 #endif // HELICOPTER_H

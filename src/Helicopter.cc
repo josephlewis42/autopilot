@@ -18,16 +18,30 @@
  *************************************************************************/
 
 #include "Helicopter.h"
-
-/* RapidXML XML Parser */
-#include <rapidxml/rapidxml.hpp>
-#include <rapidxml/rapidxml_print.hpp>
+#include "Configuration.h"
 
 /* Boost Headers */
 #include <boost/lexical_cast.hpp>
 
 /* STL Headers */
 #include <fstream>
+
+
+// Configuration Headers
+const std::string XML_ROOT = "physical_params.";
+const std::string XML_MASS = XML_ROOT + "mass";
+const std::string XML_MAIN_HUB_OFFSET_X = XML_ROOT + "main_hub_offset.x";
+const std::string XML_MAIN_HUB_OFFSET_Y = XML_ROOT + "main_hub_offset.y";
+const std::string XML_MAIN_HUB_OFFSET_Z = XML_ROOT + "main_hub_offset.z";
+const std::string XML_TAIL_HUB_OFFSET_X = XML_ROOT + "tail_hub_offset.x";
+const std::string XML_TAIL_HUB_OFFSET_Y = XML_ROOT + "tail_hub_offset.y";
+const std::string XML_TAIL_HUB_OFFSET_Z = XML_ROOT + "tail_hub_offset.z";
+const std::string XML_INERTIA_X = XML_ROOT + "inertia.x";
+const std::string XML_INERTIA_Y = XML_ROOT + "inertia.y";
+const std::string XML_INERTIA_Z = XML_ROOT + "inertia.z";
+
+
+
 
 Helicopter::Helicopter()
 	:radio_cal_data(RadioCalibration::getInstance()),
@@ -48,7 +62,21 @@ Helicopter::Helicopter()
 	inertia(1,1) = 1.48;
 	inertia(2,2) = 1.21;
 
-	loadFile();
+	Configuration* config = Configuration::getInstance();
+
+	set_mass(config->getd(XML_MASS, mass));
+
+	set_main_hub_offset_x(config->getd(XML_MAIN_HUB_OFFSET_X, 0.0));
+	set_main_hub_offset_y(config->getd(XML_MAIN_HUB_OFFSET_Y, 0.0));
+	set_main_hub_offset_z(config->getd(XML_MAIN_HUB_OFFSET_Z, -0.32));
+
+	set_tail_hub_offset_x(config->getd(XML_TAIL_HUB_OFFSET_X, -1.06));
+	set_tail_hub_offset_y(config->getd(XML_TAIL_HUB_OFFSET_Y, 0.0));
+	set_tail_hub_offset_z(config->getd(XML_TAIL_HUB_OFFSET_Z, 0.0));
+
+	set_inertia_x(config->getd(XML_INERTIA_X, 0.36));
+	set_inertia_y(config->getd(XML_INERTIA_Y, 1.48));
+	set_inertia_z(config->getd(XML_INERTIA_Z, 1.21));
 }
 
 Helicopter* Helicopter::_instance = NULL;
@@ -132,124 +160,24 @@ void Helicopter::setParameter(Parameter p)
 
 void Helicopter::saveFile() const
 {
-	rapidxml::xml_document<> config_file_xml;
-	rapidxml::xml_node<> *root_node = config_file_xml.allocate_node(rapidxml::node_element, "physical_params");
-	config_file_xml.append_node(root_node);
+	Configuration* config = Configuration::getInstance();
 
-	{
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
+	config->set(XML_MASS, boost::lexical_cast<std::string>(get_mass()));
 
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(get_mass()).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "scalar", node_value);
-		attr = config_file_xml.allocate_attribute("name", "mass");
-		node->append_attribute(attr);
-		root_node->append_node(node);
-	}
+	blas::vector<double> hub(get_main_hub_offset());
+	config->set(XML_MAIN_HUB_OFFSET_X, boost::lexical_cast<std::string>(hub(0)));
+	config->set(XML_MAIN_HUB_OFFSET_Y, boost::lexical_cast<std::string>(hub(1)));
+	config->set(XML_MAIN_HUB_OFFSET_Z, boost::lexical_cast<std::string>(hub(2)));
 
-	{
-		rapidxml::xml_node<> *vector_node = config_file_xml.allocate_node(rapidxml::node_element, "vector");
+	blas::vector<double> tail(get_tail_hub_offset());
+	config->set(XML_TAIL_HUB_OFFSET_X, boost::lexical_cast<std::string>(tail(0)));
+	config->set(XML_TAIL_HUB_OFFSET_Y, boost::lexical_cast<std::string>(tail(1)));
+	config->set(XML_TAIL_HUB_OFFSET_Z, boost::lexical_cast<std::string>(tail(2)));
 
-		char *node_value = NULL;
-		rapidxml::xml_node<> *node = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
-
-		attr = config_file_xml.allocate_attribute("name", "main_hub_offset");
-		vector_node->append_attribute(attr);
-
-		blas::vector<double> main(get_main_hub_offset());
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(main(0)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "x");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(main(1)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "y");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(main(2)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "z");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		root_node->append_node(vector_node);
-	}
-
-	{
-		rapidxml::xml_node<> *vector_node = config_file_xml.allocate_node(rapidxml::node_element, "vector");
-
-		char *node_value = NULL;
-		rapidxml::xml_node<> *node = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
-
-		attr = config_file_xml.allocate_attribute("name", "tail_hub_offset");
-		vector_node->append_attribute(attr);
-
-		blas::vector<double> tail(get_tail_hub_offset());
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(tail(0)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "x");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(tail(1)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "y");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(tail(2)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "z");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		root_node->append_node(vector_node);
-	}
-
-	{
-		rapidxml::xml_node<> *vector_node = config_file_xml.allocate_node(rapidxml::node_element, "vector");
-
-		char *node_value = NULL;
-		rapidxml::xml_node<> *node = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
-
-		attr = config_file_xml.allocate_attribute("name", "inertia");
-		vector_node->append_attribute(attr);
-
-		blas::banded_matrix<double> inertia(get_inertia());
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(inertia(0,0)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "x");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(inertia(1,1)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "y");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(inertia(2,2)).c_str());
-		node = config_file_xml.allocate_node(rapidxml::node_element, "coordinate", node_value);
-		attr = config_file_xml.allocate_attribute("name", "z");
-		node->append_attribute(attr);
-		vector_node->append_node(node);
-
-		root_node->append_node(vector_node);
-	}
-
-	std::ofstream config_file;
-	config_file_lock.lock();
-	config_file.open(heli::physical_param_filename.c_str());
-	config_file << config_file_xml;
-	config_file.close();
-	config_file_lock.unlock();
+	blas::banded_matrix<double> inertia(get_inertia());
+	config->set(XML_INERTIA_X, boost::lexical_cast<std::string>(inertia(0,0)));
+	config->set(XML_INERTIA_Y, boost::lexical_cast<std::string>(inertia(1,1)));
+	config->set(XML_INERTIA_Z, boost::lexical_cast<std::string>(inertia(2,2)));
 }
 
 uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 3> setpoint)
@@ -383,120 +311,6 @@ uint16_t Helicopter::setPitch(double norm)
 	uint16_t pulse = norm2pulse(norm, radio_cal_data->getPitch());
 	out->setRaw(heli::CH6, pulse);
 	return pulse;
-}
-
-void Helicopter::loadFile()
-{
-	if (!boost::filesystem::exists(heli::physical_param_filename))
-	{
-		warning() << "Helicopter: Cannot find physical parameter xml file: " << heli::physical_param_filename;
-		return;
-	}
-
-	/* Read contents of configuration file into char* */
-	std::ifstream config_file;
-	int length;
-	config_file_lock.lock();
-	config_file.open(heli::physical_param_filename.c_str());      // open input file
-	config_file.seekg(0, std::ios::end);    // go to the end
-	length = config_file.tellg();           // report location (this is the length)
-	config_file.seekg(0, std::ios::beg);    // go back to the beginning
-	char *config_file_buffer = new char[length+1];    // allocate memory for a buffer of appropriate dimension
-	config_file.read(config_file_buffer, length);       // read the whole file into the buffer
-	config_file.close();
-	config_file_lock.unlock();
-	config_file_buffer[length] = 0;
-
-	rapidxml::xml_document<> config_file_xml;
-	config_file_xml.parse<0>(config_file_buffer);
-
-	rapidxml::xml_node<> *root_node = config_file_xml.first_node();
-
-	if (boost::to_upper_copy(std::string(root_node->name())) != "PHYSICAL_PARAMS")
-	{
-		critical() << "Helicopter::loadFile() Unknown file format.  Cannot load physical parameters.";
-		return;
-	}
-
-	for (rapidxml::xml_node<> *node = root_node->first_node(); node; node = node->next_sibling())
-	{
-		std::string node_name(node->name());
-		if (boost::to_upper_copy(std::string(node_name)) == "SCALAR")
-			parse_scalar_node(node);
-		else if (boost::to_upper_copy(std::string(node_name)) == "VECTOR")
-			parse_vector_node(node);
-		else
-			warning() << __FILE__ << __LINE__ << "Found unknown node: " << node_name;
-	}
-}
-
-void Helicopter::parse_scalar_node(rapidxml::xml_node<> *scalar_node)
-{
-
-	std::string scalar_value(scalar_node->value());
-	boost::trim(scalar_value);
-
-	rapidxml::xml_attribute<> *attr;
-	for (attr = scalar_node->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-	std::string name(attr->value());
-	boost::to_upper(name);
-	if (name == "MASS")
-		set_mass(boost::lexical_cast<double>(scalar_value));
-	else
-		warning() << "Found Unknown Scalar value in physical parameter file";
-}
-
-void Helicopter::parse_vector_node(rapidxml::xml_node<> *vector_node)
-{
-	rapidxml::xml_attribute<> *attr;
-	for (attr = vector_node->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-	std::string vector_name(attr->value());
-	boost::to_upper(vector_name);
-
-	for (rapidxml::xml_node<> *coordinate = vector_node->first_node(); coordinate; coordinate = coordinate->next_sibling())
-	{
-		if (boost::to_upper_copy(std::string(coordinate->name())) == "COORDINATE")
-		{
-			rapidxml::xml_attribute<> *attr;
-			for (attr = coordinate->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute())
-			;
-
-			std::string coordinate_name(attr->value());
-			boost::to_upper(coordinate_name);
-			std::string coordinate_value(coordinate->value());
-			boost::to_upper(coordinate_value);
-
-			if (vector_name == "MAIN_HUB_OFFSET")
-			{
-				if (coordinate_name == "X")
-					set_main_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Y")
-					set_main_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Z")
-					set_main_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
-			}
-			else if (vector_name == "TAIL_HUB_OFFSET")
-			{
-				if (coordinate_name == "X")
-					set_tail_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Y")
-					set_tail_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Z")
-					set_tail_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
-			}
-			else if (vector_name == "INERTIA")
-			{
-				if (coordinate_name == "X")
-					set_inertia_x(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Y")
-					set_inertia_y(boost::lexical_cast<double>(coordinate_value));
-				else if (coordinate_name == "Z")
-					set_inertia_z(boost::lexical_cast<double>(coordinate_value));
-			}
-		}
-		else
-			warning() << "parse_pid(): unknown xml node " << coordinate->name();
-	}
 }
 
 double Helicopter::get_main_collective() const
