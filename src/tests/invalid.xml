@@ -1,0 +1,12 @@
+<!--
+This document specifies the default configuration for the helicopter.
+-->
+
+<configuration>value</configuration>
+<hello>world</hello>
+<int>33</int>
+<notint>a</notint>
+<string>Hello, world!</string>
+<bool>true</bool>
+<hello world>test</hello world>
+

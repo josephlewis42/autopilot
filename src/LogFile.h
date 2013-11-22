@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -21,33 +22,24 @@
 #define LOGFILE_H
 
 /* STL Headers */
-#include <queue>
-#include <vector>
 #include <sstream>
 #include <map>
-#include <iostream>
-#include <fstream>
 #include <exception>
+#include <queue>
+
 
 /* boost headers */
 #include <boost/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/signals2.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/array.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
 /* c headers */
 #include <stdint.h>
-#include <sys/neutrino.h>
-#include <sys/netmgr.h>
 #include <time.h>
 
-/* Project headers */
-#include "MainApp.h"
-#include "heli.h"
-#include "Debug.h"
+
 
 /**
    \brief This class implements the logging facility for the avionics.
@@ -208,8 +200,6 @@ class LogFile
 
 	  /// Pointer to LogFile class which instantiated LogFileWrite
 	  LogFile *parent;
-	  /// Pulse code used to identify when logfile should write
-	  const short LogFile_Pulse_Code;
 	  /** mutex used to protect the terminate flag, LogFile::LogFileWrite::terminate
 	   * this member must be static because LogFileWrite gets constructed and destructed
 	   * several times when LogFile::data_out is initialized, but the copy constructor
@@ -234,28 +224,26 @@ class LogFile
   };
 };
 
+ template<typename DataContainer>
+ void LogFile::logData(const std::string& name, const DataContainer& data)
+ {
 
-template<typename DataContainer>
-void LogFile::logData(const std::string& name, const DataContainer& data)
-{
+ 	boost::posix_time::ptime time();
+ 	std::string log(boost::lexical_cast<std::string>((boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds()));
+ 	log += '\t';
 
-	boost::posix_time::ptime time();
-	std::string log(boost::lexical_cast<std::string>((boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds()));
-	log += '\t';
+ 	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
+ 	{
+ 		log += boost::lexical_cast<std::string>(*it) + '\t';
+ 	}
 
-	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
-	{
-		log += boost::lexical_cast<std::string>(*it) + '\t';
-	}
+ 	std::stringstream ss;
+ 	ss << log << std::endl;
 
-	std::stringstream ss;
-	ss << log << std::endl;
-
-	{
-		boost::mutex::scoped_lock(logMutex);
-		(*(this->log))[name].push(ss.str());
-	}
-}
-
+ 	{
+ 		boost::mutex::scoped_lock(logMutex);
+ 		(*(this->log))[name].push(ss.str());
+ 	}
+ }
 
 #endif

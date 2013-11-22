@@ -291,30 +291,30 @@ void tail_sbf::parse_xml_node(rapidxml::xml_node<> *sbf_params)
 				// find which gain it is
 				rapidxml::xml_attribute<> *attr;
 				for (attr = gain->first_attribute(); attr && std::string(attr->name()) != "type"; attr = attr->next_attribute());
-				std::string gain(attr->value());
-				boost::to_upper(gain);
+				std::string strGain(attr->value());
+				boost::to_upper(strGain);
 
 				if (channel_name == "NED_X")
 				{
-					if (gain == "PROPORTIONAL")
+					if (strGain == "PROPORTIONAL")
 						set_x_proportional(boost::lexical_cast<double>(gain_value));
-					else if (gain == "DERIVATIVE")
+					else if (strGain == "DERIVATIVE")
 						set_x_derivative(boost::lexical_cast<double>(gain_value));
-					else if (gain == "INTEGRAL")
+					else if (strGain == "INTEGRAL")
 						set_x_integral(boost::lexical_cast<double>(gain_value));
 					else
-						warning() << __FILE__ << __LINE__ << "Unknown gain on x channel: " << gain;
+						warning() << __FILE__ << __LINE__ << "Unknown gain on x channel: " << strGain;
 				}
 				else if (channel_name == "NED_Y")
 				{
-					if (gain == "PROPORTIONAL")
+					if (strGain == "PROPORTIONAL")
 						set_y_proportional(boost::lexical_cast<double>(gain_value));
-					else if (gain == "DERIVATIVE")
+					else if (strGain == "DERIVATIVE")
 						set_y_derivative(boost::lexical_cast<double>(gain_value));
-					else if (gain == "INTEGRAL")
+					else if (strGain == "INTEGRAL")
 						set_y_integral(boost::lexical_cast<double>(gain_value));
 					else
-						warning() << __FILE__ << __LINE__ << "Unknown gain on pitch channel: " << gain;
+						warning() << __FILE__ << __LINE__ << "Unknown gain on pitch channel: " << strGain;
 				}
 				else
 					warning() << "Translation SBF: Unknown channel: " << channel_name;

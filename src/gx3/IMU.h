@@ -36,6 +36,7 @@ namespace blas = boost::numeric::ublas;
 
 /* Project Headers */
 #include "IMU_Filter.h"
+#include "Driver.h"
 
 /**
  * @brief This class contains all the code for interacting with the 3DM-GX3 IMU.
@@ -46,7 +47,7 @@ namespace blas = boost::numeric::ublas;
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date February 2, 2012
  */
-class IMU
+class IMU : public Driver
 {
 public:
 	static IMU* getInstance();
@@ -136,8 +137,6 @@ private:
 
 	/// serial port file descriptor
 	int fd_ser;
-	/// path to serial device connected to gx3
-	static const std::string serial_port;
 	/// initialize the serial port
 	void init_serial();
 	/// close the serial port
@@ -348,6 +347,7 @@ template<typename T> void IMU::nav_queue_push(const T& message)
 	boost::mutex::scoped_lock lock(nav_queue_lock);
 	nav_queue.push(message);
 }
+
 template<typename T> T IMU::nav_queue_pop()
 {
 	boost::mutex::scoped_lock lock(nav_queue_lock);

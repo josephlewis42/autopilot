@@ -34,6 +34,7 @@ namespace blas = boost::numeric::ublas;
 /* Project Headers */
 #include "Debug.h"
 #include "Parameter.h"
+#include "heli.h"
 
 /**
  * This class defines a circular reference trajectory.  The helicopter

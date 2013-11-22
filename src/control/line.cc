@@ -24,6 +24,7 @@
 
 /* Project Headers */
 #include "IMU.h"
+#include "heli.h"
 
 line::line()
 : start_location(blas::zero_vector<double>(3)),

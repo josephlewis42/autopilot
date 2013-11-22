@@ -27,6 +27,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
 
+#include "heli.h"
+
 
 /* Project Headers */
 #include "Debug.h"

@@ -25,6 +25,7 @@
 #include "RCTrans.h"
 #include "IMU.h"
 #include "QGCLink.h"
+#include "heli.h"
 
 /* Boost Headers */
 #include <boost/bind.hpp>

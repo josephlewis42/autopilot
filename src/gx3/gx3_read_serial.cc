@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com> | <joseph@josephlewis.net>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -27,66 +28,127 @@
 
 /* Project Headers */
 #include "Debug.h"
+#include "qnx2linux.h"
+
+/**
+ * Constants
+ */
+static const uint8_t FIRST_SYNC_BYTE = 0x75;
+static const uint8_t SECOND_SYNC_BYTE = 0x65;
+static const int SECONDS_UNTIL_ASSUMED_DEAD = 3;
+static const int HEADER_LENGTH_BYTES = 4;
+static const int MAX_PAYLOAD_SIZE_BYTES = 256 + HEADER_LENGTH_BYTES; // the gx3 specs a 1 byte length field so this should be enough for max packet length including header
+static const int CHECKSUM_LENGTH_BYTES = 2;
+
+int IMU::read_serial::read_ser(int fd, void * buf, int n)
+{
+#ifdef __QNX__
+	return readcond(fd, buf, n, n, 10, 10);
+#else
+	return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+#endif
+}
+
+
+void IMU::read_serial::check_alive()
+{
+	IMU* imu = IMU::getInstance();
+	// check to see if the sensor is "dead"
+	if (imu->seconds_since_last_data() < SECONDS_UNTIL_ASSUMED_DEAD)
+	{
+		return;
+	}
+
+	warning() << "Stopped receiving data from GX3.  Attempting to reinitialize serial connection";
+	imu->initialize_imu();
+	imu->set_last_data();
+}
+
+
+bool IMU::read_serial::sync()
+{
+	uint8_t last_byte = 0, curr_byte = 0;
+	IMU* imu = IMU::getInstance();
+	int fd_ser = imu->fd_ser;
+
+	while(true)
+	{
+		check_alive();
+
+		// Check to see if we have been requested to terminate
+		if(imu->terminateRequested())
+		{
+			return false;
+		}
+
+		if (read_ser(fd_ser, &curr_byte, 1) < 1)
+		{
+			continue;
+		}
+
+		if(last_byte == FIRST_SYNC_BYTE && curr_byte == SECOND_SYNC_BYTE)
+		{
+			imu->set_last_data();
+			return true;
+		}
+		else
+		{
+			//debug() << "IMU::read_serial: got useless bytes: " << std::hex << last_byte << ", " << curr_byte;
+		}
+		last_byte = curr_byte;
+	}
+}
 
 void IMU::read_serial::operator()()
 {
-	uint8_t sync_byte = 0;
-	bool found_sync = false;
-	std::vector<uint8_t> header(4,0);
-	header[0] = 0x75;
-	header[1] = 0x65;
+	IMU* imu = IMU::getInstance();
+	std::vector<uint8_t> header(HEADER_LENGTH_BYTES,0);
+	header[0] = FIRST_SYNC_BYTE;
+	header[1] = SECOND_SYNC_BYTE;
 	std::vector<uint8_t> buffer;
-	buffer.reserve(259); // the gx3 specs a 1 byte length field so this should be enough for max packet length including header
-	std::vector<uint8_t> checksum(2, 0);
+	buffer.reserve(MAX_PAYLOAD_SIZE_BYTES);
+	std::vector<uint8_t> checksum(CHECKSUM_LENGTH_BYTES, 0);
 	const int fd_ser = IMU::getInstance()->fd_ser;
-	IMU::getInstance()->set_last_data();
+	imu->set_last_data();
 	while (true)
 	{
-		if (IMU::getInstance()->seconds_since_last_data() > 3)
-		{
-			warning() << "Stopped receiving data from GX3.  Attempting to reinitialize serial connection";
-			IMU& imu = *IMU::getInstance();
-			imu.initialize_imu();
-			imu.set_last_data();
-		}
-		int bytes = readcond(fd_ser, &sync_byte, 1, 1, 10, 10);
-		if (bytes < 1)
-			continue;
-		else if (sync_byte == 0x75)
-		{
-			// got first sync byte
-			found_sync = true;
-		}
-		else if (found_sync && sync_byte == 0x65)
-		{
-			found_sync = false;
-			IMU::getInstance()->set_last_data();
+			// if a serious error has happened (can't sync), kill the thread.
+			if(sync() == false)
+			{
+				return;
+			}
+
 			// got both sync bytes - get message
 			uint8_t descriptor = 0, length = 0;
-			int bytes = readcond(fd_ser, &descriptor, 1, 1, 10, 10);
-			if (bytes < 1)
+			if (read_ser(fd_ser, &descriptor, 1) < 1)
+			{
 				continue;
-			bytes = readcond(fd_ser, &length, 1, 1, 10 , 10);
-			if (bytes < 1)
+			}
+
+			if (read_ser(fd_ser, &length, 1) < 1)
+			{
 				continue;
+			}
+
 			buffer.resize(length);
-			bytes = readcond(fd_ser, &buffer[0], length, length, 10, 10);
-			if (bytes < length)
+			if (read_ser(fd_ser, &buffer[0], length) < length)
 			{
 				warning() << "Received valid message header from IMU but did not receive payload.";
 				continue;
 			}
 
-			bytes = readcond(fd_ser, &checksum[0], 2, 2, 10, 10);
-			if (bytes < 2)
+			if (read_ser(fd_ser, &checksum[0], CHECKSUM_LENGTH_BYTES) < CHECKSUM_LENGTH_BYTES)
+			{
 				continue;
+			}
+
 			// successfully received entire message - compare checksum
 			header[2] = descriptor;
 			header[3] = length;
 			buffer.insert(buffer.begin(), header.begin(), header.end());
 			if (checksum != IMU::compute_checksum(buffer))
 			{
-//				warning() << "IMU checksum failure.  message checksum: " << std::hex << checksum[0] << checksum[1] << "computed checksum: " << ;
+				warning() << "IMU checksum failure.  message checksum: " << std::hex << checksum[0] << checksum[1] << "computed checksum: " << IMU::compute_checksum(buffer) ;
 				continue;
 			}
 
@@ -98,37 +160,31 @@ void IMU::read_serial::operator()()
 			case COMMAND_NAV_FILT:
 			case COMMAND_SYS:
 			{
-//				debug() << "Received command message.";
-				IMU::getInstance()->command_queue_push(buffer);
+				//debug() << "Received command message.";
+				imu->command_queue_push(buffer);
 				break;
 			}
 			case DATA_AHRS:
 			{
-//				debug() << "Received ahrs message";
-				IMU::getInstance()->ahrs_queue_push(buffer);
+				//debug() << "Received ahrs message";
+				imu->ahrs_queue_push(buffer);
 				break;
 			}
 			case DATA_GPS:
 			{
-				debug() << "Received GPS message";
-				IMU::getInstance()->gps_queue_push(buffer);
+				//debug() << "Received GPS message";
+				imu->gps_queue_push(buffer);
 				break;
 			}
 			case DATA_NAV:
 			{
-//				debug() << "Got Nav Message";
-				IMU::getInstance()->nav_queue_push(buffer);
+				//debug() << "Got Nav Message";
+				imu->nav_queue_push(buffer);
 				break;
 			}
 			default:
 				warning() << "Unknown command received from GX3.  Cannot add it to a queue";
 				break;
 			}
-		}
-		else
-		{
-//			debug() <<"IMU::read_serial: got useless byte";
-			found_sync = false;
-		}
 	}
 }

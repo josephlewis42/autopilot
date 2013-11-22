@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -18,9 +19,36 @@
  *************************************************************************/
 
 #include "servo_switch.h"
+#include "Configuration.h"
+#include "RateLimiter.h"
+#include "qnx2linux.h"
 
 servo_switch* servo_switch::_instance = NULL;
 boost::mutex servo_switch::_instance_lock;
+
+
+
+// As defined in section 4.2 of the February 2, 2007 SSC Manual
+enum ServoMessageID
+{
+	// SSC TO HOST
+	STATUS=10,
+	CHANNEL_SOURCE=11,
+	PULSE_OUTPUTS=12,
+	PULSE_INPUTS=13,
+	AUXILIARY_INPUTS=14,
+	SYSTEM_CONFIGURATION=15,
+
+	// HOST TO SSC
+	PULSE_COMMAND=20,
+	AUXILIARY_OUTPUTS=21,
+	LOCKOUT_NOW=98
+};
+
+// path to serial device connected to gx3
+const std::string SERVO_SERIAL_PORT_CONFIG_NAME = "servo_serial_port";
+const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser3";
+
 
 servo_switch* servo_switch::getInstance()
 {
@@ -51,40 +79,50 @@ servo_switch::~servo_switch()
 
 void servo_switch::init_port()
 {
-	std::string port = "/dev/ser3";
+	std::string port = Configuration::getInstance()->gets(SERVO_SERIAL_PORT_CONFIG_NAME, SERVO_SERIAL_PORT_CONFIG_DEFAULT);
 
 	boost::mutex::scoped_lock lock(fd_ser1_lock);
-	fd_ser1 = open(port.c_str(), O_RDWR);       // GPS is connected to serial port#2
+	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY);       // GPS is connected to serial port#2
+
 	if(fd_ser1 == -1)
 	{
 		critical() << "Unable to open port " << port;
 	}
 
+	// Set up the terminal configuration for the given port.
 	struct termios port_config;
 
 	tcgetattr(fd_ser1, &port_config);                  // get the current port settings
-	cfmakeraw(&port_config);							// set RAW mode
+
+	// Set the baud rate
 	cfsetospeed(&port_config, B115200);
 	cfsetispeed(&port_config, B115200);
+
 	port_config.c_cflag |= (CLOCAL | CREAD);          // Enable the receiver and set local mode...
 	port_config.c_cflag &= ~(CSIZE);                  // Set terminal data length.
 	port_config.c_cflag |=  CS8;                      // 8 data bits
+
+	// Set the number of stop bits to 1
 	port_config.c_cflag &= ~(CSTOPB);                 // clear for one stop bit
-	port_config.c_cflag &= ~(PARENB | PARODD);        // Set terminal parity.
+
+
+	port_config.c_cflag &= ~(PARENB); //| PARODD);        // Set terminal parity.
 	// Clear terminal output flow control.
 	port_config.c_iflag &= ~(IXON | IXOFF);           // set -isflow  & -osflow
+
+	// TODO check if these are even needed in QNX - Joseph
+#ifdef __QNX__
 	port_config.c_cflag &= ~(IHFLOW | OHFLOW);        // set -ihflow  & -ohflow
 	tcflow (fd_ser1, TCION);                           // set -ispaged
 	tcflow (fd_ser1, TCOON);                           // set -ospaged
 	tcflow (fd_ser1, TCIONHW);                         // set -ihpaged
 	tcflow (fd_ser1, TCOONHW);                         // set -ohpaged
+#endif
 
-	if (cfsetospeed(&port_config, B115200) != 0)
-		critical() << "could not set output speed";
-	if (cfsetispeed(&port_config, B115200) != 0)
-		critical() << "could not set input speed";
 	if (tcsetattr(fd_ser1, TCSADRAIN, &port_config) != 0)
+	{
 		critical() << "could not set serial port attributes";
+	}
 	tcgetattr(fd_ser1, &port_config);
 	tcflush(fd_ser1, TCIOFLUSH);
 }
@@ -93,7 +131,10 @@ void servo_switch::set_pilot_mode(heli::PILOT_MODE mode)
 {
 	boost::mutex::scoped_lock lock(pilot_mode_lock);
 	if (pilot_mode == mode)
+	{
 		return;
+	}
+
 	pilot_mode = mode;
 	message() << "Pilot mode changed to: " << pilot_mode_string(mode);
 	pilot_mode_changed(mode);
@@ -126,6 +167,15 @@ std::vector<uint8_t> servo_switch::compute_checksum(uint8_t id, uint8_t count, c
 	return checksum;
 }
 
+int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
+{
+#ifdef __QNX__
+	return readcond(fd, buf, n, n, 10, 10);
+#else
+	return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+#endif
+}
+
 /* read_serial functions */
 
 void servo_switch::read_serial::read_data()
@@ -135,39 +185,44 @@ void servo_switch::read_serial::read_data()
 	std::vector<uint8_t> checksum(2);
 	for(;;)
 	{
-//		debug() << "searching for header";
+		// debug() << "searching for header";
 		find_next_header();
 
 		// get message id
 		uint8_t id;
-		readcond(fd_ser, &id, 1, 1, 10, 10);
+		readSerialBytes(fd_ser, &id, 1);
 
 		// get message count
 		uint8_t count;
-		readcond(fd_ser, &count, 1, 1, 10, 10);
+		readSerialBytes(fd_ser, &count, 1);
 
 		// allocate space for message
 		payload.resize(count);
 		// get message payload
-		readcond(fd_ser, &payload[0], count, count, 10, 10);
+		readSerialBytes(fd_ser, &payload[0], count);
 
 		// zero checksum
 		checksum.assign(checksum.size(), 0);
 		// get checksum
-		readcond(fd_ser, &checksum[0], 2, 2, 10, 10);
+		readSerialBytes(fd_ser, &checksum[0], 2);
+
+		message() << "ID: " << id << " Count: " << count;
 
 		if (checksum == compute_checksum(id, count, payload))
+		{
 			parse_message(id, payload);
+		}
 	}
 }
 
 void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint8_t>& payload)
 {
+	// TODO enumerate these numbers - Joseph
+
 	switch (id)
 	{
 	case 10:
 	{
-//		debug() << "Received status message from servo switch";
 		uint16_t status =  payload[1];
 		// shift right to get command channel state
 		status = (status & 0x6) >> 1;
@@ -187,7 +242,6 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 	}
 	case 13:
 	{
-//		debug() << "Received pulse input message from servo switch";
 		parse_pulse_inputs(payload);
 		break;
 	}
@@ -207,11 +261,13 @@ void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& p
 	const uint16_t lower_limit = 800;
 	std::vector<uint16_t> pulse_inputs(getInstance()->get_raw_inputs());  // no need for more than 9 channels
 	uint16_t pulse_width = 0;
-	for (uint_t i=1; i<payload.size()/2 && i < pulse_inputs.size(); i++)
+	for (uint32_t i=1; i<payload.size()/2 && i < pulse_inputs.size(); i++)
 	{
 		pulse_width = (static_cast<uint16_t>(payload[i*2]) << 8) + payload[i*2+1];
 		if (pulse_width > lower_limit && pulse_width < upper_limit)
+		{
 			pulse_inputs[i-1] = pulse_width;
+		}
 	}
 	// treat ch8 differently
 	pulse_inputs[7] = (static_cast<uint16_t>(payload[0]) << 8) + payload[1];
@@ -229,10 +285,6 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 		debug() << "Time measurement over range";
 		return ;
 	}
-//	if(!meas_byte.test(6))
-//	{
-//		debug() << "Time measurement is not running";
-//	}
 
 	meas_byte.set(7,0);
 	meas_byte.set(6,0);
@@ -240,6 +292,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 	uint16_t time_measurement;
 	time_measurement = (static_cast<uint16_t>(meas_byte.to_ulong()) << 8) + payload[3];
 
+	// TODO extract out these constants to meaningful variables - Joseph
 	double speed = 1 / (time_measurement*32.0*0.000001);
 	std::vector<double> speeds;
 	speeds.push_back(speed);
@@ -257,6 +310,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 
 void servo_switch::read_serial::find_next_header()
 {
+	debug() << "Finding next header";
 	bool synchronized = false;
 	int fd_ser = servo_switch::getInstance()->get_serial_descriptor();
 
@@ -264,8 +318,7 @@ void servo_switch::read_serial::find_next_header()
 	uint8_t buf;
 	while (!synchronized)
 	{
-		readcond(fd_ser, &buf, 1, 1, 10, 10);
-//		debug() << "read byte: " << std::hex << buf;
+		readSerialBytes(fd_ser, &buf, 1);
 		if (buf == 0x81) // first byte of header
 			found_first_byte = true;
 		else if (buf == 0xA1 && found_first_byte)
@@ -273,23 +326,22 @@ void servo_switch::read_serial::find_next_header()
 		else
 			found_first_byte = false;
 	}
-//	debug() << "found header";
 }
 /* send_serial functions */
 
 void servo_switch::send_serial::send_data()
 {
-	struct sigevent         event;
-	struct itimerspec       itime;
-	timer_t                 timer_id;
+	//struct sigevent         event;
+	//struct itimerspec       itime;
+	//timer_t                 timer_id;
 	/* ChannelCreate() func. creates a channel that is owned by the process (and isn't bound to the creating thread). */
-	int chid = ChannelCreate(0);
+	//int chid = ChannelCreate(0);
 
-	event.sigev_notify = SIGEV_PULSE;
+	//event.sigev_notify = SIGEV_PULSE;
 
 	/* Threads wishing to connect to the channel identified by 'chid'(channel id) by ConnectAttach() func.
 		 Once attached thread can MsgSendv() & MsgSendPulse() to enqueue messages & pulses on the channel in priority order. */
-	event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0,
+	/**event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0,
 			chid,
 			_NTO_SIDE_CHANNEL, 0);
 	event.sigev_priority = heli::servo_switch_send_priority;
@@ -304,14 +356,22 @@ void servo_switch::send_serial::send_data()
 
 
 	_pulse pulse;
+	**/
+
+
+	RateLimiter rl(50);
 
 	for (;;)
 	{
-		MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
+		rl.wait();
+		//MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
 		std::vector<uint8_t> pulse_message = get_pulse_message();
 		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, getInstance()->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
 		while (write(getInstance()->get_serial_descriptor(), &pulse_message[0], pulse_message.size()) < 0)
+		{
 			debug() << "Error sending pulse output message to servo switch";
+		}
+		rl.finishedCriticalSection();
 	}
 }
 
@@ -326,25 +386,10 @@ std::vector<uint8_t> servo_switch::send_serial::get_pulse_message()
 	message.push_back(20);
 	message.push_back(raw_outputs.size()*2);
 
-	// put ch8 on pin1
-//	message.push_back(static_cast<uint8_t>(raw_outputs[7]>>8));
-//	message.push_back(static_cast<uint8_t>(raw_outputs[7] & 0xFF));
-
-	for (uint_t i=0; i<raw_outputs.size(); i++)
+	for (uint32_t i=0; i<raw_outputs.size(); i++)
 	{
-//		if (i != 7)
-//		{
-//			if (i==2 || i==3)
-//			{
-//				message.push_back(static_cast<uint8_t>(raw_outputs[i-2]>>8));
-//							message.push_back(static_cast<uint8_t>(raw_outputs[i-2] & 0xFF));
-//			}
-//			else
-//			{
-			message.push_back(static_cast<uint8_t>(raw_outputs[i]>>8));
-			message.push_back(static_cast<uint8_t>(raw_outputs[i] & 0xFF));
-//			}
-//		}
+		message.push_back(static_cast<uint8_t>(raw_outputs[i]>>8));
+		message.push_back(static_cast<uint8_t>(raw_outputs[i] & 0xFF));
 	}
 
 	std::vector<uint8_t> checksum = compute_checksum(20, raw_outputs.size()*2, std::vector<uint8_t>(message.begin()+4, message.end()));

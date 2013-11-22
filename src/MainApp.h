@@ -25,14 +25,6 @@
 #include <string>
 #include <vector>
 
-/* Headers needed for timer */
-#include <stdio.h>      // used for quick debugging only.
-#include <time.h>
-#include <signal.h>
-#include <sys/netmgr.h>
-#include <sys/neutrino.h>
-#include <sched.h>      // for setting thread priorities.
-
 /* Project Headers */
 #include "heli.h"
 

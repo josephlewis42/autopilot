@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -39,8 +40,8 @@
 #include <stdint.h>
 #include <time.h>
 #include <signal.h>
-#include <sys/netmgr.h>
-#include <sys/neutrino.h>
+//#include <sys/netmgr.h>
+//#include <sys/neutrino.h>
 #include <bitset>
 
 /* File Handling Headers */
@@ -80,6 +81,7 @@ public:
 		void parse_pulse_inputs(const std::vector<uint8_t>& payload);
 		void parse_aux_inputs(const std::vector<uint8_t>& payload);
 		void find_next_header();
+		int readSerialBytes(int fd, void * buf, int n);
 	};
 
 	class send_serial

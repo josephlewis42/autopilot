@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -18,70 +19,70 @@
  *************************************************************************/
 
 #include "LogFile.h"
+#include "Debug.h"
+/* Project headers */
+#include "MainApp.h"
+#include "heli.h"
+#include "RateLimiter.h"
+
+// System Headers
+#include <vector>
+#include <iostream>
+#include <fstream>
+
+// Boost:: headers
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 
 LogFile::LogFile()
-	:data_out(LogFileWrite(this)),
-	 startTime(boost::posix_time::microsec_clock::local_time())
+:data_out(LogFileWrite(this)),
+ startTime(boost::posix_time::microsec_clock::local_time())
 {
-  log = new std::map<std::string, std::queue<std::string> >();
-  headers = new std::map<std::string, std::string>();
+	log = new std::map<std::string, std::queue<std::string> >();
+	headers = new std::map<std::string, std::string>();
 
-  boost::gregorian::date d(boost::gregorian::day_clock::local_day());
-  boost::gregorian::date_facet *dfacet(new boost::gregorian::date_facet("%A %B %d, %Y"));
+	std::stringstream ss;
+	ss.str("");
 
-  std::stringstream ss;
-  ss.imbue(std::locale(ss.getloc(), dfacet));
-  ss << d;
-//  debug() << __FILE__ << __LINE__ << "Date: " << ss.str();
-  std::string date_folder(ss.str());
-  ss.str("");
+	boost::posix_time::time_facet *tfacet(new boost::posix_time::time_facet("%Y-%m-%d_%H:%M:%S"));
+	ss.imbue(std::locale(ss.getloc(), tfacet));
+	ss << startTime;
+	std::string time_folder(ss.str());
 
-  boost::posix_time::time_facet *tfacet(new boost::posix_time::time_facet("%H.%M.%S"));
-  ss.imbue(std::locale(ss.getloc(), tfacet));
-  ss << startTime;
-  std::string time_folder(ss.str());
-//  debug() << __FILE__ << __LINE__ << "time: " << time_folder;
 
-  log_folder = date_folder;
-  if (!boost::filesystem::exists(log_folder))
-  {
-	  try
-	  {
-		  boost::filesystem::create_directory(log_folder);
-	  }
-	  catch (boost::filesystem::filesystem_error& fserr)
-	  {
-		  critical() << "LogFile: Could not create directory: " << date_folder;
-	  }
-  }
 
-  log_folder /= time_folder;
+	log_folder = boost::filesystem::current_path();
+	log_folder /= time_folder;
 
-  if (!boost::filesystem::exists(log_folder))
-  {
-	  try
-	  {
-		  boost::filesystem::create_directory(log_folder);
-	  }
-	  catch (boost::filesystem::filesystem_error& fserr)
-	  {
-		  critical() << "LogFile: Could not create directory: " << date_folder;
-	  }
-  }
-  else
-  {
-	  // remove the contents of the directory
-	  for (boost::filesystem::directory_iterator it(log_folder); it != boost::filesystem::directory_iterator(); it++)
-		  boost::filesystem::remove(*it);
-  }
+	if (boost::filesystem::exists(log_folder))
+	{
+		// remove the contents of the directory
+		for (boost::filesystem::directory_iterator it(log_folder);
+				it != boost::filesystem::directory_iterator();
+				it++)
+		{
+			boost::filesystem::remove(*it);
+		}
+	}
+	else // Create the new directory.
+	{
+		try
+		{
+			boost::filesystem::create_directory(log_folder);
+		}
+		catch (boost::filesystem::filesystem_error& fserr)
+		{
+			critical() << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
+		}
+	}
 
-  MainApp::add_thread(&data_out, std::string("Log File"));
+	MainApp::add_thread(&data_out, std::string("Log File"));
 }
 
 LogFile::~LogFile()
 {
-  delete log;
-  delete headers;
+	delete log;
+	delete headers;
 }
 
 LogFile* LogFile::_instance = NULL;
@@ -91,13 +92,15 @@ LogFile* LogFile::getInstance()
 {
 	boost::mutex::scoped_lock lock(_instance_lock);
 	if (!_instance)
+	{
 		_instance = new LogFile;
+	}
 	return _instance;
 }
 
 void LogFile::logHeader(const std::string& name, const std::string& header)
 {
-  (*headers)[name] = header;
+	(*headers)[name] = header;
 }
 
 boost::recursive_mutex LogFile::LogFileWrite::terminate_mutex;
@@ -106,7 +109,6 @@ bool LogFile::LogFileWrite::terminate = false;
 
 
 LogFile::LogFileWrite::LogFileWrite(LogFile* parent)
-	:LogFile_Pulse_Code(_PULSE_CODE_MINAVAIL + 2)
 {
 	if (parent == NULL)
 		throw(bad_logfile_parent());
@@ -117,42 +119,28 @@ LogFile::LogFileWrite::LogFileWrite(LogFile* parent)
 
 void LogFile::LogFileWrite::write_thread()
 {
-		int chid = ChannelCreate(0);
-		sigevent event;
-		event.sigev_notify = SIGEV_PULSE;
-		event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL, 0);
-		event.sigev_priority = getprio(0);
-		event.sigev_code = LogFile_Pulse_Code;
-		timer_t timer_id;
-		timer_create(CLOCK_REALTIME, &event, &timer_id);
-		itimerspec itime;
-		itime.it_value.tv_sec = 1;
-		itime.it_value.tv_nsec = 500000000;
-		itime.it_interval.tv_sec = 2;
-		itime.it_interval.tv_nsec = 0;
-		timer_settime(timer_id, 0, &itime, NULL);
 
-		_pulse pulse;
+	RateLimiter rl(2);
+
 	while(check_terminate())
 	{
-		int rcvid = MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
-		if ((rcvid==0) && (pulse.code == LogFile_Pulse_Code))
+		rl.wait();
+
+		std::map<std::string, std::queue<std::string> > *old_log;
+		std::map<std::string, std::string> *old_headers;
 		{
-			std::map<std::string, std::queue<std::string> > *old_log;
-			std::map<std::string, std::string> *old_headers;
-			{
-				boost::mutex::scoped_lock lock(parent->logMutex);
-				LogFile *l = LogFile::getInstance();
-				old_log = l->log;
-				old_headers = l->headers;
-				l->log = new std::map<std::string, std::queue<std::string> >();
-				l->headers = new std::map<std::string, std::string>();
-			} // let lock go out of scope (to unlock mutex)
-			write(old_log, old_headers);
-			delete old_log;
-			delete old_headers;
-		}
-		boost::thread::yield();
+			boost::mutex::scoped_lock lock(parent->logMutex);
+			LogFile *l = LogFile::getInstance();
+			old_log = l->log;
+			old_headers = l->headers;
+			l->log = new std::map<std::string, std::queue<std::string> >();
+			l->headers = new std::map<std::string, std::string>();
+		} // let lock go out of scope (to unlock mutex)
+		write(old_log, old_headers);
+		delete old_log;
+		delete old_headers;
+
+		rl.finishedCriticalSection();
 	}
 	// close open files
 	for (std::map<std::string, std::fstream*>::iterator it = openFiles.begin(); it != openFiles.end(); ++it)
@@ -217,23 +205,24 @@ void LogFile::LogFileWrite::write(std::map<std::string, std::queue<std::string> 
 
 void LogFile::LogFileWrite::do_terminate::operator()()
 {
-	  	terminate_mutex.lock();
-	  	terminate = true;
-	  	message() << "LogFileWrite: Received terminate signal.  Closing log files.";
-	  	terminate_mutex.unlock();
+	terminate_mutex.lock();
+	terminate = true;
+	message() << "LogFileWrite: Received terminate signal.  Closing log files.";
+	terminate_mutex.unlock();
 }
 
 void LogFile::logMessage(const std::string& name, const std::string& msg)
 {
-  std::stringstream *dataStr = new std::stringstream();
+	std::stringstream *dataStr = new std::stringstream();
 
-  boost::posix_time::ptime time(boost::posix_time::microsec_clock::local_time());
-  *dataStr << ((time-startTime).total_milliseconds()) << '\t';
-  *dataStr << msg;
-  *dataStr << std::endl;
-  {
-	  boost::mutex::scoped_lock(this->logMutex);
-  	  (*log)[name].push(dataStr->str());
-  }
-  delete dataStr;
+	boost::posix_time::ptime time(boost::posix_time::microsec_clock::local_time());
+	*dataStr << ((time-startTime).total_milliseconds()) << '\t';
+	*dataStr << msg;
+	*dataStr << std::endl;
+	{
+		boost::mutex::scoped_lock(this->logMutex);
+		(*log)[name].push(dataStr->str());
+	}
+	delete dataStr;
 }
+

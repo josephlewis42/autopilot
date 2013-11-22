@@ -31,6 +31,7 @@
 
 /* STL Headers */
 #include <iostream>
+#include <string>
 
 /* C Headers */
 #include <cmath>
@@ -41,12 +42,12 @@
 /* Project Headers */
 
 
-#include <sys/neutrino.h>
+//#include <sys/neutrino.h>
 
 
 namespace heli
 {
-const short mainThreadPulseCode = _PULSE_CODE_MINAVAIL;
+/**const short mainThreadPulseCode = _PULSE_CODE_MINAVAIL;
 const short outputBoardPulseCode = _PULSE_CODE_MINAVAIL + 1;
 //  const short LogFilePulseCode = _PULSE_CODE_MINAVAIL + 2;
 const short inputBoardPulseCode = _PULSE_CODE_MINAVAIL + 3;
@@ -54,7 +55,7 @@ const short imuUpdatePulseCode = _PULSE_CODE_MINAVAIL + 4;
 const short ahrsUpdatePulseCode = _PULSE_CODE_MINAVAIL + 5;
 const short QGCLinkSendPulseCode = _PULSE_CODE_MINAVAIL + 6;
 const short servo_switch_pulse_code = _PULSE_CODE_MINAVAIL + 7;
-
+**/
 
 // priorities list (lowest = 0, highest = 255)
 const unsigned int mainThreadPriority = 100;
@@ -140,10 +141,18 @@ enum COMPONENT_ID
 /// Enumeration constant to represent autopilot mode
 enum AUTOPILOT_MODE
 {
-	MODE_DIRECT_MANUAL,
+	MODE_DIRECT_MANUAL = 0,
 	MODE_SCALED_MANUAL,
 	MODE_AUTOMATIC_CONTROL,
 	NUM_AUTOPILOT_MODES
+};
+
+const std::string AUTOPILOT_MODE_DESCRIPTOR[] =
+{
+	"Direct Manual Mode",
+	"Scaled Manual Mode",
+	"Automatic Control Mode",
+	"Unknown Mode"
 };
 
 enum Controller_Mode

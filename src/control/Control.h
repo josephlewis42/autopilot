@@ -32,6 +32,7 @@
 #include "IMU.h"
 #include "line.h"
 #include "circle.h"
+#include "heli.h"
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>

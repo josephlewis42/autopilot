@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -33,32 +34,33 @@ namespace blas = boost::numeric::ublas;
 /* Project Headers */
 #include "Debug.h"
 #include "gps_time.h"
+#include "Driver.h"
+
 
 /**
  * @brief Read position and velocity measurements from the Novatel GPS.
  *
- * This class performs the communication with the novatel gps.  It initiates logging of message number 244, RTKXYZ RTK Cartesian Position and Velocity
- * a description of which can be found on page 291 of the OEM4 Manual vol 2, Command and Log Reference.
- *
- * The GPS is connected to /dev/ser2 and uses 38400 baud, no parity, 8 data bits, 1 stop bit, no flow control.
+ * This class performs the communication with the novatel gps. It initiates logging of the, RTKXYZ RTK
+ * Cartesian Position and Velocity message; which provides GPS to a unit.
  *
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @author Aakash Vasudevan <avasudev@ualberta.ca>
  * @author Nikos Vitzilaios <nvitzilaios@ualberta.ca>
+ * @author Joseph Lewis <joehms22@gmail.com>
  *
  * @date January 2012: Class creation and initial implementation
  * @date February 16, 2012: Refactored into separate files
  * @date April 27, 2012: Completed work to integrate novatel with gx3
  */
 
-class GPS
+class GPS : public Driver
 {
 public:
 	virtual ~GPS();
 
 	static GPS* getInstance();
 
-	class read_serial;
+	class ReadSerial;
 
 	/// threadsafe get llh_position
 	inline blas::vector<double> get_llh_position() const {boost::mutex::scoped_lock(llh_position_lock); return llh_position;}
@@ -84,7 +86,8 @@ public:
 	/// signal when gps measurement is updated
 	boost::signals2::signal<void ()> gps_updated;
 
-	inline void terminate() {boost::mutex::scoped_lock(_terminate_lock); _terminate = true;}
+	static std::string GPS_SERIAL_PORT_CONFIGURATION_NAME;
+	static std::string GPS_SERIAL_PORT_CONFIGURATION_DEFAULT;
 
 private:
 
@@ -97,16 +100,6 @@ private:
 
 	/// thread used to communicate with the GPS
 	boost::thread read_serial_thread;
-
-	/// path to serial device connected to novatel
-	static const std::string serial_port;
-
-	/// store whether to terminate the thread
-	bool _terminate;
-	/// serialize access to _terminate
-	boost::mutex _terminate_lock;
-	/// test whether the thread should terminate
-	inline bool check_terminate() {boost::mutex::scoped_lock(_terminate_lock); return _terminate;}
 
 	/// container for llh_position
 	blas::vector<double> llh_position;
@@ -221,7 +214,7 @@ std::vector<uint8_t> GPS::int_to_raw(const IntegerType i)
 {
 	std::vector<uint8_t> result(sizeof(IntegerType));
 	const uint8_t* byte = reinterpret_cast<const uint8_t*>(&i);
-	for (uint_t i=0; i<sizeof(IntegerType); i++)
+	for (uint32_t i=0; i<sizeof(IntegerType); i++)
 	{
 		result[i] = byte[i];
 	}

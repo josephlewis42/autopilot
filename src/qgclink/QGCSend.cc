@@ -1,18 +1,18 @@
-	/**************************************************************************
+/**************************************************************************
  * Copyright 2012 Bryan Godbolt
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
@@ -26,6 +26,7 @@
 #include "IMU.h"
 #include "GPS.h"
 #include "Helicopter.h"
+#include "RateLimiter.h"
 
 /* MAVLink Headers */
 #include <mavlink.h>
@@ -40,6 +41,9 @@
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
 #include <boost/algorithm/string.hpp>
+
+
+#define NDEBUG
 
 QGCLink::QGCSend::QGCSend(QGCLink* parent)
 :qgc(parent),
@@ -120,30 +124,14 @@ QGCLink::QGCSend& QGCLink::QGCSend::operator=(const QGCLink::QGCSend& other)
 
 void QGCLink::QGCSend::send()
 {
+	int send_rate = 200;
+	RateLimiter rl(200);
 
-
-  int chid = ChannelCreate(0);
-  sigevent event;
-  event.sigev_notify = SIGEV_PULSE;
-  event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL, 0);
-  event.sigev_priority = heli::qgcSendPriority; //85;//getprio(0);
-  event.sigev_code = heli::QGCLinkSendPulseCode;
-  timer_t timer_id;
-  timer_create(CLOCK_REALTIME, &event, &timer_id);
-  itimerspec itime;
-
-  int send_period = 5000000;
-  itime.it_value.tv_sec = 0;
-  itime.it_value.tv_nsec = send_period;
-  itime.it_interval.tv_sec = 0;
-  itime.it_interval.tv_nsec = send_period;
-  timer_settime(timer_id, 0, &itime, NULL);
-
-  int send_rate = 1/(static_cast<double>(send_period)/1000000000); // send freq in hz
-  _pulse pulse;
 
   if (qgc == NULL)
+  {
 	  qgc = QGCLink::getInstance();
+  }
 
   int loop_count = 0;
 
@@ -171,9 +159,9 @@ void QGCLink::QGCSend::send()
 
   for (;;)
   {
-	  int rcvid = MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
-	  if ((rcvid == 0) && (pulse.code == heli::QGCLinkSendPulseCode))
-	  {
+	  rl.wait();
+
+
 
 		  if (should_run(qgc->get_heartbeat_rate(), send_rate, loop_count))
 		  {
@@ -226,7 +214,12 @@ void QGCLink::QGCSend::send()
 			  /* actually send data to qgc */
 			  while (!send_queue->empty())
 			  {
-
+#ifndef NDEBUG
+				  uint8_t sysid = send_queue->front().at(3);
+				  uint8_t compid = send_queue->front().at(4);
+				  uint8_t msgid = send_queue->front().at(5);
+				  debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
+#endif
 				  qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
 				  send_queue->pop();
 			  }
@@ -238,7 +231,8 @@ void QGCLink::QGCSend::send()
 		  }
 		  /* Increment loop count */
 		  loop_count++;
-	  }
+
+		  rl.finishedCriticalSection();
   }
 }
 

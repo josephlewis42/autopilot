@@ -5,5 +5,4 @@ ifdef QCONFIG
 QRDIR=$(dir $(QCONFIG))
 endif
 endif
-include platform_settings.mk
 include $(QRDIR)$(QRECURSE)

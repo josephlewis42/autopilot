@@ -29,6 +29,7 @@ using boost::asio::ip::udp;
 using boost::asio::ip::address;
 #include <boost/thread.hpp>
 #include <boost/signals2/signal.hpp>
+#include "heli.h"
 
 
 /* STL Headers */

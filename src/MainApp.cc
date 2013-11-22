@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -31,6 +32,13 @@
 #include "bad_control.h"
 #include "IMU.h"
 #include "GPS.h"
+#include "Driver.h"
+
+#ifdef __QNX__
+#include <sched.h>      // for setting thread priorities.
+
+#endif
+#include "RateLimiter.h"
 
 MainApp::MainApp()
 {
@@ -73,143 +81,121 @@ const MainApp& MainApp::operator=(const MainApp& other)
 
 void MainApp::run()
 {
-
-  struct sigevent         event;
-  struct itimerspec       itime;
-  timer_t                 timer_id;
-
-  boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
-  boost::this_thread::at_thread_exit(cleanup());
+	boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
+	boost::this_thread::at_thread_exit(cleanup());
 
 
-  do_terminate terminate_slot(this);
-  terminate.connect(terminate_slot);
+	do_terminate terminate_slot(this);
+	terminate.connect(terminate_slot);
 
-  request_mode.connect(change_mode(this));
+	request_mode.connect(change_mode(this));
 
-  /** \todo Priority of threads must be decided */
-  struct sched_param      param;
-  SchedSet(0, 0, SCHED_RR, &param);     // set Scheduling Policy to Round Robin of current thread in current process.
-  setprio(getpid(),63);                 // set Scheduling Priority to max possible under Round Robin scheduling.
+	/** \todo Priority of threads must be decided */
+	//struct sched_param      param;
+	//SchedSet(0, 0, SCHED_RR, &param);     // set Scheduling Policy to Round Robin of current thread in current process.
+	//setprio(getpid(),63);                 // set Scheduling Priority to max possible under Round Robin scheduling.
+	// TODO FIXME Set this back up to max out the CPU. - Joseph
 
-  signal(SIGINT, heli::shutdown);             // Shutdown program by sending a SIGINT.
+	signal(SIGINT, heli::shutdown);             // Shutdown program by sending a SIGINT.
 
-  /* ChannelCreate() func. creates a channel that is owned by the process (and isn't bound to the creating thread). */
-  int chid = ChannelCreate(0);
+	/* Construct components of the autopilot */
+	servo_switch* servo_board = servo_switch::getInstance();
+	LogFile *log = LogFile::getInstance();
+	IMU::getInstance();
+	QGCLink* qgc = QGCLink::getInstance();
+	qgc->shutdown.connect(this->terminate);
+	qgc->servo_source.connect(this->request_mode);
 
-  event.sigev_notify = SIGEV_PULSE;
-
-  /* Threads wishing to connect to the channel identified by 'chid'(channel id) by ConnectAttach() func.
-	 Once attached thread can MsgSendv() & MsgSendPulse() to enqueue messages & pulses on the channel in priority order. */
-  event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0,
-                                   chid,
-                                   _NTO_SIDE_CHANNEL, 0);
-  event.sigev_priority = heli::mainThreadPriority; //100;
-  event.sigev_code = heli::mainThreadPulseCode;
-  timer_create(CLOCK_REALTIME, &event, &timer_id);
-
-  itime.it_value.tv_sec = 0;
-  itime.it_value.tv_nsec = 10000000;//10000000;
-  itime.it_interval.tv_sec = 0;
-  itime.it_interval.tv_nsec = 10000000;//10000000;
-  timer_settime(timer_id, 0, &itime, NULL);
-
-  /* Construct components of the autopilot */
-  servo_switch* servo_board = servo_switch::getInstance();
-  LogFile *log = LogFile::getInstance();
-  IMU::getInstance();
-  QGCLink* qgc = QGCLink::getInstance();
-  qgc->shutdown.connect(this->terminate);
-  qgc->servo_source.connect(this->request_mode);
-
-  Helicopter* bergen = Helicopter::getInstance();
-  Control* control = Control::getInstance();
+	Helicopter* bergen = Helicopter::getInstance();
+	Control* control = Control::getInstance();
 
 
-  // broadcast the controller mode
-  control->mode_changed(control->get_controller_mode());
-  GPS::getInstance();
+	// broadcast the controller mode
+	control->mode_changed(control->get_controller_mode());
+	GPS::getInstance();
 
-  using std::vector;
-  vector<uint16_t> inputMicros(6);
-  vector<double> inputScaled(6);
+	using std::vector;
+	vector<uint16_t> inputMicros(6);
+	vector<double> inputScaled(6);
 
-  _pulse pulse;
+	// Set default autopilot mode
+	autopilot_mode_lock.lock();
+	autopilot_mode = heli::MODE_AUTOMATIC_CONTROL;
+	mode_changed(autopilot_mode);
+	autopilot_mode_lock.unlock();
 
-  // Set default autopilot mode
-  autopilot_mode_lock.lock();
-  autopilot_mode = heli::MODE_AUTOMATIC_CONTROL;
-  mode_changed(autopilot_mode);
-  autopilot_mode_lock.unlock();
+	uint16_t ch7PulseWidthLast = 1000;
+	uint16_t ch7PulseWidth = 1000;
 
-  uint16_t ch7PulseWidthLast = 1000;
-  uint16_t ch7PulseWidth = 1000;
+	boost::signals2::scoped_connection pilot_connection(servo_board->pilot_mode_changed.connect(
+			boost::bind(&MainApp::change_pilot_mode, this, _1)));
 
-  boost::signals2::scoped_connection pilot_connection(servo_board->pilot_mode_changed.connect(
-		  boost::bind(&MainApp::change_pilot_mode, this, _1)));
+	RateLimiter rl(100);
 
-  while(check_terminate())
-  {
-	  /* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
-	  int rcvid = MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
+	while(check_terminate())
+	{
+		/* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
+		rl.wait();
 
-	  // Pilot Flight log marker.
-	  ch7PulseWidth = servo_board->getRaw(heli::CH7);
-	  if(ch7PulseWidth - ch7PulseWidthLast > 500)
-	  {
-		  log->logData("Flight log marker", std::vector<uint16_t>());
-		  ch7PulseWidthLast = ch7PulseWidth;
-	  }
-	  else if (ch7PulseWidth - ch7PulseWidthLast < -500)
-		  ch7PulseWidthLast = ch7PulseWidth;
+		// Pilot Flight log marker.
+		ch7PulseWidth = servo_board->getRaw(heli::CH7);
+		if(ch7PulseWidth - ch7PulseWidthLast > 500)
+		{
+			log->logData("Flight log marker", std::vector<uint16_t>());
+			ch7PulseWidthLast = ch7PulseWidth;
+		}
+		else if (ch7PulseWidth - ch7PulseWidthLast < -500)
+		{
+			ch7PulseWidthLast = ch7PulseWidth;
+		}
 
-	  if ((rcvid == 0) && (pulse.code == heli::mainThreadPulseCode))
-	  {
-		  inputScaled = RCTrans::getScaledVector();
-		  log->logHeader(heli::LOG_SCALED_INPUTS, "CH1 CH2 CH3 CH4 CH5 CH6");
-		  log->logData(heli::LOG_SCALED_INPUTS, inputScaled);
 
-		  switch(getMode())
-		  {
-		  case heli::MODE_DIRECT_MANUAL:
-		  {
-			  inputMicros = servo_board->getRaw();
-			  servo_board->setRaw(inputMicros);
-			  break;
-		  }
-		  case heli::MODE_SCALED_MANUAL:
-		  {
-			  bergen->setScaled(inputScaled);
-			  break;
-		  }
-		  case heli::MODE_AUTOMATIC_CONTROL:
-		  {
-			  if (control->runnable())
-			  {
-				  try
-				  {
-					  (*control)();
-					  bergen->setScaled(control->get_control_effort());
-				  }
-				  catch (bad_control& b)
-				  {
-					  critical() << "MainApp: Caught control error exception.";
-					  critical() << "Exception Message: " << b;
-					  critical() << "MainApp: Switching to Direct Manual Mode.";
-					  request_mode(heli::MODE_DIRECT_MANUAL);
-				  }
-			  }
-			  else
-			  {
-				  critical() << "MainApp: Controller reports that it is not runnable.";
-				  critical() << "MainApp: Switching to Direct Manual Mode.";
-				  request_mode(heli::MODE_DIRECT_MANUAL);
-			  }
-			  break;
-		  }
-		  }
-	  }
-  }
+		inputScaled = RCTrans::getScaledVector();
+		log->logHeader(heli::LOG_SCALED_INPUTS, "CH1 CH2 CH3 CH4 CH5 CH6");
+		log->logData(heli::LOG_SCALED_INPUTS, inputScaled);
+
+		switch(getMode())
+		{
+		case heli::MODE_DIRECT_MANUAL:
+		{
+			inputMicros = servo_board->getRaw();
+			servo_board->setRaw(inputMicros);
+			break;
+		}
+		case heli::MODE_SCALED_MANUAL:
+		{
+			bergen->setScaled(inputScaled);
+			break;
+		}
+		case heli::MODE_AUTOMATIC_CONTROL:
+		{
+			if (control->runnable())
+			{
+				try
+				{
+					(*control)();
+					bergen->setScaled(control->get_control_effort());
+				}
+				catch (bad_control& b)
+				{
+					critical() << "MainApp: Caught control error exception.";
+					critical() << "Exception Message: " << b;
+					critical() << "MainApp: Switching to Direct Manual Mode.";
+					request_mode(heli::MODE_DIRECT_MANUAL);
+				}
+			}
+			else
+			{
+				critical() << "MainApp: Controller reports that it is not runnable.";
+				critical() << "MainApp: Switching to Direct Manual Mode.";
+				request_mode(heli::MODE_DIRECT_MANUAL);
+			}
+			break;
+		}
+		}
+
+		rl.finishedCriticalSection();
+	}
 }
 
 #endif
@@ -241,12 +227,19 @@ boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::request_mode;
 
 void MainApp::cleanup::operator()()
 {
+	Driver::terminateAll();
+
+    int n = (int)boost::posix_time::time_duration::ticks_per_second() * 1;
+    boost::posix_time::time_duration delay(0,0,0,n);
+
 	BOOST_FOREACH(ThreadName t, MainApp::threads)
 	{
+
 		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
-		t.thread->join();
+		t.thread->timed_join(delay);
+		//t.thread->join();
 	}
-	message() << "All registered threads eneded.";
+	message() << "All registered threads ended.";
 }
 
 void MainApp::do_terminate::operator()()
@@ -287,6 +280,9 @@ std::string MainApp::getModeString()
 
 std::string MainApp::getModeString(heli::AUTOPILOT_MODE mode)
 {
+	return heli::AUTOPILOT_MODE_DESCRIPTOR[mode];
+	// TODO Check me to make sure everything still works after this change.. - Joseph
+	/**
 	switch(mode)
 	{
 	case heli::MODE_DIRECT_MANUAL:
@@ -309,14 +305,16 @@ std::string MainApp::getModeString(heli::AUTOPILOT_MODE mode)
 		return "Unknown Mode";
 	}
 	}
+	**/
 }
 
 void MainApp::change_pilot_mode(heli::PILOT_MODE mode)
 {
 	if (mode == heli::PILOT_AUTO)
 	{
-		warning() << "Pilot engaged autopilot.  Recording position setpoint";
+		warning() << "Pilot engaged autopilot. Recording position setpoint";
 		Control::getInstance()->reset();
 		Control::getInstance()->set_reference_position();
 	}
 }
+

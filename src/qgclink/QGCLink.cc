@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -22,21 +23,24 @@
 /* Project Headers */
 #include "QGCReceive.h"
 #include "QGCSend.h"
-#include "servo_switch.h"
-#include "RCTrans.h"
-#include "Control.h"
+#include "Configuration.h"
 
 /* Boost Headers */
 #include <boost/asio.hpp>
-using boost::asio::ip::udp;
-using boost::asio::ip::address;
-#include <boost/array.hpp>
 
 /* Mavlink Headers */
 #include <mavlink.h>
 
-/* STL Headers */
-#include <vector>
+
+// Configuration file name of the IP address param
+const std::string QGCLINK_HOST_ADDRESS_PARAM = "QGROUNDCONTROL_HOST_IP_ADDRESS";
+const std::string QGCLINK_HOST_ADDRESS_DEFAULT = "0.0.0.0";
+
+QGCLink* QGCLink::_instance = NULL;
+boost::mutex QGCLink::_instance_lock;
+
+
+// Function definitions
 
 QGCLink::QGCLink()
 : socket(io_service),
@@ -52,25 +56,22 @@ QGCLink::QGCLink()
 	param_recv = false;
 }
 
-
 void QGCLink::init()
 {
 	try
 	{
-#if defined(IP_ADDRESS)
+		std::string ip_addr = Configuration::getInstance()->gets(QGCLINK_HOST_ADDRESS_PARAM, QGCLINK_HOST_ADDRESS_DEFAULT);
 
-		qgc.address(address::from_string(IP_ADDRESS));
+		qgc.address(boost::asio::ip::address::from_string(ip_addr));
 		debug() << "QGCLink: Opening socket to " << qgc.address().to_string();
-		qgc.port(14550);
+		qgc.port(14550); // FIXME we shouldn't assume this port as firewall rules may (should) be in effect - Joseph
 
-		socket.open(udp::v4());
+		// FIXME we didn't check to make sure the address is indeed IPV4 - Joseph
+		socket.open(boost::asio::ip::udp::v4());
 
 		receive_thread = boost::thread(QGCReceive());
 
 		send_thread = boost::thread(QGCSend(this));
-#else
-#error "IP_ADDRESS not defined.  Please copy platform_settings.mk.dist to platform_settings.mk and set your IP."
-#endif
 	}
 	catch (std::exception& e)
 	{
@@ -79,13 +80,13 @@ void QGCLink::init()
 	}
 }
 
-QGCLink* QGCLink::_instance = NULL;
-boost::mutex QGCLink::_instance_lock;
-
 QGCLink* QGCLink::getInstance()
 {
 	boost::mutex::scoped_lock lock(_instance_lock);
 	if(!_instance)
+	{
 		_instance = new QGCLink;
+	}
+
 	return _instance;
 }

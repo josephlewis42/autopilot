@@ -65,6 +65,8 @@ RadioCalibration* RadioCalibration::getInstance()
   return _instance;
 }
 
+
+// FIXME See if we can replace the indexes here with the values from Channel in heli.h - Joseph
 void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >& calibration_data)
 {
 	setAileron(calibration_data[0]);
@@ -77,6 +79,8 @@ void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >&
 	saveFile();
 }
 
+
+// FIXME, there are lots of subtly different methods here perhaps there should be a template. - Joseph
 boost::array<uint16_t, 3> RadioCalibration::getAileron()
 {
 	calibration_lock.lock();
@@ -267,6 +271,8 @@ void RadioCalibration::loadFile()
 	}
 }
 
+// TODO This method has a very high complexity, it should be trimmed. See Code Complete for more info - Joseph
+// TODO This method converts lots of things to std::strings, it might be easier to just use strcmp - Joseph
 void RadioCalibration::parseSetpoint(const rapidxml::xml_node<> *setpoint)
 {
     std::vector<uint16_t> setpoints;
@@ -340,6 +346,8 @@ void RadioCalibration::parseSetpoint(const rapidxml::xml_node<> *setpoint)
 	}
 }
 
+
+// TODO there is a huge amount of copy-pasted code in here, it should be broken up - Joseph
 void RadioCalibration::saveFile()
 {
 

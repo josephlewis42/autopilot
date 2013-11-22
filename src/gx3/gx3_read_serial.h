@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com> | <joseph@josephlewis.net>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -30,5 +31,21 @@ class IMU::read_serial
 {
 public:
 	void operator()();
+private:
+	/**
+	 * Loops until it finds the sync header.
+	 */
+	bool sync();
+
+	/**
+	 * Checks to see if the IMU is still alive.
+	 */
+	void check_alive();
+
+	/**
+	 * A better way to read serial than readcond, as it'll work cross
+	 * platform easier.
+	 */
+	int read_ser(int fd, void * buf, int n);
 };
 #endif

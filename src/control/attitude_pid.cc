@@ -344,30 +344,30 @@ void attitude_pid::parse_pid(rapidxml::xml_node<> *pid_params)
 				// find which gain it is
 				rapidxml::xml_attribute<> *attr;
 				for (attr = gain->first_attribute(); attr && std::string(attr->name()) != "type"; attr = attr->next_attribute());
-				std::string gain(attr->value());
-				boost::to_upper(gain);
+				std::string strGain(attr->value());
+				boost::to_upper(strGain);
 
 				if (channel_name == "ROLL")
 				{
-					if (gain == "PROPORTIONAL")
+					if (strGain == "PROPORTIONAL")
 						set_roll_proportional(boost::lexical_cast<double>(gain_value));
-					else if (gain == "DERIVATIVE")
+					else if (strGain == "DERIVATIVE")
 						set_roll_derivative(boost::lexical_cast<double>(gain_value));
-					else if (gain == "INTEGRAL")
+					else if (strGain == "INTEGRAL")
 						set_roll_integral(boost::lexical_cast<double>(gain_value));
 					else
-						warning() << "parse_pid(): Unknown gain on roll channel: " << gain;
+						warning() << "parse_pid(): Unknown gain on roll channel: " << strGain;
 				}
 				else if (channel_name == "PITCH")
 				{
-					if (gain == "PROPORTIONAL")
+					if (strGain == "PROPORTIONAL")
 						set_pitch_proportional(boost::lexical_cast<double>(gain_value));
-					else if (gain == "DERIVATIVE")
+					else if (strGain == "DERIVATIVE")
 						set_pitch_derivative(boost::lexical_cast<double>(gain_value));
-					else if (gain == "INTEGRAL")
+					else if (strGain == "INTEGRAL")
 						set_pitch_integral(boost::lexical_cast<double>(gain_value));
 					else
-						warning() << "parse_pid(): Unknown gain on pitch channel: " << gain;
+						warning() << "parse_pid(): Unknown gain on pitch channel: " << strGain;
 				}
 				else
 					warning() << "parse_pid(): Unknown channel: " << channel_name;

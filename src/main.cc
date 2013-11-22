@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -41,14 +42,28 @@
 
 /* Boost Headers */
 #include <boost/thread.hpp>
+#include <string>
+#include <stdio.h>
 
 /* Project Headers */
 #include "MainApp.h"
+#include "Configuration.h"
+#include "SelfTest.h"
 
-int main()
+int main(int argc, char* argv[])
 {
+	printf("Usage: autopilot [-override_param=value ...]\n");
+
+	// Set configuration params from CLI if applicable
+	Configuration::getInstance()->overrideWith(argc, argv);
+
+	// Perform system tests before we fully init the main loop.
+	SelfTest();
+
+	// Start up the main application.
 	MainApp m;
 	boost::thread main_app(m);
 	main_app.join();
+
 	return 0;
 }

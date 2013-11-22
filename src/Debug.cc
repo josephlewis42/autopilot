@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -17,11 +18,27 @@
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+// Includes
 #include "Debug.h"
 
-Debug::Debug(DEBUG_LEVEL debug_level)
+#include <string.h>
+
+
+// Variables
+boost::mutex Debug::cerr_lock;
+boost::signals2::signal<void (std::string)> Debug::warning;
+boost::signals2::signal<void (std::string)> Debug::critical;
+std::string Debug::last_message = "";
+int Debug::message_count = 0;
+
+const char* LOGFILE_NAME = "messages.log";
+const char* ARRAY_SEPARATOR = ", ";
+const char* NUMBER_SEPARATOR = " ";
+
+
+Debug::Debug(DEBUG_LEVEL lvl)
+:debug_level(lvl)
 {
-	this->debug_level = debug_level;
 }
 
 Debug::Debug(const Debug& other)
@@ -33,43 +50,69 @@ Debug::Debug(const Debug& other)
 Debug::~Debug()
 {
 	std::string message;
-	if (debug_level == WARNING)
-		message += "Warning: ";
-	else if (debug_level == CRITICAL)
-		message += "Critical: ";
-	else if (debug_level == MESSAGE)
-		message += "Message: ";
-// only print debugging messages when NDEBUG is not defined
-#if !defined(NDEBUG)
-	else if (debug_level == DEBUG)
-		message += "Debug: ";
+	switch(debug_level)
 	{
+		case WARNING:
+			message += "Warning: ";
+			break;
+		case CRITICAL:
+			message += "Critical: ";
+			break;
+		case MESSAGE:
+			message += "Message: ";
+			break;
+
+		case DEBUG:
+			message += "Debug: ";
+			break;
+		default:
+			message += "UNKNOWN: ";
+	}
+
+
+	message += ss.str();
+
+#ifndef NDEBUG
+	{
+
 		boost::mutex::scoped_lock lock(cerr_lock);
-		std::cerr << message << ss.rdbuf() << std::endl;
+		if(strcmp(last_message.c_str(), message.c_str()) == 0)
+		{
+			message_count++;
+			std::cerr << "\r" << message << " x" << message_count;
+		}
+		else
+		{
+			last_message = message;
+			message_count = 1;
+			std::cerr << std::endl << message;
+		}
 	}
 #endif
-	if (debug_level == WARNING)
+
+	switch(debug_level)
 	{
-		message += ss.str();
-		LogFile::getInstance()->logMessage("messages.log", message);
+	case WARNING:
+		LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
 		Debug::warning(message);
-	}
-	else if (debug_level == CRITICAL)
-	{
-		message += ss.str();
-		LogFile::getInstance()->logMessage("messages.log", message);
+		break;
+
+	case CRITICAL:
+		LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
 		Debug::critical(message);
-	}
-	else if(debug_level == MESSAGE)
-	{
-		message += ss.str();
-		LogFile::getInstance()->logMessage("messages.log", message);
+		break;
+
+	case MESSAGE:
+		LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
+		break;
+
+	case DEBUG:
+		// do nothing for debug messages.
+		break;
 	}
 }
 
-boost::mutex Debug::cerr_lock;
-boost::signals2::signal<void (std::string)> Debug::warning;
-boost::signals2::signal<void (std::string)> Debug::critical;
+
 
 Debug& Debug::operator<<(const std::string& s)
 {
@@ -85,25 +128,25 @@ Debug& Debug::operator<<(const char* c)
 
 Debug& Debug::operator<<(const int i)
 {
-	ss << ' ' << i << ' ';
+	ss << NUMBER_SEPARATOR << i << NUMBER_SEPARATOR;
 	return *this;
 }
 
 Debug& Debug::operator<<(const unsigned int i)
 {
-	ss << ' ' << i << ' ';
+	ss << NUMBER_SEPARATOR << i << NUMBER_SEPARATOR;
 	return *this;
 }
 
 Debug& Debug::operator<<(const unsigned long i)
 {
-	ss << ' ' << i << ' ';
+	ss << NUMBER_SEPARATOR << i << NUMBER_SEPARATOR;
 	return *this;
 }
 
 Debug& Debug::operator<<(const double d)
 {
-	ss << ' ' << d << ' ';
+	ss << NUMBER_SEPARATOR << d << NUMBER_SEPARATOR;
 	return *this;
 }
 
@@ -125,14 +168,18 @@ Debug& Debug::operator<<(std::ostream& (*pf)(std::ostream&))
 	return *this;
 }
 
+
 Debug& Debug::operator<<(const std::vector<uint8_t>& v)
 {
 	ss << "[";
 	for (size_t i = 0; i<v.size(); i++)
 	{
+		// TODO check to see if the cast to an int rather than a uint ever gets to the range of errors. - Joseph
 		ss << static_cast<int>(v[i]);
 		if (i < v.size() - 1)
-			ss << ", ";
+		{
+			ss << ARRAY_SEPARATOR;
+		}
 	}
 	ss << "]";
 	return *this;

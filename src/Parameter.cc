@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -19,6 +20,8 @@
 
 #include "Parameter.h"
 
+const int MAX_PARAM_ID_LENGTH = 14;
+
 Parameter::Parameter(std::string name, float value, int compid)
 {
 	setParamID(name);
@@ -28,17 +31,22 @@ Parameter::Parameter(std::string name, float value, int compid)
 
 void Parameter::setParamID(std::string name)
 {
-	if(name.empty())
-		std::cout << "Empty parameter name received. Please enter a parameter name" << std::endl;
+	const int len = name.length();
 
-	int len = name.length();
-	if(len > 14)
+	if(len == 0)
+	{
+		std::cout << "Empty parameter name received. Please enter a parameter name" << std::endl;
+	}
+
+	if(len > MAX_PARAM_ID_LENGTH)
+	{
 		// truncate string to 14 chars
-		name = name.substr(0, 14);
-	else if(len < 14)
+		name = name.substr(0, MAX_PARAM_ID_LENGTH);
+	}
+	else if(len < MAX_PARAM_ID_LENGTH)
 	{
 		// pad with spaces
-		int strlen = 14 - len;
+		int strlen = MAX_PARAM_ID_LENGTH - len;
 		name = name.append(strlen, ' ');
 	}
 	id = name;

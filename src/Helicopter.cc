@@ -284,62 +284,65 @@ uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 2> setpoint)
   return pulse;
 }
 
+// FIXME - the complexity of this is huge, the magic numbers  don't help. - Joseph
 uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 5> setpoint)
 {
-  uint16_t pulse = 1.5;
-  if(setpoint[4] > setpoint[0])
-    {
-      if(norm <= 0.25 && norm >= 0)
-          pulse = (norm/0.25) * (setpoint[1] - setpoint[0]) + setpoint[0];
-      else if(norm <= 0.50 && norm > 0.25)
-          pulse = ((norm - 0.25)/0.25) * (setpoint[2] - setpoint[1]) + setpoint[1];
-      else if(norm <= 0.75 && norm > 0.50)
-          pulse = ((norm - 0.50)/0.25) * (setpoint[3] - setpoint[2]) + setpoint[2];
-      else if(norm <= 1.0 && norm > 0.75)
-          pulse = ((norm - 0.75)/0.25) * (setpoint[4] - setpoint[3]) + setpoint[3];
-    }
-  else if(setpoint[4] < setpoint[0])
-    {
-    if(norm <= 0.25 && norm >= 0)
-        pulse = setpoint[0] - (norm/0.25) * (setpoint[0] - setpoint[1]);
-    else if(norm <= 0.50 && norm > 0.25)
-        pulse = setpoint[1] - ((norm - 0.25)/0.25) * (setpoint[1] - setpoint[2]);
-    else if(norm <= 0.75 && norm > 0.50)
-        pulse = setpoint[2] - ((norm - 0.50)/0.25) * (setpoint[2] - setpoint[3]);
-    else if(norm <= 1.0 && norm > 0.75)
-        pulse = setpoint[3] - ((norm - 0.75)/0.25) * (setpoint[3] - setpoint[4]);
-    }
-  return pulse;
+	// FIXME, there is a strange loss of precision here. - Joseph
+	uint16_t pulse = 1.5;
+	if(setpoint[4] > setpoint[0])
+	{
+		if(norm <= 0.25 && norm >= 0)
+			pulse = (norm/0.25) * (setpoint[1] - setpoint[0]) + setpoint[0];
+		else if(norm <= 0.50 && norm > 0.25)
+			pulse = ((norm - 0.25)/0.25) * (setpoint[2] - setpoint[1]) + setpoint[1];
+		else if(norm <= 0.75 && norm > 0.50)
+			pulse = ((norm - 0.50)/0.25) * (setpoint[3] - setpoint[2]) + setpoint[2];
+		else if(norm <= 1.0 && norm > 0.75)
+			pulse = ((norm - 0.75)/0.25) * (setpoint[4] - setpoint[3]) + setpoint[3];
+	}
+	else if(setpoint[4] < setpoint[0])
+	{
+		if(norm <= 0.25 && norm >= 0)
+			pulse = setpoint[0] - (norm/0.25) * (setpoint[0] - setpoint[1]);
+		else if(norm <= 0.50 && norm > 0.25)
+			pulse = setpoint[1] - ((norm - 0.25)/0.25) * (setpoint[1] - setpoint[2]);
+		else if(norm <= 0.75 && norm > 0.50)
+			pulse = setpoint[2] - ((norm - 0.50)/0.25) * (setpoint[2] - setpoint[3]);
+		else if(norm <= 1.0 && norm > 0.75)
+			pulse = setpoint[3] - ((norm - 0.75)/0.25) * (setpoint[3] - setpoint[4]);
+	}
+	return pulse;
 }
 
 boost::array<uint16_t, 6> Helicopter::setScaled(boost::array<double, 6> norm)
 {
-  boost::array<uint16_t, 6> pulse;
+	boost::array<uint16_t, 6> pulse;
 
-  pulse[AILERON] = setAileron(norm[0]);
-  pulse[ELEVATOR] = setElevator(norm[1]);
-  pulse[THROTTLE] = setThrottle(norm[2]);
-  pulse[RUDDER] = setRudder(norm[3]);
-  pulse[GYRO] = setGyro(norm[4]);
-  pulse[PITCH] = setPitch(norm[5]);
+	pulse[AILERON] = setAileron(norm[0]);
+	pulse[ELEVATOR] = setElevator(norm[1]);
+	pulse[THROTTLE] = setThrottle(norm[2]);
+	pulse[RUDDER] = setRudder(norm[3]);
+	pulse[GYRO] = setGyro(norm[4]);
+	pulse[PITCH] = setPitch(norm[5]);
 
-  return pulse;
+	return pulse;
 }
 
 std::vector<uint16_t> Helicopter::setScaled(std::vector<double> norm)
 {
-  std::vector<uint16_t> pulse(6);
+	std::vector<uint16_t> pulse(6);
 
-  pulse[AILERON] = setAileron(norm[0]);
-  pulse[ELEVATOR] = setElevator(norm[1]);
-  pulse[THROTTLE] = setThrottle(norm[2]);
-  pulse[RUDDER] = setRudder(norm[3]);
-  pulse[GYRO] = setGyro(norm[4]);
-  pulse[PITCH] = setPitch(norm[5]);
+	pulse[AILERON] = setAileron(norm[0]);
+	pulse[ELEVATOR] = setElevator(norm[1]);
+	pulse[THROTTLE] = setThrottle(norm[2]);
+	pulse[RUDDER] = setRudder(norm[3]);
+	pulse[GYRO] = setGyro(norm[4]);
+	pulse[PITCH] = setPitch(norm[5]);
 
-  return pulse;
+	return pulse;
 }
 
+// FIXME these look like they might be able to be made in to templates - Joseph
 uint16_t Helicopter::setAileron(double norm)
 {
 	uint16_t pulse = norm2pulse(norm, radio_cal_data->getAileron());
@@ -451,47 +454,49 @@ void Helicopter::parse_vector_node(rapidxml::xml_node<> *vector_node)
 	boost::to_upper(vector_name);
 
 	for (rapidxml::xml_node<> *coordinate = vector_node->first_node(); coordinate; coordinate = coordinate->next_sibling())
+	{
+		if (boost::to_upper_copy(std::string(coordinate->name())) == "COORDINATE")
 		{
-			if (boost::to_upper_copy(std::string(coordinate->name())) == "COORDINATE")
-			{
-				rapidxml::xml_attribute<> *attr;
-				for (attr = coordinate->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-				std::string coordinate_name(attr->value());
-				boost::to_upper(coordinate_name);
-				std::string coordinate_value(coordinate->value());
-				boost::to_upper(coordinate_value);
+			rapidxml::xml_attribute<> *attr;
+			for (attr = coordinate->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute())
+			;
 
-				if (vector_name == "MAIN_HUB_OFFSET")
-				{
-					if (coordinate_name == "X")
-						set_main_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Y")
-						set_main_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Z")
-						set_main_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
-				}
-				else if (vector_name == "TAIL_HUB_OFFSET")
-				{
-					if (coordinate_name == "X")
-						set_tail_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Y")
-						set_tail_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Z")
-						set_tail_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
-				}
-				else if (vector_name == "INERTIA")
-				{
-					if (coordinate_name == "X")
-						set_inertia_x(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Y")
-						set_inertia_y(boost::lexical_cast<double>(coordinate_value));
-					else if (coordinate_name == "Z")
-						set_inertia_z(boost::lexical_cast<double>(coordinate_value));
-				}
+			std::string coordinate_name(attr->value());
+			boost::to_upper(coordinate_name);
+			std::string coordinate_value(coordinate->value());
+			boost::to_upper(coordinate_value);
+
+			if (vector_name == "MAIN_HUB_OFFSET")
+			{
+				if (coordinate_name == "X")
+					set_main_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Y")
+					set_main_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Z")
+					set_main_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
 			}
-			else
-				warning() << "parse_pid(): unknown xml node " << coordinate->name();
+			else if (vector_name == "TAIL_HUB_OFFSET")
+			{
+				if (coordinate_name == "X")
+					set_tail_hub_offset_x(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Y")
+					set_tail_hub_offset_y(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Z")
+					set_tail_hub_offset_z(boost::lexical_cast<double>(coordinate_value));
+			}
+			else if (vector_name == "INERTIA")
+			{
+				if (coordinate_name == "X")
+					set_inertia_x(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Y")
+					set_inertia_y(boost::lexical_cast<double>(coordinate_value));
+				else if (coordinate_name == "Z")
+					set_inertia_z(boost::lexical_cast<double>(coordinate_value));
+			}
 		}
+		else
+			warning() << "parse_pid(): unknown xml node " << coordinate->name();
+	}
 }
 
 double Helicopter::get_main_collective() const
