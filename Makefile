@@ -2,7 +2,9 @@ CC=g++
 
 PROJECT_ROOT:=.
 BUILD_DIR:=${PROJECT_ROOT}/build
+DIST_DIR:=${PROJECT_ROOT}/dist
 SRC_PATH:=${PROJECT_ROOT}/src
+SETTINGS_PATH:=$(PROJECT_ROOT)/settings
 HEADER_DIRS:=$(shell find $(SRC_PATH) -type d -printf %p\ )
 VPATH:=$(shell find $(SRC_PATH) -type d -printf %p:)
 
@@ -28,4 +30,13 @@ $(BUILD_DIR)/%.o:%.cc
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -r ${BUILD_DIR}/
+	rm -r $(BUILD_DIR)
+	rm -r $(DIST_DIR)
+
+dist: all
+	mkdir -p $(DIST_DIR)
+	cp $(BUILD_DIR)/$(EXECUTABLE) $(DIST_DIR)
+	cp $(DIST_DIR)/$(EXECUTABLE) $(DIST_DIR)/$(EXECUTABLE)_g
+	strip $(DIST_DIR)/$(EXECUTABLE)
+	cp $(SETTINGS_PATH)/* $(DIST_DIR)
+	
