@@ -21,6 +21,7 @@
 #include <boost/signals2.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include "Debug.h"
 
@@ -33,10 +34,8 @@ public:
 	// not yet exist.
 	static Configuration* getInstance();
 
-	// Loads the values from the given XML file.
-	// Returns true on successful loading, false on error
-	bool loadXML(std::string path);
-	bool loadProperties(std::string path);
+	// Loads the values from the given properties file.
+	void loadProperties(std::string path);
 
 
 	// Pretty prints the configuration to a string
@@ -62,42 +61,23 @@ public:
 	void overrideWith(const std::vector<std::string>& args);
 	void overrideWith(int argc, char* const argv[]);
 
+	/**
+	 * Sets a path to be a value.
+	 */
+	void set(const std::string key, const std::string value);
+
+
 private:
 	static Configuration* _instance;
 	static boost::mutex _instance_lock;
 	static std::map<std::string, std::string> _configuration;
+	boost::property_tree::ptree _properties;
 
 	Configuration();
 	virtual ~Configuration();
 
-	template <typename T>
-	T get(const std::string key, const T defaultValue)
-	{
-		std::map<std::string, std::string>::iterator it;
-		it = _configuration.find(key);
-		if(it != _configuration.end())
-		{
-			return fromString<T>((*it).second, defaultValue);
-		}
-		else
-		{
-			warning() << "No configuration found for: " << key << " Default value is: " << defaultValue;
-			return defaultValue;
-		}
-	};
+	void save();
 
-	template <typename T>
-	T fromString(const std::string value, const T defaultValue)
-	{
-		try
-		{
-			return boost::lexical_cast<T>(value);
-		}
-		catch(boost::bad_lexical_cast &e)
-		{
-			return defaultValue;
-		}
-	}
 };
 
 #endif /* CONFIGURATION_H_ */

@@ -23,7 +23,6 @@
 /* Boost Headers */
 #include <boost/array.hpp>
 #include <boost/thread.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>
@@ -32,10 +31,6 @@
 #include <iostream>	// for debugging.
 #include <fstream>
 #include <string>
-
-/* RapidXML XML Parser */
-#include <rapidxml/rapidxml.hpp>
-#include <rapidxml/rapidxml_print.hpp>
 
 /* Project Headers */
 #include "heli.h"
@@ -181,6 +176,12 @@ private:
 	 */
 	template <typename T>
 	std::string toString(const T& setpoints);
+
+	/**
+	 * Parses a string delimited by commas in to a vector of uint16_t types.
+	 */
+	void parseDelimiter(std::string input, std::vector<uint16_t>& output);
+
 };
 
 template <typename T>

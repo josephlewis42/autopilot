@@ -18,7 +18,7 @@ LDFLAGS+=-lang-c++
 
 VFLAG_g=-gstabs+
 
-EXTRA_INCVPATH+=$(PROJECT_ROOT)/../extern  \
+EXTRA_INCVPATH+=$(PROJECT_ROOT)/../extern/QNX  \
 	$(PROJECT_ROOT)/../../mavlink/include/ualberta
 
 LIBS+=boost_thread boost_date_time -Bstatic  \

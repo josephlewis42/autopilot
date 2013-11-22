@@ -15,10 +15,10 @@
 #include "Configuration.h"
 #include "File.h"
 
-#include <rapidxml/rapidxml.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
-#include <boost/thread.hpp>
-#include <boost/signals2.hpp>
+
 
 #include <map>
 #include <vector>
@@ -36,15 +36,24 @@ std::map<std::string, std::string> Configuration::_configuration;
 
 
 // Variables
+std::string ROOT_ELEMENT = "configuration.";
 std::string DEFAULT_XML_FILE_PATH = "config.xml";
 std::string DEFAULT_PROPERTIES_FILE_PATH = "config.properties";
 const char NEWLINE_CHARACTER = '\n';
 
 Configuration::Configuration()
 {
+	//loadXML(DEFAULT_XML_FILE_PATH);
+	try{
+		read_xml(DEFAULT_XML_FILE_PATH, _properties);
+	}
+	catch(boost::exception const& e)
+	{
+		warning() << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH;
+	}
 	loadProperties(DEFAULT_PROPERTIES_FILE_PATH);
-	loadXML(DEFAULT_XML_FILE_PATH);
-	_instance = this;
+
+    _instance = this;
 }
 
 Configuration::~Configuration()
@@ -70,39 +79,7 @@ std::string Configuration::toString()
 	return str;
 }
 
-
-bool Configuration::loadXML(std::string path)
-{
-	try
-	{
-		std::string text = File::readFile(path);
-
-		char* nText = new char[text.size() + 1];  // Create char buffer to store string copy
-		strcpy(nText, text.c_str());             // Copy string into char buffer
-
-		rapidxml::xml_document<> doc;    // character type defaults to char
-		doc.parse<0>(nText);    // 0 means default parse flags
-
-		rapidxml::xml_node<>* curNode = doc.first_node();
-		while( curNode != NULL )
-		{
-			std::string title = curNode->name();
-			std::string value = curNode->value();
-
-			_configuration.insert(std::pair<std::string,std::string>(title, value) );
-
-			curNode = curNode->next_sibling();
-		}
-		
-		return true;
-	} 
-	catch(rapidxml::parse_error err)
-	{
-		return false;
-	}
-}
-
-bool Configuration::loadProperties(std::string path)
+void Configuration::loadProperties(std::string path)
 {
 	std::string contents = File::readFile(path);
 
@@ -129,6 +106,7 @@ void Configuration::overrideWith(const std::vector<std::string>& args)
 			{
 				key = key.substr(1);
 			}
+			_properties.put(ROOT_ELEMENT + key, strs[1]);
 			_configuration[key] = strs[1];
 		}
 	}
@@ -161,29 +139,86 @@ Configuration* Configuration::getInstance()
 
 std::string Configuration::gets(const std::string key, std::string alt)
 {
-    return get<std::string>(key, alt);
+	try
+	{
+		return _properties.get<std::string>(ROOT_ELEMENT + key);
+	}catch(boost::exception const& e)
+	{
+		_properties.put(ROOT_ELEMENT + key, alt);
+		save();
+		return alt;
+	}
 }
 
 
 bool Configuration::getb(const std::string key, bool alt)
 {
-    return get<bool>(key, alt);
+	try
+	{
+		return _properties.get<bool>(ROOT_ELEMENT + key);
+	}catch(boost::exception const& e)
+	{
+		_properties.put(ROOT_ELEMENT + key, alt);
+		save();
+		return alt;
+	}
 }
 
 
 int Configuration::geti(const std::string key, int alt)
 {
-    return get<int>(key, alt);
+	try
+	{
+		return _properties.get<int>(ROOT_ELEMENT + key);
+	}catch(boost::exception const& e)
+	{
+		_properties.put(ROOT_ELEMENT + key, alt);
+		save();
+		return alt;
+	}
 }
 
 
 double Configuration::getd(const std::string key, double alt)
 {
-    return get<double>(key, alt);
+	try
+	{
+		return _properties.get<double>(ROOT_ELEMENT + key);
+	}catch(boost::exception const& e)
+	{
+		_properties.put(ROOT_ELEMENT + key, alt);
+		save();
+		return alt;
+	}
 }
 
 
 float Configuration::getf(const std::string key, float alt)
 {
-    return get<float>(key, alt);
+	try
+	{
+		return _properties.get<float>(ROOT_ELEMENT + key);
+	}catch(boost::exception const& e)
+	{
+		_properties.put(ROOT_ELEMENT + key, alt);
+		save();
+		return alt;
+	}
+}
+
+void Configuration::set(const std::string key, const std::string value)
+{
+	_properties.put(ROOT_ELEMENT + key, value);
+	save();
+}
+
+void Configuration::save()
+{
+	try
+	{
+		write_xml(DEFAULT_XML_FILE_PATH, _properties);
+	}catch(boost::exception const& ex)
+	{
+		warning() << "Can't save configuration";
+	}
 }
