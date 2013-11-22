@@ -36,6 +36,8 @@ public:
 	// Loads the values from the given XML file.
 	// Returns true on successful loading, false on error
 	bool loadXML(std::string path);
+	bool loadProperties(std::string path);
+
 
 	// Pretty prints the configuration to a string
 	std::string toString();

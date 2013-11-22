@@ -27,6 +27,8 @@
 #include <utility>
 
 
+
+
 // Static Class variable instantiation
 Configuration* Configuration::_instance = NULL;
 boost::mutex Configuration::_instance_lock;
@@ -35,10 +37,12 @@ std::map<std::string, std::string> Configuration::_configuration;
 
 // Variables
 std::string DEFAULT_XML_FILE_PATH = "config.xml";
+std::string DEFAULT_PROPERTIES_FILE_PATH = "config.properties";
 const char NEWLINE_CHARACTER = '\n';
 
 Configuration::Configuration()
 {
+	loadProperties(DEFAULT_PROPERTIES_FILE_PATH);
 	loadXML(DEFAULT_XML_FILE_PATH);
 	_instance = this;
 }
@@ -96,6 +100,16 @@ bool Configuration::loadXML(std::string path)
 	{
 		return false;
 	}
+}
+
+bool Configuration::loadProperties(std::string path)
+{
+	std::string contents = File::readFile(path);
+
+	std::vector<std::string> strs;
+	boost::split(strs,contents,boost::is_any_of("\n\r"));
+
+	overrideWith(strs);
 }
 
 void Configuration::overrideWith(const std::vector<std::string>& args)
