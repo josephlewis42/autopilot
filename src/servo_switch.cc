@@ -63,13 +63,15 @@ servo_switch::servo_switch()
   raw_outputs(9,0),
   pilot_mode(heli::PILOT_UNKNOWN)
 {
-	init_port();
-	receive = boost::thread(read_serial());
-	send = boost::thread(send_serial());
-	LogFile *log = LogFile::getInstance();
-	log->logHeader(heli::LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
-	log->logHeader(heli::LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
-	log->logHeader(heli::LOG_INPUT_RPM, "RPM");
+	if(init_port())
+	{
+		receive = boost::thread(read_serial());
+		send = boost::thread(send_serial());
+		LogFile *log = LogFile::getInstance();
+		log->logHeader(heli::LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
+		log->logHeader(heli::LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
+		log->logHeader(heli::LOG_INPUT_RPM, "RPM");
+	}
 }
 
 servo_switch::~servo_switch()
@@ -77,7 +79,7 @@ servo_switch::~servo_switch()
 
 }
 
-void servo_switch::init_port()
+bool servo_switch::init_port()
 {
 	std::string port = Configuration::getInstance()->gets(SERVO_SERIAL_PORT_CONFIG_NAME, SERVO_SERIAL_PORT_CONFIG_DEFAULT);
 
@@ -87,6 +89,9 @@ void servo_switch::init_port()
 	if(fd_ser1 == -1)
 	{
 		critical() << "Unable to open port " << port;
+		heli::shutdown(1);
+
+		return false;
 	}
 
 	// Set up the terminal configuration for the given port.
@@ -125,6 +130,8 @@ void servo_switch::init_port()
 	}
 	tcgetattr(fd_ser1, &port_config);
 	tcflush(fd_ser1, TCIOFLUSH);
+
+	return true;
 }
 
 void servo_switch::set_pilot_mode(heli::PILOT_MODE mode)

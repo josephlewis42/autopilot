@@ -116,7 +116,8 @@ private:
 	static servo_switch* _instance;
 	static boost::mutex _instance_lock;
 
-	void init_port();
+	/// @returns true if the port was successfully set up, false otherwise
+	bool init_port();
 
 	/// @returns the file descriptor of the serial port (threadsafe)
 	inline int get_serial_descriptor() {boost::mutex::scoped_lock lock(fd_ser1_lock); return fd_ser1;}
