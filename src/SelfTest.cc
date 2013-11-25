@@ -26,12 +26,9 @@ SelfTest::SelfTest()
 {
 	// Show system information.
 	message() << "Running on: " <<  SystemInformation::uname_like();
+	message() << "Autopilot Version: " << __DATE__ << " " << __TIME__;
 
 	// TODO Test to make sure files exist
-
-
-	// Load and check config.
-	message() << Configuration::getInstance()->toString();
 
 	sleep(2);
 }

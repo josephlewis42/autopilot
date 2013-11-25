@@ -5,10 +5,6 @@
  *
  * Copyright (c) 2013 Joseph Lewis <joehms22@gmail.com> | <joseph@josephlewis.net>
  * Licensed under the GPL 3
- *
- * Portions of the code were taken from FieldKit:
- * Copyright (c) 2010-2011 Marcus Wendt <marcus@field.io>
- * Licensed under the GPL 3
  */
 
 
@@ -32,8 +28,7 @@
 // Static Class variable instantiation
 Configuration* Configuration::_instance = NULL;
 boost::mutex Configuration::_instance_lock;
-std::map<std::string, std::string> Configuration::_configuration;
-
+boost::mutex Configuration::_propertiesLock;
 
 // Variables
 std::string ROOT_ELEMENT = "configuration.";
@@ -43,8 +38,8 @@ const char NEWLINE_CHARACTER = '\n';
 
 Configuration::Configuration()
 {
-	//loadXML(DEFAULT_XML_FILE_PATH);
-	try{
+	try
+	{
 		read_xml(DEFAULT_XML_FILE_PATH, _properties);
 	}
 	catch(boost::exception const& e)
@@ -58,25 +53,6 @@ Configuration::Configuration()
 
 Configuration::~Configuration()
 {
-}
-
-
-std::string Configuration::toString()
-{
-	std::string str = "Settings: ";
-	str += NEWLINE_CHARACTER;
-
-	std::map<std::string, std::string>::iterator it;
-	for(it=_configuration.begin(); it != _configuration.end(); it++ )
-	{
-		str += "* ";
-		str += (*it).first;
-		str += " = ";
-		str += (*it).second;
-		str += NEWLINE_CHARACTER;
-	}
-
-	return str;
 }
 
 void Configuration::loadProperties(std::string path)
@@ -106,8 +82,7 @@ void Configuration::overrideWith(const std::vector<std::string>& args)
 			{
 				key = key.substr(1);
 			}
-			_properties.put(ROOT_ELEMENT + key, strs[1]);
-			_configuration[key] = strs[1];
+			set(ROOT_ELEMENT + key, strs[1]);
 		}
 	}
 }
@@ -139,6 +114,7 @@ Configuration* Configuration::getInstance()
 
 std::string Configuration::gets(const std::string key, std::string alt)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
 	try
 	{
 		return _properties.get<std::string>(ROOT_ELEMENT + key);
@@ -153,6 +129,8 @@ std::string Configuration::gets(const std::string key, std::string alt)
 
 bool Configuration::getb(const std::string key, bool alt)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
+
 	try
 	{
 		return _properties.get<bool>(ROOT_ELEMENT + key);
@@ -167,6 +145,8 @@ bool Configuration::getb(const std::string key, bool alt)
 
 int Configuration::geti(const std::string key, int alt)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
+
 	try
 	{
 		return _properties.get<int>(ROOT_ELEMENT + key);
@@ -181,6 +161,8 @@ int Configuration::geti(const std::string key, int alt)
 
 double Configuration::getd(const std::string key, double alt)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
+
 	try
 	{
 		return _properties.get<double>(ROOT_ELEMENT + key);
@@ -195,6 +177,8 @@ double Configuration::getd(const std::string key, double alt)
 
 float Configuration::getf(const std::string key, float alt)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
+
 	try
 	{
 		return _properties.get<float>(ROOT_ELEMENT + key);
@@ -208,6 +192,8 @@ float Configuration::getf(const std::string key, float alt)
 
 void Configuration::set(const std::string key, const std::string value)
 {
+	boost::mutex::scoped_lock lock(_propertiesLock);
+
 	_properties.put(ROOT_ELEMENT + key, value);
 	save();
 }

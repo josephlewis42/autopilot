@@ -6,9 +6,6 @@
  * Copyright (c) 2013 Joseph Lewis <joehms22@gmail.com> | <joseph@josephlewis.net>
  * Licensed under the GPL 3
  *
- * Portions of the code were taken from FieldKit:
- * Copyright (c) 2010-2011 Marcus Wendt <marcus@field.io>
- * Licensed under the GPL 3
  */
 
 #ifndef CONFIGURATION_H_
@@ -36,10 +33,6 @@ public:
 
 	// Loads the values from the given properties file.
 	void loadProperties(std::string path);
-
-
-	// Pretty prints the configuration to a string
-	std::string toString();
 
 	// Returns a string from the configuration.
 	std::string gets(const std::string key, std::string alt="");
@@ -70,8 +63,10 @@ public:
 private:
 	static Configuration* _instance;
 	static boost::mutex _instance_lock;
-	static std::map<std::string, std::string> _configuration;
 	boost::property_tree::ptree _properties;
+	static boost::mutex _propertiesLock;
+
+
 
 	Configuration();
 	virtual ~Configuration();
