@@ -1,0 +1,28 @@
+<configuration>
+	<channels>
+		<two>
+			<gyro>
+				<number>5</number>
+				<value>1852, 1265</value>
+			</gyro>
+		</two>
+		<three>
+			<aileron>
+				<number>1</number>
+				<value>1935, 1525, 1115</value>
+			</aileron>
+			<elevator>
+				<number>2</number>
+				<value>1233, 1516, 1795</value>
+			</elevator>
+			<rudder>
+				<number>4</number>
+				<value>1739, 1521, 1304</value>
+			</rudder>
+		</three>
+		<five>
+			<throttle><number>3</number><value>1860, 1772, 1678, 1512, 1236</value></throttle>
+			<pitch><number>6</number><value>2023, 1516, 1290, 1187, 1097</value></pitch>
+		</five>
+	</channels>
+</configuration>
