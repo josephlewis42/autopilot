@@ -523,8 +523,9 @@ private:
 
 	/**
 	 * Initialize the serial port that NovAtel is configured to run on.
+	 * @return true if serial was set up correctly, false otherwise
 	 */
-	void initPort();
+	bool initPort();
 
 	/**
 	 * Requests all desired logs from the GPS unit.

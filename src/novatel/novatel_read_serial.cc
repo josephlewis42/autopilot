@@ -74,31 +74,31 @@ GPS::ReadSerial::ReadSerial()
 
 void GPS::ReadSerial::operator()()
 {
-	try
+	debug() << "Initialize the NovAtel serial port";
+	if(initPort())
 	{
-		debug() << "Initialize the NovAtel serial port";
-		initPort();
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		//	send_log_command();
+		readPort();
 	}
-	catch(init_failure& i)
+	else
 	{
-		warning() << "" << i;
+		warning() << "Could not init NovAtel";
 		MainApp::terminate();
 	}
-	boost::this_thread::sleep(boost::posix_time::seconds(1));
-//	send_log_command();
-	readPort();
+
 	debug() << "NovAtel receive thread terminated, sending unlog command.";
 	send_unlog_command();
 }
 
-void GPS::ReadSerial::initPort()
+bool GPS::ReadSerial::initPort()
 {
 	std::string serial_port = Configuration::getInstance()->gets(GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME, GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT);
 	fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY);
 
 	if(-1 == fd_ser)
 	{
-		throw init_failure("Unable to open NovAtel port: " + serial_port);
+		return false;
 	}
 
 
@@ -144,6 +144,8 @@ void GPS::ReadSerial::initPort()
 #ifndef NDEBUG
 	debug() << "NovAtel initialized on " << serial_port;
 #endif
+
+	return true;
 }
 
 bool GPS::ReadSerial::synchronize()

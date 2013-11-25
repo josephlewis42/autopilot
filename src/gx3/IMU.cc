@@ -88,6 +88,7 @@ IMU::IMU()
 	{
 		critical() << "Failed to open serial port for GX3.  Attempting to terminate autopilot.";
 		MainApp::terminate();
+		return;
 	}
 
 	receive_thread = boost::thread(read_serial());
