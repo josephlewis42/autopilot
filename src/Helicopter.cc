@@ -215,8 +215,7 @@ uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 2> setpoint)
 // FIXME - the complexity of this is huge, the magic numbers  don't help. - Joseph
 uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 5> setpoint)
 {
-	// FIXME, there is a strange loss of precision here. - Joseph
-	uint16_t pulse = 1.5;
+	uint16_t pulse = 1;
 	if(setpoint[4] > setpoint[0])
 	{
 		if(norm <= 0.25 && norm >= 0)

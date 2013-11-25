@@ -234,7 +234,6 @@ void MainApp::cleanup::operator()()
 
 	BOOST_FOREACH(ThreadName t, MainApp::threads)
 	{
-
 		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
 		t.thread->timed_join(delay);
 		//t.thread->join();

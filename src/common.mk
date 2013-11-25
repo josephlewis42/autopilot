@@ -22,7 +22,7 @@ VFLAG_g=-gstabs+
 
 #===== EXTRA_INCVPATH - a space-separated list of directories to search for include files.
 EXTRA_INCVPATH+=$(PROJECT_ROOT)/../extern/QNX  \
-	$(PROJECT_ROOT)/../../mavlink/include/ualberta
+	$(PROJECT_ROOT)/../extern/mavlink/include/ualberta
 
 #===== LIBS - a space-separated list of library items to be included in the link.
 LIBS+=boost_thread boost_date_time -Bstatic  \

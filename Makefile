@@ -13,8 +13,8 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/extern/Linux \
 		-I$(PROJECT_ROOT)/extern/mavlink/include/ualberta
 
-CFLAGS= -m32 ${INCLUDE} -c -Wall
-LDFLAGS= -m32 -static -L$(PROJECT_ROOT)/lib/Linux32 -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
+CFLAGS= -m32 ${INCLUDE} -c -Wall -g
+LDFLAGS= -g -m32 -static -L/usr/lib -L$(PROJECT_ROOT)/lib/Linux32 -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot

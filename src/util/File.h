@@ -23,15 +23,30 @@
 
 #include <string>
 
+/**
+ * Provides simple file operations.
+ */
 class File
 {
 	public:
-		// Reads the given file and returns it, if does not
-		// exist, returns a blank string.
+		/**
+		 * Reads the given file and returns it, if does not exist,
+		 * returns a blank string.
+		 *
+		 * @param path the path to the file to read
+		 */
 		static std::string readFile(const std::string& path);
 		
-		// Tests if a file exists.
+		/**
+		 * Tests if a file exists.
+		 * @param path - the path to the file.
+		 */
 		static bool exists(const char* path);
+
+		/**
+		 * Tests if a file exists.
+		 * @param path - the path to the file.
+		 */
 		static bool exists(const std::string path);
 };
 
