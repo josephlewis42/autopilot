@@ -59,14 +59,27 @@ public:
 	 */
 	void set(const std::string key, const std::string value);
 
+	/**
+	 * Sets a path to be a double value
+	 *
+	 * @param key - the key to store the value under
+	 * @param value - the value of the param
+	 */
+	void setd(const std::string key, const double value);
+
+	/**
+	 * Sets a path to be an int value
+	 *
+	 * @param key - the key to store the value under
+	 * @param value - the value of the param
+	 */
+	void seti(const std::string key, const int value);
 
 private:
 	static Configuration* _instance;
 	static boost::mutex _instance_lock;
 	boost::property_tree::ptree _properties;
 	static boost::mutex _propertiesLock;
-
-
 
 	Configuration();
 	virtual ~Configuration();

@@ -198,6 +198,16 @@ void Configuration::set(const std::string key, const std::string value)
 	save();
 }
 
+void Configuration::setd(const std::string key, const double value)
+{
+	set(key, boost::lexical_cast<std::string>(value));
+}
+
+void Configuration::seti(const std::string key, const int value)
+{
+	set(key, boost::lexical_cast<std::string>(value));
+}
+
 void Configuration::save()
 {
 	try
