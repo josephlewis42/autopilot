@@ -33,8 +33,10 @@
 
 
 // Configuration file name of the IP address param
-const std::string QGCLINK_HOST_ADDRESS_PARAM = "QGROUNDCONTROL_HOST_IP_ADDRESS";
+const std::string QGCLINK_HOST_ADDRESS_PARAM = "qgroundcontrol.host.ip";
 const std::string QGCLINK_HOST_ADDRESS_DEFAULT = "0.0.0.0";
+const std::string QGCLINK_HOST_PORT_PARAM = "qgroundcontrol.host.port";
+const int QGCLINK_HOST_PORT_DEFAULT = 14550;
 
 QGCLink* QGCLink::_instance = NULL;
 boost::mutex QGCLink::_instance_lock;
@@ -60,11 +62,14 @@ void QGCLink::init()
 {
 	try
 	{
-		std::string ip_addr = Configuration::getInstance()->gets(QGCLINK_HOST_ADDRESS_PARAM, QGCLINK_HOST_ADDRESS_DEFAULT);
+		Configuration* cfg = Configuration::getInstance();
+		std::string ip_addr = cfg->gets(QGCLINK_HOST_ADDRESS_PARAM, QGCLINK_HOST_ADDRESS_DEFAULT);
 
 		qgc.address(boost::asio::ip::address::from_string(ip_addr));
 		debug() << "QGCLink: Opening socket to " << qgc.address().to_string();
-		qgc.port(14550); // FIXME we shouldn't assume this port as firewall rules may (should) be in effect - Joseph
+
+
+		qgc.port(cfg->geti(QGCLINK_HOST_PORT_PARAM, QGCLINK_HOST_PORT_DEFAULT));
 
 		// FIXME we didn't check to make sure the address is indeed IPV4 - Joseph
 		socket.open(boost::asio::ip::udp::v4());
