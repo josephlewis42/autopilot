@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -25,6 +26,15 @@
 /* Project Headers */
 #include "IMU.h"
 #include "heli.h"
+#include "Configuration.h"
+
+
+// Constants
+const std::string XML_X_TRAVEL_PARAM = "controller_params.line.xtravel";
+const std::string XML_Y_TRAVEL_PARAM = "controller_params.line.ytravel";
+const std::string XML_HOVER_PARAM = "controller_params.line.hover";
+const std::string XML_SPEED_PARAM = "controller_params.line.speed";
+
 
 line::line()
 : start_location(blas::zero_vector<double>(3)),
@@ -86,66 +96,22 @@ double line::get_distance() const
 	return norm_2(get_end_location() - get_start_location());
 }
 
-rapidxml::xml_node<>* line::get_xml_node(rapidxml::xml_document<>& doc)
+void line::get_xml_node()
 {
-	rapidxml::xml_node<> *line_node = doc.allocate_node(rapidxml::node_element, "line");
-	{
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
+	Configuration* cfg = Configuration::getInstance();
 
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_x_travel()).c_str());
-		rapidxml::xml_node<> *param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "x_travel");
-		param_node->append_attribute(attr);
-		line_node->append_node(param_node);
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_y_travel()).c_str());
-		param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "y_travel");
-		param_node->append_attribute(attr);
-		line_node->append_node(param_node);
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_speed()).c_str());
-		param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "speed");
-		param_node->append_attribute(attr);
-		line_node->append_node(param_node);
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_hover_time()).c_str());
-		param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "hover");
-		param_node->append_attribute(attr);
-		line_node->append_node(param_node);
-	}
-
-	return line_node;
+	cfg->setd(XML_X_TRAVEL_PARAM, get_x_travel());
+	cfg->setd(XML_Y_TRAVEL_PARAM, get_y_travel());
+	cfg->setd(XML_HOVER_PARAM, get_hover_time());
+	cfg->setd(XML_SPEED_PARAM, get_speed());
 }
 
-void line::parse_xml_node(rapidxml::xml_node<> *line_params)
+void line::parse_xml_node()
 {
-	for (rapidxml::xml_node<> *param = line_params->first_node(); param; param = param->next_sibling())
-	{
-		if (boost::to_upper_copy(std::string(param->name())) == "PARAM")
-		{
-			rapidxml::xml_attribute<> *attr;
-			for (attr = param->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-			std::string param_name(attr->value());
-			boost::to_upper(param_name);
-			std::string param_value(param->value());
-			boost::trim(param_value);
+	Configuration* cfg = Configuration::getInstance();
 
-			if (param_name == "X_TRAVEL")
-				set_x_travel(boost::lexical_cast<double>(param_value));
-			else if (param_name == "Y_TRAVEL")
-				set_y_travel(boost::lexical_cast<double>(param_value));
-			else if (param_name == "HOVER")
-				set_hover_time(boost::lexical_cast<double>(param_value));
-			else if (param_name == "SPEED")
-				set_speed(boost::lexical_cast<double>(param_value));
-			else
-				warning() << "Found unknown circle parameter";
-		}
-		else
-			warning() << "Found unknown node in circle xml node";
-	}
+	set_x_travel(cfg->getd(XML_X_TRAVEL_PARAM, get_x_travel()));
+	set_y_travel(cfg->getd(XML_Y_TRAVEL_PARAM, get_y_travel()));
+	set_hover_time(cfg->getd(XML_HOVER_PARAM, get_hover_time()));
+	set_speed(cfg->getd(XML_SPEED_PARAM, get_speed()));
 }

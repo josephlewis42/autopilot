@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -109,16 +110,15 @@ public:
 	void set_pitch_integral(double ki);
 
 	/**
-	 * Outputs the controller parameters as an xml tree
-	 * @param doc xml document in which to allocate the memory
-	 * @returns pointer to xml node which contatins pid params
+	 * Saves the controller parameters to the configuration file
 	 */
-	rapidxml::xml_node<>* get_xml_node(rapidxml::xml_document<>& doc);
+	void get_xml_node();
+
 	/**
-	 * Parses a pid parameter xml tree
-	 * @param pid_params pointer to root of pid params xml tree
+	 * Loads the configuratino
 	 */
-	void parse_pid(rapidxml::xml_node<> *pid_params);
+	void parse_pid();
+
 	/** set the roll trim point.  threadsafe
 	 * @param trim roll trim in radians
 	 */
@@ -153,6 +153,14 @@ public:
 	inline double get_pitch_trim_degrees() {boost::mutex::scoped_lock lock(pitch_trim_lock); return pitch_trim * 180 / boost::math::constants::pi<double>();}
 	/// threadsafe get runnable
 	inline bool runnable() const {return _runnable;}
+
+
+	double get_roll_proportional();
+	double get_roll_derivative();
+	double get_roll_integral();
+	double get_pitch_proportional();
+	double get_pitch_derivative();
+	double get_pitch_integral();
 
 private:
 	pid_channel roll;

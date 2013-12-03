@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -69,10 +70,10 @@ public:
 	/// return the parameter list to send to qgc
 	std::vector<Parameter> getParameters() const;
 
-	/// create and xml tree with the controller parameters
-	rapidxml::xml_node<>* get_xml_node(rapidxml::xml_document<>& doc);
-	/// parse an xml tree containing the parameters for the function and populate the values
-	void parse_xml_node(rapidxml::xml_node<> *circle_params);
+	/// save the controller parameters
+	void get_xml_node();
+	/// populate the values based on the config
+	void parse_xml_node();
 
 	static const std::string PARAM_RADIUS;
 	static const std::string PARAM_HOVER_TIME;

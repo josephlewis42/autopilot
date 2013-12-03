@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -23,6 +24,16 @@
 #include "RCTrans.h"
 #include "IMU.h"
 #include "Control.h"
+#include "Configuration.h"
+
+const std::string XML_ROLL_PROPORTIONAL = "controller_params.attitude_pid.roll.gain.proportional";
+const std::string XML_ROLL_DERIVATIVE = "controller_params.attitude_pid.roll.gain.derivative";
+const std::string XML_ROLL_INTEGRAL = "controller_params.attitude_pid.roll.gain.integral";
+const std::string XML_ROLL_TRIM = "controller_params.attitude_pid.roll.trim";
+const std::string XML_PITCH_PROPORTIONAL = "controller_params.attitude_pid.pitch.gain.proportional";
+const std::string XML_PITCH_DERIVATIVE = "controller_params.attitude_pid.pitch.gain.derivative";
+const std::string XML_PITCH_INTEGRAL = "controller_params.attitude_pid.pitch.gain.integral";
+const std::string XML_PITCH_TRIM = "controller_params.attitude_pid.pitch.trim";
 
 const std::string attitude_pid::PARAM_ROLL_KP = "PID_ROLL_KP";
 const std::string attitude_pid::PARAM_ROLL_KD = "PID_ROLL_KD";
@@ -162,6 +173,43 @@ void attitude_pid::set_roll_proportional(double kp)
 	message() << "Set roll proportional gain to: " << kp;
 }
 
+double attitude_pid::get_pitch_proportional()
+{
+	boost::mutex::scoped_lock lock(pitch_lock);
+	return pitch.gains().proportional();
+}
+
+double attitude_pid::get_pitch_derivative()
+{
+	boost::mutex::scoped_lock lock(pitch_lock);
+	return pitch.gains().derivative();
+}
+
+double attitude_pid::get_pitch_integral()
+{
+	boost::mutex::scoped_lock lock(pitch_lock);
+	return pitch.gains().integral();
+}
+
+
+double attitude_pid::get_roll_proportional()
+{
+	boost::mutex::scoped_lock lock(roll_lock);
+	return roll.gains().proportional();
+}
+
+double attitude_pid::get_roll_derivative()
+{
+	boost::mutex::scoped_lock lock(roll_lock);
+	return roll.gains().derivative();
+}
+
+double attitude_pid::get_roll_integral()
+{
+	boost::mutex::scoped_lock lock(roll_lock);
+	return roll.gains().integral();
+}
+
 void attitude_pid::set_roll_derivative(double kd)
 {
 	{
@@ -225,168 +273,34 @@ void attitude_pid::set_pitch_trim_degrees(double trim_degrees)
 }
 
 
-rapidxml::xml_node<>* attitude_pid::get_xml_node(rapidxml::xml_document<>& doc)
+void attitude_pid::get_xml_node()
 {
-	rapidxml::xml_node<> *pid_node = doc.allocate_node(rapidxml::node_element, "attitude_pid");
 
-	{
-		//roll
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
+	Configuration* cfg = Configuration::getInstance();
 
-		rapidxml::xml_node<> *channel_node = doc.allocate_node(rapidxml::node_element, "channel");
-		attr = doc.allocate_attribute("name", "roll");
-		channel_node->append_attribute(attr);
-		pid_node->append_node(channel_node);
+	cfg->setd(XML_ROLL_PROPORTIONAL, get_roll_proportional());
+	cfg->setd(XML_ROLL_DERIVATIVE, get_roll_derivative());
+	cfg->setd(XML_ROLL_INTEGRAL, get_roll_integral());
+	cfg->setd(XML_ROLL_TRIM, get_roll_trim_degrees());
 
-		// roll proportional
-		roll_lock.lock();
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(roll.gains().proportional()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "proportional");
-		node->append_attribute(attr);
-		channel_node->append_node(node);
-
-		// roll derivative
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(roll.gains().derivative()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "derivative");
-		node->append_attribute(attr);
-		channel_node->append_node(node);
-
-		// roll integral
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(roll.gains().integral()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "integral");
-		node->append_attribute(attr);
-		roll_lock.unlock();
-		channel_node->append_node(node);
-	}
-
-	{
-		//pitch
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
-
-		rapidxml::xml_node<> *channel_node = doc.allocate_node(rapidxml::node_element, "channel");
-		attr = doc.allocate_attribute("name", "pitch");
-		channel_node->append_attribute(attr);
-		pid_node->append_node(channel_node);
-
-		// pitch proportional
-		pitch_lock.lock();
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(pitch.gains().proportional()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "proportional");
-		node->append_attribute(attr);
-		channel_node->append_node(node);
-
-		// pitch derivative
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(pitch.gains().derivative()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "derivative");
-		node->append_attribute(attr);
-		channel_node->append_node(node);
-
-		// pitch integral
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(pitch.gains().integral()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-		attr = doc.allocate_attribute("type", "integral");
-		node->append_attribute(attr);
-		pitch_lock.unlock();
-		channel_node->append_node(node);
-	}
-
-
-
-	{
-		// roll trim
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_roll_trim_degrees()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "roll_trim", node_value);
-		pid_node->append_node(node);
-	}
-
-	{
-		// pitch trim
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_pitch_trim_degrees()).c_str());
-		node = doc.allocate_node(rapidxml::node_element, "pitch_trim", node_value);
-		pid_node->append_node(node);
-	}
-
-	return pid_node;
+	cfg->setd(XML_PITCH_PROPORTIONAL, get_pitch_proportional());
+	cfg->setd(XML_PITCH_DERIVATIVE, get_pitch_derivative());
+	cfg->setd(XML_PITCH_INTEGRAL, get_pitch_integral());
+	cfg->setd(XML_PITCH_TRIM, get_pitch_trim_degrees());
 }
 
-void attitude_pid::parse_pid(rapidxml::xml_node<> *pid_params)
+
+void attitude_pid::parse_pid()
 {
-	for (rapidxml::xml_node<> *channel = pid_params->first_node(); channel; channel = channel->next_sibling())
-	{
-		if (boost::to_upper_copy(std::string(channel->name())) == "CHANNEL")
-		{
-			rapidxml::xml_attribute<> *attr;
-			for (attr = channel->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-			std::string channel_name(attr->value());
-			boost::to_upper(channel_name);
+	Configuration* cfg = Configuration::getInstance();
 
-			for (rapidxml::xml_node<> *gain = channel->first_node(); gain; gain = gain->next_sibling())
-			{
-				// get value
-				std::string gain_value(gain->value());
-				boost::trim(gain_value);
+	set_roll_proportional(cfg->getd(XML_ROLL_PROPORTIONAL, get_roll_proportional()));
+	set_roll_derivative(cfg->getd(XML_ROLL_DERIVATIVE, get_roll_derivative()));
+	set_roll_integral(cfg->getd(XML_ROLL_INTEGRAL, get_roll_integral()));
+	set_roll_trim_degrees(cfg->getd(XML_ROLL_TRIM, get_roll_trim_degrees()));
 
-				// find which gain it is
-				rapidxml::xml_attribute<> *attr;
-				for (attr = gain->first_attribute(); attr && std::string(attr->name()) != "type"; attr = attr->next_attribute());
-				std::string strGain(attr->value());
-				boost::to_upper(strGain);
-
-				if (channel_name == "ROLL")
-				{
-					if (strGain == "PROPORTIONAL")
-						set_roll_proportional(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "DERIVATIVE")
-						set_roll_derivative(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "INTEGRAL")
-						set_roll_integral(boost::lexical_cast<double>(gain_value));
-					else
-						warning() << "parse_pid(): Unknown gain on roll channel: " << strGain;
-				}
-				else if (channel_name == "PITCH")
-				{
-					if (strGain == "PROPORTIONAL")
-						set_pitch_proportional(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "DERIVATIVE")
-						set_pitch_derivative(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "INTEGRAL")
-						set_pitch_integral(boost::lexical_cast<double>(gain_value));
-					else
-						warning() << "parse_pid(): Unknown gain on pitch channel: " << strGain;
-				}
-				else
-					warning() << "parse_pid(): Unknown channel: " << channel_name;
-			}
-		}
-
-		else if (boost::to_upper_copy(std::string(channel->name())) == "ROLL_TRIM")
-		{
-			std::string roll_trim_value(channel->value());
-			boost::trim(roll_trim_value);
-			set_roll_trim_degrees(boost::lexical_cast<double>(roll_trim_value));
-		}
-		else if (boost::to_upper_copy(std::string(channel->name())) == "PITCH_TRIM")
-		{
-			std::string pitch_trim_value(channel->value());
-			boost::trim(pitch_trim_value);
-			set_pitch_trim_degrees(boost::lexical_cast<double>(pitch_trim_value));
-		}
-		else
-			warning() << "parse_pid(): unknown xml node " << channel->name();
-	}
+	set_pitch_proportional(cfg->getd(XML_PITCH_PROPORTIONAL, get_pitch_proportional()));
+	set_pitch_derivative(cfg->getd(XML_PITCH_DERIVATIVE, get_pitch_derivative()));
+	set_pitch_integral(cfg->getd(XML_PITCH_INTEGRAL, get_pitch_integral()));
+	set_pitch_trim_degrees(cfg->getd(XML_PITCH_TRIM, get_pitch_trim_degrees()));
 }

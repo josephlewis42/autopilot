@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -105,10 +106,10 @@ public:
 	/// y ki parameter string representation
 	static const std::string PARAM_Y_KI;
 	static const std::string PARAM_TRAVEL;
-	/// create and xml tree with the controller parameters
-	rapidxml::xml_node<>* get_xml_node(rapidxml::xml_document<>& doc);
-	/// parse an xml tree containing the parameters for the function and populate the values
-	void parse_xml_node(rapidxml::xml_node<> *pid_params);
+	/// save the controller parameters
+	void get_xml_node();
+	/// load parameters for the function and populate the values
+	void parse_xml_node();
 	/// resets the controller
 	void reset();
 	/// test is controller is runnable
@@ -118,7 +119,26 @@ public:
 	inline double scaled_travel_radians() {boost::mutex::scoped_lock lock(scaled_travel_lock); return scaled_travel*boost::math::constants::pi<double>()/180;}
 	inline void set_scaled_travel_degrees(double travel) {set_scaled_travel(travel);}
 	inline void set_scaled_travel_radians(double travel) {set_scaled_travel(travel*boost::math::constants::pi<double>()/180);}
+
+	// various getters to go with the setters
+	double get_x_proportional() const;
+	double get_x_derivative() const;
+	double get_x_integral() const;
+	double get_y_proportional() const;
+	double get_y_derivative() const;
+	double get_y_integral() const;
+
 private:
+
+	// XML config references.
+	static std::string XML_TRANSLATION_X_PROPORTIONAL;
+	static std::string XML_TRANSLATION_Y_PROPORTIONAL;
+	static std::string XML_TRANSLATION_X_DERIVATIVE;
+	static std::string XML_TRANSLATION_Y_DERIVATIVE;
+	static std::string XML_TRANSLATION_X_INTEGRAL;
+	static std::string XML_TRANSLATION_Y_INTEGRAL;
+	static std::string XML_TRAVEL;
+
 	pid_channel x;
 	mutable boost::mutex x_lock;
 	pid_channel y;

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -154,7 +155,20 @@ public:
 	/// get the trajectory type
 	heli::Trajectory_Type get_trajectory_type() const {boost::mutex::scoped_lock(trajectory_type_lock); return trajectory_type;}
 
+	/// Get the roll mix
+	double get_roll_mix() const;
+
+	/// Get the pitch mix
+	double get_pitch_mix() const;
+
 private:
+	static std::string XML_ROLL_MIX;
+	static std::string XML_PITCH_MIX;
+	static std::string XML_CONTROLLER_MODE;
+	static std::string XML_TRAJECTORY_VALUE;
+
+
+
 	Control();
 
 	enum channel_names
@@ -204,10 +218,7 @@ private:
 	 */
 	char *config_file_buffer;
 
-	/**
-	 * Strores xml info for config file
-	 */
-	rapidxml::xml_document<> config_file_xml;
+
 
 	/**
 	 * Serializes access to the controller paramter file
@@ -220,18 +231,14 @@ private:
 	 * from the file are loaded into the appropriate date members.
 	 */
 	void loadFile();
-	/**
-	 * Parses a pilot mix xml node and applies the appropriate settings
-	 * @param mix pointer to pilot mix xml node
-	 */
-	void parse_pilot_mix(rapidxml::xml_node<> *mix);
+
 	/**
 	 * Parse controller mode xml node and set the corresponding mode
 	 */
-	void parse_mode(rapidxml::xml_node<> *mode);
+	void parse_mode();
 
 	/// parse the trajectory type xml node
-	void parse_trajectory(rapidxml::xml_node<> *trajectory);
+	void parse_trajectory();
 
 	/**
 	 * save the state of the controller in an xml file

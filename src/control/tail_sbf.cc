@@ -24,16 +24,27 @@
 #include "tail_sbf.h"
 #include "Helicopter.h"
 #include "Control.h"
+#include "Configuration.h"
 
 /* STL Headers */
 #include <math.h>
+
+
+// constants
+std::string tail_sbf::XML_TRANSLATION_X_PROPORTIONAL = "controller_params.translation_outer_sbf.ned_x.proportional";
+std::string tail_sbf::XML_TRANSLATION_Y_PROPORTIONAL = "controller_params.translation_outer_sbf.ned_y.proportional";
+std::string tail_sbf::XML_TRANSLATION_X_DERIVATIVE = "controller_params.translation_outer_sbf.ned_x.derivative";
+std::string tail_sbf::XML_TRANSLATION_Y_DERIVATIVE = "controller_params.translation_outer_sbf.ned_y.derivative";
+std::string tail_sbf::XML_TRANSLATION_X_INTEGRAL = "controller_params.translation_outer_sbf.ned_x.integral";
+std::string tail_sbf::XML_TRANSLATION_Y_INTEGRAL = "controller_params.translation_outer_sbf.ned_y.integral";
+std::string tail_sbf::XML_TRAVEL = "controller_params.translation_outer_sbf.travel";
+
+
 
 tail_sbf::tail_sbf()
 : ned_x(10),
   ned_y(10)
 {
-
-
 }
 
 void tail_sbf::reset()
@@ -199,134 +210,67 @@ void tail_sbf::set_scaled_travel(double travel)
 	message() << "Set travel to: " << travel;
 }
 
-rapidxml::xml_node<>* tail_sbf::get_xml_node(rapidxml::xml_document<>& doc)
+double tail_sbf::get_x_proportional() const
 {
-	rapidxml::xml_node<> *sbf_node = doc.allocate_node(rapidxml::node_element, "translation_outer_sbf");
-	{
-		rapidxml::xml_node<> *node = NULL;
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
-
-		rapidxml::xml_node<> *channel_node = doc.allocate_node(rapidxml::node_element, "channel");
-		attr = doc.allocate_attribute("name", "ned_x");
-		channel_node->append_attribute(attr);
-		sbf_node->append_node(channel_node);
-
-		{
-			boost::mutex::scoped_lock lock(ned_x_lock);
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_x.gains().proportional()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "proportional");
-			node->append_attribute(attr);
-			channel_node->append_node(node);
-
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_x.gains().derivative()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "derivative");
-			node->append_attribute(attr);
-			channel_node->append_node(node);
-
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_x.gains().integral()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "integral");
-			node->append_attribute(attr);
-		}
-		channel_node->append_node(node);
-
-		channel_node = doc.allocate_node(rapidxml::node_element, "channel");
-		attr = doc.allocate_attribute("name", "ned_y");
-		channel_node->append_attribute(attr);
-		sbf_node->append_node(channel_node);
-
-		{
-			boost::mutex::scoped_lock lock(ned_y_lock);
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_y.gains().proportional()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "proportional");
-			node->append_attribute(attr);
-			channel_node->append_node(node);
-
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_y.gains().derivative()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "derivative");
-			node->append_attribute(attr);
-			channel_node->append_node(node);
-
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(ned_y.gains().integral()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "gain", node_value);
-			attr = doc.allocate_attribute("type", "integral");
-			node->append_attribute(attr);
-		}
-		channel_node->append_node(node);
-		{
-			// travel
-			rapidxml::xml_node<> *node = NULL;
-			char *node_value = NULL;
-			node_value = doc.allocate_string(boost::lexical_cast<std::string>(scaled_travel_degrees()).c_str());
-			node = doc.allocate_node(rapidxml::node_element, "travel", node_value);
-			sbf_node->append_node(node);
-		}
-	}
-
-	return sbf_node;
+	boost::mutex::scoped_lock lock(ned_x_lock);
+	return ned_x.gains().proportional();
 }
 
-void tail_sbf::parse_xml_node(rapidxml::xml_node<> *sbf_params)
+double tail_sbf::get_y_proportional() const
 {
-	for (rapidxml::xml_node<> *channel = sbf_params->first_node(); channel; channel = channel->next_sibling())
-	{
-		if (boost::to_upper_copy(std::string(channel->name())) == "CHANNEL")
-		{
-			rapidxml::xml_attribute<> *attr;
-			for (attr = channel->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-			std::string channel_name(attr->value());
-			boost::to_upper(channel_name);
+	boost::mutex::scoped_lock lock(ned_y_lock);
+	return ned_y.gains().proportional();
+}
 
-			for (rapidxml::xml_node<> *gain = channel->first_node(); gain; gain = gain->next_sibling())
-			{
-				// get value
-				std::string gain_value(gain->value());
-				boost::trim(gain_value);
+double tail_sbf::get_x_derivative() const
+{
+	boost::mutex::scoped_lock lock(ned_x_lock);
+	return ned_x.gains().derivative();
+}
 
-				// find which gain it is
-				rapidxml::xml_attribute<> *attr;
-				for (attr = gain->first_attribute(); attr && std::string(attr->name()) != "type"; attr = attr->next_attribute());
-				std::string strGain(attr->value());
-				boost::to_upper(strGain);
+double tail_sbf::get_y_derivative() const
+{
+	boost::mutex::scoped_lock lock(ned_y_lock);
+	return ned_y.gains().derivative();
+}
 
-				if (channel_name == "NED_X")
-				{
-					if (strGain == "PROPORTIONAL")
-						set_x_proportional(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "DERIVATIVE")
-						set_x_derivative(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "INTEGRAL")
-						set_x_integral(boost::lexical_cast<double>(gain_value));
-					else
-						warning() << __FILE__ << __LINE__ << "Unknown gain on x channel: " << strGain;
-				}
-				else if (channel_name == "NED_Y")
-				{
-					if (strGain == "PROPORTIONAL")
-						set_y_proportional(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "DERIVATIVE")
-						set_y_derivative(boost::lexical_cast<double>(gain_value));
-					else if (strGain == "INTEGRAL")
-						set_y_integral(boost::lexical_cast<double>(gain_value));
-					else
-						warning() << __FILE__ << __LINE__ << "Unknown gain on pitch channel: " << strGain;
-				}
-				else
-					warning() << "Translation SBF: Unknown channel: " << channel_name;
-			}
-		}
-		else if(boost::to_upper_copy(std::string(channel->name())) == "TRAVEL")
-		{
-			std::string travel_value(channel->value());
-			boost::trim(travel_value);
-			set_scaled_travel_degrees(boost::lexical_cast<double>(travel_value));
-		}
-		else
-			warning() << "Control::parse_pid(): unknown xml node " << channel->name();
-	}
+double tail_sbf::get_x_integral() const
+{
+	boost::mutex::scoped_lock lock(ned_x_lock);
+	return ned_x.gains().integral();
+}
+
+double tail_sbf::get_y_integral() const
+{
+	boost::mutex::scoped_lock lock(ned_y_lock);
+	return ned_y.gains().integral();
+}
+
+
+
+void tail_sbf::get_xml_node()
+{
+	Configuration* cfg = Configuration::getInstance();
+
+	cfg->setd(XML_TRANSLATION_X_PROPORTIONAL, get_x_proportional());
+	cfg->setd(XML_TRANSLATION_Y_PROPORTIONAL, get_y_proportional());
+	cfg->setd(XML_TRANSLATION_X_DERIVATIVE, get_x_derivative());
+	cfg->setd(XML_TRANSLATION_Y_DERIVATIVE, get_y_derivative());
+	cfg->setd(XML_TRANSLATION_X_INTEGRAL, get_x_integral());
+	cfg->setd(XML_TRANSLATION_Y_INTEGRAL, get_y_integral());
+	cfg->setd(XML_TRAVEL, scaled_travel_degrees());
+}
+
+
+void tail_sbf::parse_xml_node()
+{
+	Configuration* cfg = Configuration::getInstance();
+
+	set_x_proportional(cfg->getd(XML_TRANSLATION_X_PROPORTIONAL, get_x_proportional()));
+	set_y_proportional(cfg->getd(XML_TRANSLATION_Y_PROPORTIONAL, get_y_proportional()));
+	set_x_derivative(cfg->getd(XML_TRANSLATION_X_DERIVATIVE, get_x_derivative()));
+	set_y_derivative(cfg->getd(XML_TRANSLATION_Y_DERIVATIVE, get_y_derivative()));
+	set_x_integral(cfg->getd(XML_TRANSLATION_X_INTEGRAL, get_x_integral()));
+	set_y_integral(cfg->getd(XML_TRANSLATION_Y_INTEGRAL, get_y_integral()));
+	set_scaled_travel_degrees(cfg->getd(XML_TRAVEL, scaled_travel_degrees()));
 }

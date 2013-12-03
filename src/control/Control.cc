@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -26,9 +27,17 @@
 #include "IMU.h"
 #include "QGCLink.h"
 #include "heli.h"
+#include "Configuration.h"
 
 /* Boost Headers */
 #include <boost/bind.hpp>
+
+// constants
+std::string Control::XML_ROLL_MIX = "controller_params.mix.roll";
+std::string Control::XML_PITCH_MIX = "controller_params.mix.pitch";
+std::string Control::XML_CONTROLLER_MODE = "controller_params.mode";
+std::string Control::XML_TRAJECTORY_VALUE = "controller_params.trajectory";
+
 
 Control::Control()
 :pilot_mix(6,1), // fill pilot_mix with 1s
@@ -237,92 +246,38 @@ void Control::set_pitch_mix(double pitch_mix)
 		message() << "Invalid pitch mix argument: " << pitch_mix;
 }
 
+double Control::get_roll_mix() const
+{
+	boost::mutex::scoped_lock lock(pilot_mix_lock);
+	return pilot_mix[ROLL];
+}
+
+double Control::get_pitch_mix() const
+{
+	boost::mutex::scoped_lock lock(pilot_mix_lock);
+	return pilot_mix[PITCH];
+}
+
+
+
 void Control::loadFile()
 {
-	if (!boost::filesystem::exists(heli::controller_param_filename))
-	{
-		warning() << __FILE__ << __LINE__ << "Cannot find controller parameter xml file: " << heli::controller_param_filename;
-		return;
-	}
-	/* Read contents of configuration file into char* */
-	std::ifstream config_file;
-	int length;
-	config_file_lock.lock();
-	config_file.open(heli::controller_param_filename.c_str());      // open input file
-	config_file.seekg(0, std::ios::end);    // go to the end
-	length = config_file.tellg();           // report location (this is the length)
-	config_file.seekg(0, std::ios::beg);    // go back to the beginning
-	if (config_file_buffer)
-			delete config_file_buffer;
-	config_file_buffer = new char[length+1];    // allocate memory for a buffer of appropriate dimension
-	config_file.read(config_file_buffer, length);       // read the whole file into the buffer
-	config_file.close();
-	config_file_lock.unlock();
-	config_file_buffer[length] = 0;
+	// set the configuration for this control sequence
+	Configuration* cfg = Configuration::getInstance();
 
-	config_file_xml.parse<0>(config_file_buffer);
+	set_roll_mix(cfg->getd(XML_ROLL_MIX, get_roll_mix()));
+	set_pitch_mix(cfg->getd(XML_PITCH_MIX, get_pitch_mix()));
+	set_controller_mode(static_cast<heli::Controller_Mode>(cfg->geti(XML_CONTROLLER_MODE, get_controller_mode())));
+	set_trajectory_type(static_cast<heli::Trajectory_Type>(cfg->geti(XML_TRAJECTORY_VALUE, get_trajectory_type())));
 
-	rapidxml::xml_node<> *root_node = config_file_xml.first_node();
+	// set up the configuration for all of the other controls
 
-	if (boost::to_upper_copy(std::string(root_node->name())) != "CONTROLLER_PARAMS")
-	{
-		critical() << "Control::loadFile() Unknown file format.  Cannot load controller parameters.";
-		return;
-	}
+	attitude_pid_controller().parse_pid();
+	translation_pid_controller().parse_xml_node();
+	x_y_sbf_controller.parse_xml_node();
 
-	for (rapidxml::xml_node<> *node = root_node->first_node(); node; node = node->next_sibling())
-	{
-		std::string node_name(node->name());
-		if (boost::to_upper_copy(std::string(node_name)) == "MIX")
-			parse_pilot_mix(node);
-		else if (boost::to_upper_copy(std::string(node_name)) == "MODE")
-			parse_mode(node);
-		else if (boost::to_upper_copy(std::string(node_name)) == "TRAJECTORY")
-			parse_trajectory(node);
-		else if (std::string(node_name) == "attitude_pid")
-			attitude_pid_controller().parse_pid(node);
-		else if (std::string(node_name) == "translation_outer_pid")
-			translation_pid_controller().parse_xml_node(node);
-		else if (std::string(node_name) == "translation_outer_sbf")
-			x_y_sbf_controller.parse_xml_node(node);
-		else if (std::string(node_name) == "line")
-			line_trajectory.parse_xml_node(node);
-		else if (std::string(node_name) == "circle")
-			circle_trajectory.parse_xml_node(node);
-		else
-			warning() << __FILE__ << __LINE__ << "Found unknown node: " << node_name;
-	}
-}
-
-void Control::parse_pilot_mix(rapidxml::xml_node<> *mix)
-{
-
-	std::string mix_value(mix->value());
-	boost::trim(mix_value);
-
-	// find which channel to set
-	rapidxml::xml_attribute<> *attr;
-	for (attr = mix->first_attribute(); attr && std::string(attr->name()) != "channel"; attr = attr->next_attribute());
-	std::string channel(attr->value());
-	boost::to_upper(channel);
-	if (channel == "ROLL")
-		set_roll_mix(boost::lexical_cast<double>(mix_value));
-	else if (channel == "PITCH")
-		set_pitch_mix(boost::lexical_cast<double>(mix_value));
-}
-
-void Control::parse_mode(rapidxml::xml_node<> *mode)
-{
-	std::string mode_value(mode->value());
-	boost::trim(mode_value);
-	set_controller_mode(static_cast<heli::Controller_Mode>(boost::lexical_cast<unsigned int>(mode_value)));
-}
-
-void Control::parse_trajectory(rapidxml::xml_node<> *trajectory)
-{
-	std::string trajectory_value(trajectory->value());
-	boost::trim(trajectory_value);
-	set_trajectory_type(static_cast<heli::Trajectory_Type>(boost::lexical_cast<unsigned int>(trajectory_value)));
+	line_trajectory.parse_xml_node();
+	circle_trajectory.parse_xml_node();
 }
 
 void Control::operator()()
@@ -399,67 +354,29 @@ void Control::operator()()
 
 void Control::saveFile()
 {
-	rapidxml::xml_document<> config_file_xml;
-	rapidxml::xml_node<> *root_node = config_file_xml.allocate_node(rapidxml::node_element, "controller_params");
-	config_file_xml.append_node(root_node);
-
 	/* get pid params */
-	rapidxml::xml_node<> *pid_node = attitude_pid_controller().get_xml_node(config_file_xml);
-	root_node->append_node(pid_node);
+	attitude_pid_controller().get_xml_node();
 
 	/* get trans pid params */
-	rapidxml::xml_node<> *trans_pid_node = translation_pid_controller().get_xml_node(config_file_xml);
-	root_node->append_node(trans_pid_node);
+	translation_pid_controller().get_xml_node();
 
 	/* get sbf params */
-	rapidxml::xml_node<> *sbf_pid_node = x_y_sbf_controller.get_xml_node(config_file_xml);
-	root_node->append_node(sbf_pid_node);
+	x_y_sbf_controller.get_xml_node();
 
 	/* get circle params */
-	rapidxml::xml_node<> *circle_node = circle_trajectory.get_xml_node(config_file_xml);
-	root_node->append_node(circle_node);
+	circle_trajectory.get_xml_node();
 
 	/* get line params */
-	rapidxml::xml_node<> *line_node = line_trajectory.get_xml_node(config_file_xml);
-	root_node->append_node(line_node);
+	line_trajectory.get_xml_node();
 
 	/* add pilot mixes */
-	rapidxml::xml_node<> *node = NULL;
-	char *node_value = NULL;
-	rapidxml::xml_attribute<> *attr = NULL;
 
-	// roll mix
-	pilot_mix_lock.lock();
-	node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(pilot_mix[ROLL]).c_str());
-	pilot_mix_lock.unlock();
-	node = config_file_xml.allocate_node(rapidxml::node_element, "mix", node_value);
-	attr = config_file_xml.allocate_attribute("channel", "roll");
-	node->append_attribute(attr);
-	root_node->append_node(node);
+	Configuration* cfg = Configuration::getInstance();
 
-	// pitch mix
-	pilot_mix_lock.lock();
-	node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(pilot_mix[PITCH]).c_str());
-	pilot_mix_lock.unlock();
-	node = config_file_xml.allocate_node(rapidxml::node_element, "mix", node_value);
-	attr = config_file_xml.allocate_attribute("channel", "pitch");
-	node->append_attribute(attr);
-	root_node->append_node(node);
-
-	node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(get_controller_mode()).c_str());
-	node = config_file_xml.allocate_node(rapidxml::node_element, "mode", node_value);
-	root_node->append_node(node);
-
-	node_value = config_file_xml.allocate_string(boost::lexical_cast<std::string>(get_trajectory_type()).c_str());
-	node = config_file_xml.allocate_node(rapidxml::node_element, "trajectory", node_value);
-	root_node->append_node(node);
-
-	std::ofstream config_file;
-	config_file_lock.lock();
-	config_file.open(heli::controller_param_filename.c_str());
-	config_file << config_file_xml;
-	config_file.close();
-	config_file_lock.unlock();
+	cfg->setd(XML_ROLL_MIX, pilot_mix[ROLL]);
+	cfg->setd(XML_PITCH_MIX, pilot_mix[PITCH]);
+	cfg->seti(XML_CONTROLLER_MODE, (int) get_controller_mode());
+	cfg->seti(XML_TRAJECTORY_VALUE, (int) get_trajectory_type());
 }
 
 std::string Control::getModeString(heli::Controller_Mode mode)

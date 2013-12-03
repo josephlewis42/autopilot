@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
- * 
+ *
  * This file is part of ANCL Autopilot.
  * 
  *     ANCL Autopilot is free software: you can redistribute it and/or modify

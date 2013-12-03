@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -111,11 +112,30 @@ public:
 	 */
 	void set_y_integral(double ki);
 
-	/// create and xml tree with the controller parameters
-	rapidxml::xml_node<>* get_xml_node(rapidxml::xml_document<>& doc);
-	/// parse an xml tree containing the parameters for the function and populate the values
-	void parse_xml_node(rapidxml::xml_node<> *sbf_params);
+	/// saves the controller parameters
+	void get_xml_node();
+	/// load the parameters for the function and populate the values
+	void parse_xml_node();
+
+	double get_x_proportional() const;
+	double get_y_proportional() const;
+	double get_x_derivative() const;
+	double get_y_derivative() const;
+	double get_x_integral() const;
+	double get_y_integral() const;
+
 private:
+
+	// constants for accessing the XML config
+	static std::string XML_TRANSLATION_X_PROPORTIONAL;
+	static std::string XML_TRANSLATION_Y_PROPORTIONAL;
+	static std::string XML_TRANSLATION_X_DERIVATIVE;
+	static std::string XML_TRANSLATION_Y_DERIVATIVE;
+	static std::string XML_TRANSLATION_X_INTEGRAL;
+	static std::string XML_TRANSLATION_Y_INTEGRAL;
+	static std::string XML_TRAVEL;
+
+
 	/// error states in ned x,y directions
 	pid_channel ned_x, ned_y;
 	/// serialize access to error states

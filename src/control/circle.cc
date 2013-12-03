@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -27,9 +28,22 @@
 
 /* Project Headers */
 #include "IMU.h"
+#include "Configuration.h"
+
+
+// Constants
+const std::string XML_RADIUS_PARAM = "controller_params.circle.radius";
+const std::string XML_HOVER_PARAM  = "controller_params.circle.hover";
+const std::string XML_SPEED_PARAM  = "controller_params.circle.speed";
+
+const double XML_RADIUS_PARAM_DEFAULT = 10.0;
+const double XML_HOVER_PARAM_DEFAULT  = 7.0;
+const double XML_SPEED_PARAM_DEFAULT  = 0.30000001192092896;
 
 circle::circle()
 : radius(0),
+  hover_time(XML_HOVER_PARAM_DEFAULT),
+  speed(XML_SPEED_PARAM_DEFAULT),
   start_location(blas::zero_vector<double>(3)),
   center_location(blas::zero_vector<double>(3)),
   initial_angle(0)
@@ -97,58 +111,20 @@ void circle::set_center_location()
 	message() << "Circle: center_location set to: " << center_location;
 }
 
-rapidxml::xml_node<>* circle::get_xml_node(rapidxml::xml_document<>& doc)
+void circle::get_xml_node()
 {
-	rapidxml::xml_node<> *circle_node = doc.allocate_node(rapidxml::node_element, "circle");
-	{
-		char *node_value = NULL;
-		rapidxml::xml_attribute<> *attr = NULL;
+	Configuration* config = Configuration::getInstance();
 
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_radius()).c_str());
-		rapidxml::xml_node<> *param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "radius");
-		param_node->append_attribute(attr);
-		circle_node->append_node(param_node);
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_speed()).c_str());
-		param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "speed");
-		param_node->append_attribute(attr);
-		circle_node->append_node(param_node);
-
-		node_value = doc.allocate_string(boost::lexical_cast<std::string>(get_hover_time()).c_str());
-		param_node = doc.allocate_node(rapidxml::node_element, "param", node_value);
-		attr = doc.allocate_attribute("name", "hover");
-		param_node->append_attribute(attr);
-		circle_node->append_node(param_node);
-	}
-
-	return circle_node;
+	config->setd(XML_RADIUS_PARAM, get_radius());
+	config->setd(XML_HOVER_PARAM, get_hover_time());
+	config->setd(XML_SPEED_PARAM, get_speed());
 }
 
-void circle::parse_xml_node(rapidxml::xml_node<> *circle_params)
+void circle::parse_xml_node()
 {
-	for (rapidxml::xml_node<> *param = circle_params->first_node(); param; param = param->next_sibling())
-	{
-		if (boost::to_upper_copy(std::string(param->name())) == "PARAM")
-		{
-			rapidxml::xml_attribute<> *attr;
-			for (attr = param->first_attribute(); attr && std::string(attr->name()) != "name"; attr = attr->next_attribute());
-			std::string param_name(attr->value());
-			boost::to_upper(param_name);
-			std::string param_value(param->value());
-			boost::trim(param_value);
+	Configuration* config = Configuration::getInstance();
 
-			if (param_name == "RADIUS")
-				set_radius(boost::lexical_cast<double>(param_value));
-			else if (param_name == "HOVER")
-				set_hover_time(boost::lexical_cast<double>(param_value));
-			else if (param_name == "SPEED")
-				set_speed(boost::lexical_cast<double>(param_value));
-			else
-				warning() << "Found unknown circle parameter";
-		}
-		else
-			warning() << "Found unknown node in circle xml node";
-	}
+	set_radius(config->getd(XML_RADIUS_PARAM, get_radius()));
+	set_hover_time(config->getd(XML_HOVER_PARAM, get_hover_time()));
+	set_speed(config->getd(XML_SPEED_PARAM, get_speed()));
 }
