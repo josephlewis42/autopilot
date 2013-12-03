@@ -150,12 +150,6 @@ Debug& Debug::operator<<(const double d)
 	return *this;
 }
 
-Debug& Debug::operator<<(const rapidxml::xml_node<>& node)
-{
-	ss << node;
-	return *this;
-}
-
 Debug& Debug::operator<<(std::ios_base& (*pf)(std::ios_base&))
 {
 	ss << pf;

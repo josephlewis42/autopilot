@@ -104,7 +104,6 @@ public:
 	Debug& operator<<(const unsigned int i);
 	Debug& operator<<(const unsigned long i);
 	Debug& operator<<(const double d);
-	Debug& operator<<(const rapidxml::xml_node<>& node);
 
 	template <typename T, size_t N>
 	Debug& operator<<(const boost::array<T,N>& a);
