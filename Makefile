@@ -4,6 +4,7 @@ PROJECT_ROOT:=.
 BUILD_DIR:=${PROJECT_ROOT}/build
 DIST_DIR:=${PROJECT_ROOT}/dist
 SRC_PATH:=${PROJECT_ROOT}/src
+TESTS_PATH:=$(SRC_PATH)/tests/unittests
 SETTINGS_PATH:=$(PROJECT_ROOT)/settings
 HEADER_DIRS:=$(shell find $(SRC_PATH) -type d -printf %p\ )
 VPATH:=$(shell find $(SRC_PATH) -type d -printf %p:)
@@ -20,7 +21,7 @@ OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot
 
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(SOURCES) $(EXECUTABLE) tests
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 
@@ -39,4 +40,8 @@ dist: all
 	cp $(DIST_DIR)/$(EXECUTABLE) $(DIST_DIR)/$(EXECUTABLE)_g
 	strip $(DIST_DIR)/$(EXECUTABLE)
 	cp $(SETTINGS_PATH)/* $(DIST_DIR)
-	
+
+tests: $(EXECUTABLE)
+	$(CC) $(CFLAGS) $(TESTS_PATH)/* -o ${BUILD_DIR}/test.o
+	$(CC) $(OBJECTS) -o ${BUILD_DIR}/test.o $(LDFLAGS) 
+

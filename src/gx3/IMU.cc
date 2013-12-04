@@ -104,6 +104,7 @@ IMU::~IMU()
 void IMU::init_serial()
 {
 	std::string serial_path = Configuration::getInstance()->gets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
+	debug() << "GX3 starting on " << serial_path;
 	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY);
 
 	if(-1 == fd_ser)

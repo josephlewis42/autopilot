@@ -38,9 +38,6 @@ namespace blas = boost::numeric::ublas;
 /* Project Headers */
 #include "LogFile.h"
 
-/* RapidXML XML Parser */
-#include <rapidxml/rapidxml.hpp>
-#include <rapidxml/rapidxml_print.hpp>
 
 
 /** @brief Implements a debugging object similar to QDebug @see http://doc.qt.nokia.com/latest/qdebug.html
