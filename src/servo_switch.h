@@ -23,32 +23,17 @@
 
 /* Boost Headers */
 #include <boost/thread.hpp>
-#include <boost/signals2.hpp>
 
 /* STL Headers */
 #include <vector>
+#include <sys/types.h>
+
 
 /* Project Headers */
-#include "heli.h"
-#include "Debug.h"
 #include "Driver.h"
+#include "heli.h"
 
-/* c headers */
-#include <unistd.h>
-#include <termios.h>
-#include <errno.h>
-#include <cstdlib>
-#include <stdint.h>
-#include <time.h>
-#include <signal.h>
-//#include <sys/netmgr.h>
-//#include <sys/neutrino.h>
-#include <bitset>
 
-/* File Handling Headers */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 /**
  * @brief Contains hardware specific code for Microbotics Servo Switch.

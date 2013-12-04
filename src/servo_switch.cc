@@ -18,10 +18,28 @@
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+
+/* c headers */
+#include <unistd.h>
+#include <termios.h>
+#include <errno.h>
+#include <cstdlib>
+#include <stdint.h>
+#include <time.h>
+#include <signal.h>
+#include <bitset>
+
+// stl headers
+#include "Debug.h"
+
+
+/* File Handling Headers */
 #include "servo_switch.h"
 #include "Configuration.h"
 #include "RateLimiter.h"
 #include "qnx2linux.h"
+
+
 
 servo_switch* servo_switch::_instance = NULL;
 boost::mutex servo_switch::_instance_lock;
