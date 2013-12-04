@@ -105,7 +105,6 @@
    \endcode
 
    \todo Add the ability to set a base directory
-   \todo Create a subdirectory using a date/time stamp to store the output data
  */
 
 class LogFile

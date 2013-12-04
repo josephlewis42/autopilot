@@ -31,6 +31,7 @@
 /* Project Headers */
 #include "heli.h"
 #include "Debug.h"
+#include "Driver.h"
 
 /* c headers */
 #include <unistd.h>
@@ -61,7 +62,7 @@
  * @date February 2012: Class creation
  * @date May 1, 2012: Added auxiliary input for engine speed
  */
-class servo_switch
+class servo_switch : public Driver
 {
 public:
 	static servo_switch* getInstance();

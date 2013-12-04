@@ -54,12 +54,15 @@ servo_switch* servo_switch::getInstance()
 {
 	boost::mutex::scoped_lock lock(_instance_lock);
 	if (!_instance)
+	{
 		_instance = new servo_switch;
+	}
 	return _instance;
 }
 
 servo_switch::servo_switch()
-: raw_inputs(9, 0),
+: Driver("Servo Switch"),
+  raw_inputs(9, 0),
   raw_outputs(9,0),
   pilot_mode(heli::PILOT_UNKNOWN)
 {
@@ -187,10 +190,12 @@ int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 
 void servo_switch::read_serial::read_data()
 {
-	int fd_ser = servo_switch::getInstance()->get_serial_descriptor();
+	servo_switch* servo = servo_switch::getInstance();
+
+	int fd_ser = servo->get_serial_descriptor();
 	std::vector<uint8_t> payload;
 	std::vector<uint8_t> checksum(2);
-	for(;;)
+	while(! servo->terminateRequested())
 	{
 		// debug() << "searching for header";
 		find_next_header();
@@ -228,7 +233,7 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 
 	switch (id)
 	{
-	case 10:
+	case STATUS:
 	{
 		uint16_t status =  payload[1];
 		// shift right to get command channel state
@@ -247,12 +252,12 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 		}
 		break;
 	}
-	case 13:
+	case PULSE_INPUTS:
 	{
 		parse_pulse_inputs(payload);
 		break;
 	}
-	case 14:
+	case AUXILIARY_INPUTS:
 	{
 		parse_aux_inputs(payload);
 		break;
@@ -317,13 +322,14 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 
 void servo_switch::read_serial::find_next_header()
 {
+	servo_switch* servo = servo_switch::getInstance();
 	debug() << "Finding next header";
 	bool synchronized = false;
-	int fd_ser = servo_switch::getInstance()->get_serial_descriptor();
+	int fd_ser = servo->get_serial_descriptor();
 
 	bool found_first_byte = false;
 	uint8_t buf;
-	while (!synchronized)
+	while (!synchronized && !servo->terminateRequested())
 	{
 		readSerialBytes(fd_ser, &buf, 1);
 		if (buf == 0x81) // first byte of header
@@ -338,40 +344,12 @@ void servo_switch::read_serial::find_next_header()
 
 void servo_switch::send_serial::send_data()
 {
-	//struct sigevent         event;
-	//struct itimerspec       itime;
-	//timer_t                 timer_id;
-	/* ChannelCreate() func. creates a channel that is owned by the process (and isn't bound to the creating thread). */
-	//int chid = ChannelCreate(0);
-
-	//event.sigev_notify = SIGEV_PULSE;
-
-	/* Threads wishing to connect to the channel identified by 'chid'(channel id) by ConnectAttach() func.
-		 Once attached thread can MsgSendv() & MsgSendPulse() to enqueue messages & pulses on the channel in priority order. */
-	/**event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0,
-			chid,
-			_NTO_SIDE_CHANNEL, 0);
-	event.sigev_priority = heli::servo_switch_send_priority;
-	event.sigev_code = heli::servo_switch_pulse_code;
-	timer_create(CLOCK_REALTIME, &event, &timer_id);
-
-	itime.it_value.tv_sec = 0;
-	itime.it_value.tv_nsec = 20000000;
-	itime.it_interval.tv_sec = 0;
-	itime.it_interval.tv_nsec = 20000000; // 50Hz
-	timer_settime(timer_id, 0, &itime, NULL);
-
-
-	_pulse pulse;
-	**/
-
-
 	RateLimiter rl(50);
 
-	for (;;)
+	while(true)
 	{
 		rl.wait();
-		//MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL);
+
 		std::vector<uint8_t> pulse_message = get_pulse_message();
 		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, getInstance()->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
 		while (write(getInstance()->get_serial_descriptor(), &pulse_message[0], pulse_message.size()) < 0)

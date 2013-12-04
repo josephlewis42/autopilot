@@ -87,7 +87,6 @@ void GPS::ReadSerial::operator()()
 		MainApp::terminate();
 	}
 
-	debug() << "NovAtel receive thread terminated, sending unlog command.";
 	send_unlog_command();
 }
 

@@ -55,7 +55,8 @@ GPS* GPS::getInstance()
 
 
 GPS::GPS()
-: read_serial_thread(ReadSerial())
+:Driver("NovAtel GPS"),
+ read_serial_thread(ReadSerial())
 {
 	LogFile::getInstance()->logHeader(heli::LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 

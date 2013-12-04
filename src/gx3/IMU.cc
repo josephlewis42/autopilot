@@ -66,7 +66,7 @@ IMU* IMU::getInstance()
 }
 
 IMU::IMU()
-:
+:Driver("GX3 IMU"),
  position(blas::zero_vector<double>(3)),
  ned_origin(blas::zero_vector<double>(3)),
  velocity(blas::zero_vector<double>(3)),
