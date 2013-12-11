@@ -31,8 +31,10 @@ GPS* GPS::_instance = NULL;
 boost::mutex GPS::_instance_lock;
 
 /// path to serial device connected to Novatel
-std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "gps_serial";
+std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT = "/dev/ser1";
+std::string GPS::GPS_ENABLED = "novatel.enabled";
+bool GPS::GPS_ENABLED_DEFAULT = true;
 
 const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
 		"V-sol_status vel_type V-X V-Y V-Z V-X_stddev V-Y_stddev V-Z_stddev "

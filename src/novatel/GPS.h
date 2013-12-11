@@ -88,6 +88,9 @@ public:
 
 	static std::string GPS_SERIAL_PORT_CONFIGURATION_NAME;
 	static std::string GPS_SERIAL_PORT_CONFIGURATION_DEFAULT;
+	static std::string GPS_ENABLED;
+	static bool GPS_ENABLED_DEFAULT;
+
 
 private:
 

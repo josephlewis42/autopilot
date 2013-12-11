@@ -50,8 +50,10 @@ IMU* IMU::_instance = NULL;
 boost::mutex IMU::_instance_lock;
 
 // path to serial device connected to gx3
-const std::string IMU_SERIAL_PORT_CONFIG_NAME = "imu_serial_port";
+const std::string IMU_SERIAL_PORT_CONFIG_NAME = "gx3.serial_port";
 const std::string IMU_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser2";
+const std::string IMU_ENABLED = "gx3.enabled";
+const bool IMU_ENABLED_DEFAULT = true;
 
 IMU* IMU::getInstance()
 {
@@ -79,6 +81,12 @@ IMU::IMU()
  nav_angular_rate(blas::zero_vector<double>(3)),
  ahrs_angular_rate(blas::zero_vector<double>(3))
 {
+
+	if(! Configuration::getInstance()->getb(IMU_ENABLED, IMU_ENABLED_DEFAULT))
+	{
+		warning() << "GX3 disabled!";
+		return;
+	}
 
 	try
 	{

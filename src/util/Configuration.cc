@@ -40,7 +40,7 @@ Configuration::Configuration()
 {
 	try
 	{
-		read_xml(DEFAULT_XML_FILE_PATH, _properties);
+		read_xml(DEFAULT_XML_FILE_PATH, _properties, boost::property_tree::xml_parser::trim_whitespace);
 	}
 	catch(boost::exception const& e)
 	{
@@ -212,7 +212,8 @@ void Configuration::save()
 {
 	try
 	{
-		write_xml(DEFAULT_XML_FILE_PATH, _properties);
+		boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+		write_xml(DEFAULT_XML_FILE_PATH, _properties, std::locale(), settings);
 	}catch(boost::exception const& ex)
 	{
 		warning() << "Can't save configuration";

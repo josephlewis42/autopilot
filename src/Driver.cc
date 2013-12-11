@@ -16,6 +16,8 @@ Driver::Driver(std::string name)
 :_name(name),
  _terminate(false)
 {
+	debug() << "Driver: Setting up " << name;
+
 	boost::mutex::scoped_lock(_all_drivers_lock);
 	all_drivers.push_front(this);
 }

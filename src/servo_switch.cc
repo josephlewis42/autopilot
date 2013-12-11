@@ -64,8 +64,11 @@ enum ServoMessageID
 };
 
 // path to serial device connected to gx3
-const std::string SERVO_SERIAL_PORT_CONFIG_NAME = "servo_serial_port";
+const std::string SERVO_SERIAL_PORT_CONFIG_NAME = "servo.serial_port";
 const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser3";
+
+const std::string SERVO_SWITCH_ENABLED = "servo.enabled";
+const bool SERVO_SWITCH_ENABLED_DEFAULT = true;
 
 
 servo_switch* servo_switch::getInstance()
@@ -84,6 +87,12 @@ servo_switch::servo_switch()
   raw_outputs(9,0),
   pilot_mode(heli::PILOT_UNKNOWN)
 {
+	if(!Configuration::getInstance()->getb(SERVO_SWITCH_ENABLED, SERVO_SWITCH_ENABLED_DEFAULT))
+	{
+		warning() << "Servo switch disabled!";
+		return;
+	}
+
 	if(init_port())
 	{
 		receive = boost::thread(read_serial());
@@ -104,7 +113,11 @@ bool servo_switch::init_port()
 {
 	std::string port = Configuration::getInstance()->gets(SERVO_SERIAL_PORT_CONFIG_NAME, SERVO_SERIAL_PORT_CONFIG_DEFAULT);
 
+	debug() << "Servo switch: port is " << port;
+
 	boost::mutex::scoped_lock lock(fd_ser1_lock);
+	debug() << "Servo switch: got lock ";
+
 	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY);       // GPS is connected to serial port#2
 
 	if(fd_ser1 == -1)
@@ -114,6 +127,8 @@ bool servo_switch::init_port()
 
 		return false;
 	}
+
+	debug() << "Servo switch: opened";
 
 	// Set up the terminal configuration for the given port.
 	struct termios port_config;

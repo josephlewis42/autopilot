@@ -74,6 +74,12 @@ GPS::ReadSerial::ReadSerial()
 
 void GPS::ReadSerial::operator()()
 {
+	if(!Configuration::getInstance()->getb(GPS::GPS_ENABLED, GPS::GPS_ENABLED_DEFAULT))
+	{
+		warning() << "NovAtel disabled!";
+		return;
+	}
+
 	debug() << "Initialize the NovAtel serial port";
 	if(initPort())
 	{
