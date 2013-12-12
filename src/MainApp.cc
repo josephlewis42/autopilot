@@ -236,7 +236,6 @@ void MainApp::cleanup::operator()()
 	{
 		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
 		t.thread->timed_join(delay);
-		//t.thread->join();
 	}
 	message() << "All registered threads ended.";
 }

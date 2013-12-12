@@ -88,11 +88,7 @@ IMU::IMU()
 		return;
 	}
 
-	try
-	{
-		init_serial();
-	}
-	catch (init_failure i)
+	if(!init_serial())
 	{
 		critical() << "Failed to open serial port for GX3.  Attempting to terminate autopilot.";
 		MainApp::terminate();
@@ -109,15 +105,17 @@ IMU::~IMU()
 	close_serial();
 }
 
-void IMU::init_serial()
+bool IMU::init_serial()
 {
 	std::string serial_path = Configuration::getInstance()->gets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
 	debug() << "GX3 starting on " << serial_path;
-	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY);
+	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+	debug() << "GX3 port opened";
 
 	if(-1 == fd_ser)
 	{
-		throw init_failure("Could not initialize imu serial port");
+		critical() << "Could not initialize imu serial port";
+		return false;
 	}
 
 	// Set up the terminal configuration for the given port.
@@ -150,15 +148,20 @@ void IMU::init_serial()
 	if (tcsetattr(fd_ser, TCSADRAIN, &port_config) != 0)
 	{
 		critical() << "IMU could not set serial port attributes";
-		throw init_failure("Could not initialize imu serial port");
+		return false;
 
 	}
 
 	if(tcflush(fd_ser, TCIOFLUSH) == -1)
 	{
 		critical() << "could not purge the IMU serial port";
-		throw init_failure("Could not urge the IMU serial port");
+		return false;
 	}
+
+	debug() << "GX3 started ";
+
+	return true;
+
 }
 
 void IMU::close_serial()

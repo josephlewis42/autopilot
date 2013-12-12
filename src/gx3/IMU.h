@@ -138,7 +138,7 @@ private:
 	/// serial port file descriptor
 	int fd_ser;
 	/// initialize the serial port
-	void init_serial();
+	bool init_serial();
 	/// close the serial port
 	void close_serial();
 
