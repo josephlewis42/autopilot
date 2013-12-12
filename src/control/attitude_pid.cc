@@ -82,6 +82,16 @@ attitude_pid::attitude_pid(const attitude_pid& other)
 		boost::mutex::scoped_lock lock(other.runnable_lock);
 		_runnable = other._runnable;
 	}
+
+	{
+		boost::mutex::scoped_lock lock(other.roll_trim_lock);
+		roll_trim = other.roll_trim;
+	}
+
+	{
+		boost::mutex::scoped_lock lock(other.pitch_trim_lock);
+		pitch_trim = other.pitch_trim;
+	}
 }
 
 void attitude_pid::reset()
