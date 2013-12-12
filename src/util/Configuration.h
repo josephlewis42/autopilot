@@ -35,19 +35,19 @@ public:
 	void loadProperties(std::string path);
 
 	// Returns a string from the configuration.
-	std::string gets(const std::string key, std::string alt="");
+	std::string gets(const std::string &key, const std::string &alt="");
 
 	// Returns a bool from the configuration
-	bool getb(const std::string key, bool alt=false);
+	bool getb(const std::string &key, bool alt=false);
 
 	// Returns an int from the configuration.
-	int geti(const std::string key, int alt=0);
+	int geti(const std::string &key, int alt=0);
 
 	// Returns a float from the configuration
-	float getf(const std::string key, float alt=0.0f);
+	float getf(const std::string &key, float alt=0.0f);
 
 	// Returns a double from the configuration
-	double getd(const std::string key, double alt=0.0);
+	double getd(const std::string &key, double alt=0.0);
 
 	// Allows you to override the configuration with a vector of
 	// -key=value strings as you'd get from a cli
@@ -57,7 +57,7 @@ public:
 	/**
 	 * Sets a path to be a value.
 	 */
-	void set(const std::string key, const std::string value);
+	void set(const std::string &key, const std::string value);
 
 	/**
 	 * Sets a path to be a double value
@@ -65,7 +65,7 @@ public:
 	 * @param key - the key to store the value under
 	 * @param value - the value of the param
 	 */
-	void setd(const std::string key, const double value);
+	void setd(const std::string &key, const double value);
 
 	/**
 	 * Sets a path to be an int value
@@ -73,7 +73,7 @@ public:
 	 * @param key - the key to store the value under
 	 * @param value - the value of the param
 	 */
-	void seti(const std::string key, const int value);
+	void seti(const std::string &key, const int value);
 
 private:
 	static Configuration* _instance;

@@ -112,7 +112,7 @@ Configuration* Configuration::getInstance()
 }
 
 
-std::string Configuration::gets(const std::string key, std::string alt)
+std::string Configuration::gets(const std::string &key, const std::string &alt)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 	try
@@ -127,7 +127,7 @@ std::string Configuration::gets(const std::string key, std::string alt)
 }
 
 
-bool Configuration::getb(const std::string key, bool alt)
+bool Configuration::getb(const std::string &key, bool alt)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 
@@ -143,7 +143,7 @@ bool Configuration::getb(const std::string key, bool alt)
 }
 
 
-int Configuration::geti(const std::string key, int alt)
+int Configuration::geti(const std::string &key, int alt)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 
@@ -159,7 +159,7 @@ int Configuration::geti(const std::string key, int alt)
 }
 
 
-double Configuration::getd(const std::string key, double alt)
+double Configuration::getd(const std::string &key, double alt)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 
@@ -175,7 +175,7 @@ double Configuration::getd(const std::string key, double alt)
 }
 
 
-float Configuration::getf(const std::string key, float alt)
+float Configuration::getf(const std::string &key, float alt)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 
@@ -190,7 +190,7 @@ float Configuration::getf(const std::string key, float alt)
 	}
 }
 
-void Configuration::set(const std::string key, const std::string value)
+void Configuration::set(const std::string &key, const std::string value)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 
@@ -198,12 +198,12 @@ void Configuration::set(const std::string key, const std::string value)
 	save();
 }
 
-void Configuration::setd(const std::string key, const double value)
+void Configuration::setd(const std::string &key, const double value)
 {
 	set(key, boost::lexical_cast<std::string>(value));
 }
 
-void Configuration::seti(const std::string key, const int value)
+void Configuration::seti(const std::string &key, const int value)
 {
 	set(key, boost::lexical_cast<std::string>(value));
 }
