@@ -29,8 +29,8 @@ bad_control::bad_control(const std::string message, const std::string filename, 
 }
 
 bad_control::bad_control(const bad_control& other) throw()
+:message(other.message)
 {
-	message = other.message;
 }
 
 bad_control::~bad_control() throw()
