@@ -10,6 +10,8 @@
 #include "qnx2linux.h"
 #include <termios.h>
 #include <unistd.h>
+#include <boost/thread.hpp>
+#include "Debug.h"
 
 int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeout) {
 	struct termios orig;
@@ -22,10 +24,36 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 	termios.c_cc[VMIN] = min;
 	tcsetattr(fd, TCSANOW, &termios);
 
-	int bytesRead = read(fd, buf, n);
+	char* pointer = (char*)buf; // convert to a pointer of bytes
+
+	int totalBytesRead = 0;
+	if(timeout == 0)
+	{
+		totalBytesRead = read(fd, pointer, n);
+	}
+	else
+	{
+		for(int i = 0; i < timeout; i++)
+		{
+			int bytesRead = read(fd, pointer, n - totalBytesRead);
+			totalBytesRead += bytesRead;
+			pointer += bytesRead;
+
+			// if we've read enough, stop
+			if(totalBytesRead == n)
+			{
+				break;
+			}
+
+			// QNX specification says this is 1/10th of a second.
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+			debug() << "read: " << bytesRead << " of " << n << " ptr is: " << (unsigned int) pointer << "orig: " << (unsigned int) buf;
+
+		}
+	}
 
 	tcsetattr(fd, TCSANOW, &orig); // return to the original state.
-
-	return bytesRead;
+	return totalBytesRead;
 }
 #endif

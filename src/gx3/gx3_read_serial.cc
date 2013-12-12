@@ -93,7 +93,7 @@ bool IMU::read_serial::sync()
 		}
 		else
 		{
-			//debug() << "IMU::read_serial: got useless bytes: " << std::hex << last_byte << ", " << curr_byte;
+			debug() << "IMU::read_serial: got useless bytes: " << std::hex << last_byte << ", " << curr_byte;
 		}
 		last_byte = curr_byte;
 	}

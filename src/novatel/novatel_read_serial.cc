@@ -39,7 +39,6 @@
 
 /* Project Headers */
 #include "Debug.h"
-#include "init_failure.h"
 #include "heli.h"
 #include "MainApp.h"
 #include "qnx2linux.h"
@@ -143,7 +142,7 @@ bool GPS::ReadSerial::initPort()
 	if(tcflush(fd_ser, TCIOFLUSH) == -1)
 	{
 		critical() << "could not purge the NovAtel serial port";
-		throw init_failure("Could not purge the NovAtel serial port");
+		return false;
 	}
 
 #ifndef NDEBUG
