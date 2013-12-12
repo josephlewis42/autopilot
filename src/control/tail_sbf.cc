@@ -43,7 +43,8 @@ std::string tail_sbf::XML_TRAVEL = "controller_params.translation_outer_sbf.trav
 
 tail_sbf::tail_sbf()
 : ned_x(10),
-  ned_y(10)
+  ned_y(10),
+  scaled_travel(0)
 {
 }
 
