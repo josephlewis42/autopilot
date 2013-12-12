@@ -152,9 +152,8 @@ void LogFile::LogFileWrite::write_thread()
 
 bool LogFile::LogFileWrite::check_terminate()
 {
-	bool t = false;
 	terminate_mutex.lock();
-	t = terminate;
+	bool t = terminate;
 	terminate_mutex.unlock();
 	return !t;
 }
