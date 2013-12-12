@@ -3,12 +3,7 @@
 
 void MainApp::run()
 {
+	QGCLink::getInstance();
 
-	QGCLink *qgc = QGCLink::getInstance();
-
-
-
-		for(;;);
-
-
+	for(;;);
 }
