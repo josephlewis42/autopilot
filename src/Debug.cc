@@ -20,7 +20,6 @@
 
 // Includes
 #include "Debug.h"
-
 #include <string.h>
 
 
@@ -49,6 +48,11 @@ Debug::Debug(const Debug& other)
 
 Debug::~Debug()
 {
+	if(debug_level == IGNORE)
+	{
+		return;
+	}
+
 	std::string message;
 	switch(debug_level)
 	{
@@ -109,6 +113,8 @@ Debug::~Debug()
 	case DEBUG:
 		// do nothing for debug messages.
 		break;
+	case IGNORE:
+		break; // we're ignoring these
 	}
 }
 

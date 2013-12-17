@@ -44,8 +44,6 @@
 #include "qnx2linux.h"
 
 
-//#define NDEBUG
-
 // Constant definitions
 const double GPS::ReadSerial::OEM6_LOG_20_HZ = 0.05;
 const double GPS::ReadSerial::OEM6_LOG_10_HZ = 0.1;
@@ -97,8 +95,14 @@ void GPS::ReadSerial::operator()()
 
 bool GPS::ReadSerial::initPort()
 {
+	GPS* gps = GPS::getInstance();
+
+
 	std::string serial_port = Configuration::getInstance()->gets(GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME, GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT);
-	fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY);
+
+	gps->trace() << "Opening serial";
+	fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+	gps->trace() << "Opened serial";
 
 	if(-1 == fd_ser)
 	{
@@ -137,6 +141,7 @@ bool GPS::ReadSerial::initPort()
 	if (tcsetattr(fd_ser, TCSADRAIN, &port_config) != 0)
 	{
 		critical() << "NovAtel could not set serial port attributes";
+		return false;
 	}
 
 	if(tcflush(fd_ser, TCIOFLUSH) == -1)
@@ -145,21 +150,22 @@ bool GPS::ReadSerial::initPort()
 		return false;
 	}
 
-#ifndef NDEBUG
-	debug() << "NovAtel initialized on " << serial_port;
-#endif
+	gps->trace() << "NovAtel initialized on " << serial_port;
 
 	return true;
 }
 
 bool GPS::ReadSerial::synchronize()
 {
+	GPS* gps = GPS::getInstance();
+
+	gps->trace() << "Synchronize Called";
 	uint8_t currentByte;
 	int position = 0;
 
 	last_data = boost::posix_time::second_clock::local_time();
 
-	while(!GPS::getInstance()->terminateRequested())
+	while(!gps->terminateRequested())
 	{
 		// Check for overall timeout.
 		if ((boost::posix_time::second_clock::local_time() - last_data).total_seconds() > 10)
@@ -201,6 +207,8 @@ bool GPS::ReadSerial::synchronize()
 
 void GPS::ReadSerial::readPort()
 {
+	GPS* gps = GPS::getInstance();
+
 	setupLogging();
 	while(synchronize())
 	{
@@ -213,9 +221,8 @@ void GPS::ReadSerial::readPort()
 			continue;
 		}
 
-#ifndef NDEBUG
-		debug() << "NovAtel: Received Header: " << header;
-#endif
+		gps->trace() << "NovAtel: Received Header: " << header;
+
 		int data_size = raw_to_int<uint16_t>(header.begin() + 5);
 		std::vector<uint8_t> log_data(data_size);
 		bytes = readSerialBytes(fd_ser, &log_data[0], data_size);
@@ -224,9 +231,9 @@ void GPS::ReadSerial::readPort()
 			warning() << "NovAtel: Received header, but could not receive data log.";
 			continue;
 		}
-#ifndef NDEBUG
-		debug() << "NovAtel: Received Message: " << log_data;
-#endif
+
+		gps->trace() << "NovAtel: Received Message: " << log_data;
+
 		int checksum_size = 4;
 		std::vector<uint8_t> checksum(checksum_size);
 		bytes = readSerialBytes(fd_ser, &checksum[0], checksum_size);
@@ -250,9 +257,8 @@ void GPS::ReadSerial::readPort()
 		if (checksum != computed_checksum)
 		{
 			warning() << "NovAtel: received complete message but checksum was invalid";
-#ifndef NDEBUG
-			debug() << "NovAtel: checksum: " << checksum << ", computed checksum: " << computed_checksum;
-#endif
+
+			gps->trace() << "NovAtel: checksum: " << checksum << ", computed checksum: " << computed_checksum;
 			continue;
 		}
 
@@ -281,9 +287,8 @@ void GPS::ReadSerial::readPort()
 		case OEM6_LOG_RTKXYZ:  // RTKXYZ
 			if (!is_response(header))
 			{
-#ifndef NDEBUG
-				debug() << "NovAtel: Received data";
-#endif
+				gps->trace() << "NovAtel: Received data";
+
 				std::vector<double> log;
 				parse_header(header, log);
 				parse_log(log_data, log);
@@ -310,9 +315,9 @@ void GPS::ReadSerial::parse_header(const std::vector<uint8_t>& header, std::vect
 {
 	std::vector<uint8_t>::const_iterator it = header.begin() + 10;
 	uint32_t time_status = *it;
-#ifndef NDEBUG
-	debug() << "NovAtel: time status: " << time_status;
-#endif
+
+	gps->trace() << "NovAtel: time status: " << time_status;
+
 	log += time_status;
 	it += 1;
 	uint16_t week = raw_to_int<uint16_t>(it);
@@ -335,22 +340,18 @@ void GPS::ReadSerial::parse_log(const std::vector<uint8_t>& data, std::vector<do
 	log += pos_type;
 	gps.set_position_type(pos_type);
 
-#ifndef NDEBUG
-	debug() << "NovAtel: Pos type: " << pos_type;
-#endif
+	gps.trace() << "NovAtel: Pos type: " << pos_type;
 
 	blas::vector<double> position(parse_3floats<double>(data, 8));
 
-	#ifndef NDEBUG
-	debug() << "NovAtel: ecef position: " << position;
-#endif
+	gps.trace() << "NovAtel: ecef position: " << position;
+
 	log.insert(log.end(), position.begin(), position.end());
 	blas::vector<double> llh(ecef_to_llh(position));
 	gps.set_llh_position(llh);
 
-#ifndef NDEBUG
-	debug() << "NovAtel: llh: " << llh;
-#endif
+	gps.trace() << "NovAtel: llh: " << llh;
+
 	blas::vector<float> position_error(parse_3floats<float>(data, 32));
 	log.insert(log.end(), position_error.begin(), position_error.end());
 	gps.set_pos_sigma(ecef_to_ned(position_error, llh));
@@ -419,9 +420,9 @@ blas::vector<double> GPS::ReadSerial::ecef_to_llh(const blas::vector<double>& ec
 
 void GPS::ReadSerial::_genericLog(OEM6_PORT_IDENTIFIER port, OEM6_LOG message, OEM6_LOG_TRIGGERS trigger, double period)
 {
-#ifndef NDEBUG
-	debug() << "NovAtel: [Log msg: " << message << ", trigger: " << trigger << ", period: " << (1/period) << "HZ, on: " << port << "]";
-#endif
+	GPS* gps = GPS::getInstance();
+	gps->trace() << "NovAtel: [Log msg: " << message << ", trigger: " << trigger << ", period: " << (1/period) << "HZ, on: " << port << "]";
+
 	// generate header
 	std::vector<uint8_t> command(generate_header(OEM6_COMMAND_LOG, 32));
 
@@ -454,9 +455,7 @@ void GPS::ReadSerial::_genericLog(OEM6_PORT_IDENTIFIER port, OEM6_LOG message, O
 	std::vector<uint8_t> checksum(compute_checksum(command));
 	command.insert(command.end(), checksum.begin(), checksum.end());
 
-#ifndef NDEBUG
-	debug() << "NovAtel: sent log command: " << std::hex << command;
-#endif
+	gps->trace() << "NovAtel: sent log command: " << std::hex << command;
 
 	/* Send out the command */
 	write(fd_ser, &command[0], command.size());
@@ -469,9 +468,8 @@ void GPS::ReadSerial::send_unlog_command()
 
 void GPS::ReadSerial::_genericUnlog(OEM6_LOG message)
 {
-#ifndef NDEBUG
-	debug() << "NovAtel: Unlogging message: " << message;
-#endif
+	gps->trace() << "NovAtel: Unlogging message: " << message;
+
 	std::vector<uint8_t> command(generate_header(OEM6_COMMAND_UNLOG, 8));
 
 	std::vector<uint8_t> port(int_to_raw(OEM6_PORT_THISPORT));
@@ -511,14 +509,15 @@ std::vector<uint8_t> GPS::ReadSerial::generate_header(uint16_t message_id, uint1
 
 void GPS::ReadSerial::setupLogging()
 {
+	GPS::getInstance()->trace() << "Setting up logging";
 	_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_RTKXYZ, ONTIME, OEM6_LOG_4_HZ);
 }
 
 std::vector<uint8_t> GPS::ReadSerial::compute_checksum(const std::vector<uint8_t>& message)
 {
-	unsigned long ulTemp1;
-	unsigned long ulTemp2;
-	unsigned long ulCRC = 0;
+	uint32_t ulTemp1;
+	uint32_t ulTemp2;
+	uint32_t ulCRC = 0;
 
 	for (size_t i=0; i < message.size(); i++)
 	{
@@ -533,7 +532,7 @@ std::vector<uint8_t> GPS::ReadSerial::compute_checksum(const std::vector<uint8_t
 unsigned long GPS::ReadSerial::CRC32Value(int i)
 {
 	int j;
-	unsigned long ulCRC;
+	uint32_t ulCRC;
 
 	ulCRC = i;
 	for ( j = 8 ; j > 0; j-- )

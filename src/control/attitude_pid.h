@@ -178,11 +178,11 @@ private:
 	/// trim point regulated by the controller.  it is stored in radians
 	double roll_trim;
 	/// serialize access to roll_trim
-	boost::mutex roll_trim_lock;
+	mutable boost::mutex roll_trim_lock;
 	/// trim point regulated by the control.  stored in radians
 	double pitch_trim;
 	/// serialize access to pitch_trim
-	boost::mutex pitch_trim_lock;
+	mutable boost::mutex pitch_trim_lock;
 
 	/// is this controller runnable?
 	bool _runnable;

@@ -190,7 +190,7 @@ float Configuration::getf(const std::string &key, float alt)
 	}
 }
 
-void Configuration::set(const std::string &key, const std::string value)
+void Configuration::set(const std::string &key, const std::string& value)
 {
 	boost::mutex::scoped_lock lock(_propertiesLock);
 

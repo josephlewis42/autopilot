@@ -553,7 +553,7 @@ private:
 	///Used by compute_checksum function
 	static unsigned long CRC32Value(int i);
 
-	static const unsigned long CRC32_POLYNOMIAL = 0xEDB88320L;
+	static const uint32_t CRC32_POLYNOMIAL = 0xEDB88320L;
 
 	/// serial port file descriptor
 	int fd_ser;

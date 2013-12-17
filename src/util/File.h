@@ -47,7 +47,7 @@ class File
 		 * Tests if a file exists.
 		 * @param path - the path to the file.
 		 */
-		static bool exists(const std::string path);
+		static bool exists(const std::string& path);
 };
 
 #endif /* FILE_H_ */

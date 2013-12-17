@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <boost/thread.hpp>
 #include "Debug.h"
+#include <stdint.h>
 
 int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeout) {
 	struct termios orig;
@@ -48,7 +49,7 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 			// QNX specification says this is 1/10th of a second.
 			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-			debug() << "read: " << bytesRead << " of " << n << " ptr is: " << (unsigned int) pointer << "orig: " << (unsigned int) buf;
+			//debug() << "read: " << bytesRead << " of " << n << " ptr is: " << (intptr_t) pointer << "orig: " << (intptr_t) buf;
 
 		}
 	}

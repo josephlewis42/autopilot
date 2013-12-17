@@ -57,11 +57,13 @@ GPS* GPS::getInstance()
 
 
 GPS::GPS()
-:Driver("NovAtel GPS"),
+:Driver("NovAtel GPS","novatel"),
  read_serial_thread(ReadSerial())
 {
+	trace() << "Generating log headers";
 	LogFile::getInstance()->logHeader(heli::LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 
+	trace() << "Adding read serial thread";
 	MainApp::add_thread(&read_serial_thread, READ_GPS_THREAD_NAME);
 }
 

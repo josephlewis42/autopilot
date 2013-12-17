@@ -90,7 +90,8 @@ public:
 		DEBUG,
 		WARNING,
 		CRITICAL,
-		MESSAGE
+		MESSAGE,
+		IGNORE
 	};
 	explicit Debug(DEBUG_LEVEL debug_level = DEBUG);
 	Debug(const Debug& other);
@@ -128,6 +129,8 @@ private:
 	std::stringstream ss;
 	DEBUG_LEVEL debug_level;
 };
+
+static inline Debug ignore() {return Debug(Debug::IGNORE);}
 
 static inline Debug debug() {return Debug();}
 

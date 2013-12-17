@@ -82,7 +82,7 @@ servo_switch* servo_switch::getInstance()
 }
 
 servo_switch::servo_switch()
-: Driver("Servo Switch"),
+: Driver("Servo Switch","servo"),
   raw_inputs(9, 0),
   raw_outputs(9,0),
   pilot_mode(heli::PILOT_UNKNOWN)

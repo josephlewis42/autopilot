@@ -14,14 +14,18 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/extern/Linux \
 		-I$(PROJECT_ROOT)/extern/mavlink/include/ualberta
 
-CFLAGS= -m32 ${INCLUDE} -c -Wall -g
-LDFLAGS= -g -m32 -static -L/usr/lib -L$(PROJECT_ROOT)/lib/Linux32 -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
+#32 bit
+#CFLAGS:=  -m32 -static ${INCLUDE} -c -g -Wall -fstack-protector-all
+#LDFLAGS:= -m32 -static -g -L/usr/lib -L$(PROJECT_ROOT)/lib/Linux32 -fstack-protector-all -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
+CFLAGS:=  -static ${INCLUDE} -c -g -Wall -fstack-protector-all
+LDFLAGS:= -static -g -L$(PROJECT_ROOT)/lib/Linux64 -L/usr/lib -fstack-protector-all -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
+
+
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot
 
-
-all: $(SOURCES) $(EXECUTABLE) tests
+all: $(SOURCES) $(EXECUTABLE)
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 

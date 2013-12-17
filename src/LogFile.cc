@@ -91,10 +91,11 @@ boost::mutex LogFile::_instance_lock;
 LogFile* LogFile::getInstance()
 {
 	boost::mutex::scoped_lock lock(_instance_lock);
-	if (!_instance)
+	if (NULL == _instance)
 	{
 		_instance = new LogFile;
 	}
+
 	return _instance;
 }
 
@@ -148,6 +149,8 @@ void LogFile::LogFileWrite::write_thread()
 		debug() << "LogFileWrite: Closing " << it->first;
 		it->second->close();
 	}
+
+	debug() << "LogFileWrite: Terminated";
 }
 
 bool LogFile::LogFileWrite::check_terminate()
@@ -184,6 +187,7 @@ void LogFile::LogFileWrite::write(std::map<std::string, std::queue<std::string> 
 					if (headers->count(it->first) > 0)
 						(*openFiles[it->first]) << (*headers)[it->first];
 					(*openFiles[it->first]) << std::endl;
+					debug() << "LogFileWrite: Created";
 				}
 				else
 					openFiles[it->first]->open(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
@@ -212,16 +216,14 @@ void LogFile::LogFileWrite::do_terminate::operator()()
 
 void LogFile::logMessage(const std::string& name, const std::string& msg)
 {
-	std::stringstream *dataStr = new std::stringstream();
+	std::stringstream dataStr;
 
 	boost::posix_time::ptime time(boost::posix_time::microsec_clock::local_time());
-	*dataStr << ((time-startTime).total_milliseconds()) << '\t';
-	*dataStr << msg;
-	*dataStr << std::endl;
+	dataStr << ((time-startTime).total_milliseconds()) << '\t';
+	dataStr << msg;
+	dataStr << std::endl;
 	{
 		boost::mutex::scoped_lock(this->logMutex);
-		(*log)[name].push(dataStr->str());
+		(*log)[name].push(dataStr.str());
 	}
-	delete dataStr;
 }
-

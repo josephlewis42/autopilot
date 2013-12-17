@@ -38,24 +38,35 @@ private:
 	/// serialize access to _terminate
 	boost::mutex _terminate_lock;
 
-	// Keeps a list of all drivers so we can terminate them later.
-	static boost::mutex _all_drivers_lock;
-	static std::list<Driver*> all_drivers;
+	/// stores the prefix for the driver
+	std::string _config_prefix;
 
 	// Keeps the human readable name for the current driver.
 	std::string _name;
 
+	/// stores if the driver is going to do big debugging.
+	bool _debug;
+
+	// Keeps a list of all drivers so we can terminate them later.
+	static boost::mutex _all_drivers_lock;
+	static std::list<Driver*> all_drivers;
+
+
+
 public:
-	Driver(std::string name);
+	Driver(std::string name, std::string config_prefix);
 	virtual ~Driver();
 	static void terminateAll();
-	inline std::string getName(){return _name;};
+	inline const std::string getName(){return _name;};
 	inline bool terminateRequested() {boost::mutex::scoped_lock(_terminate_lock); return _terminate;};
 	inline void terminate() {
+		debug() << "Driver Terminating: " << getName();
 		boost::mutex::scoped_lock(_terminate_lock);
 		_terminate = true;
-		debug() << "Driver Terminating: " << getName();
 	};
+
+	/// Traces an item to the debugging output of the software if debugging has been set up in the config file.
+	Debug trace();
 };
 
 #endif /* DRIVER_H_ */

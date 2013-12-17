@@ -202,10 +202,6 @@ enum Channel
     CH9
 };
 
-const std::string calibration_filename = "/etc/autopilot/Calibration.xml";
-const std::string controller_param_filename = "/etc/autopilot/Controller_Parameters.xml";
-const std::string physical_param_filename = "/etc/autopilot/Physical_Parameters.xml";
-
 }
 #endif
 

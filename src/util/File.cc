@@ -32,7 +32,7 @@ std::string File::readFile(const std::string& path)
     return std::string(&bytes[0], fileSize);
 }
 
-bool File::exists(const std::string path)
+bool File::exists(const std::string& path)
 {
 	return File::exists(path.c_str());
 }

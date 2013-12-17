@@ -67,7 +67,7 @@ IMU* IMU::getInstance()
 }
 
 IMU::IMU()
-:Driver("GX3 IMU"),
+:Driver("GX3 IMU", "imu"),
  position(blas::zero_vector<double>(3)),
  ned_origin(blas::zero_vector<double>(3)),
  velocity(blas::zero_vector<double>(3)),
@@ -107,9 +107,9 @@ IMU::~IMU()
 bool IMU::init_serial()
 {
 	std::string serial_path = Configuration::getInstance()->gets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
-	debug() << "GX3 starting on " << serial_path;
-	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY);
-	debug() << "GX3 port opened";
+	trace() << "GX3 starting on " << serial_path;
+	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY );//| O_NDELAY);
+	trace() << "GX3 port opened";
 
 	if(-1 == fd_ser)
 	{

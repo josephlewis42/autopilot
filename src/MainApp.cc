@@ -99,14 +99,24 @@ void MainApp::run()
 	signal(SIGINT, heli::shutdown);             // Shutdown program by sending a SIGINT.
 
 	/* Construct components of the autopilot */
+	message() << "Settnig up servo board";
 	servo_switch* servo_board = servo_switch::getInstance();
+
+	message() << "Setting up LogFile";
 	LogFile *log = LogFile::getInstance();
+
+	message() << "Setting up IMU";
 	IMU::getInstance();
+
+	message() << "Setting up QGCLink";
 	QGCLink* qgc = QGCLink::getInstance();
 	qgc->shutdown.connect(this->terminate);
 	qgc->servo_source.connect(this->request_mode);
 
+	message() << "Setting up Helicopter";
 	Helicopter* bergen = Helicopter::getInstance();
+
+	message() << "Setting up control";
 	Control* control = Control::getInstance();
 
 
@@ -130,6 +140,7 @@ void MainApp::run()
 	boost::signals2::scoped_connection pilot_connection(servo_board->pilot_mode_changed.connect(
 			boost::bind(&MainApp::change_pilot_mode, this, _1)));
 
+	message() << "Started main loop";
 	RateLimiter rl(100);
 
 	while(check_terminate())

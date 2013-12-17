@@ -223,26 +223,27 @@ class LogFile
   };
 };
 
+
  template<typename DataContainer>
- void LogFile::logData(const std::string& name, const DataContainer& data)
- {
+  void LogFile::logData(const std::string& name, const DataContainer& data)
+  {
+ 	std::stringstream output;
 
- 	boost::posix_time::ptime time();
- 	std::string log(boost::lexical_cast<std::string>((boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds()));
- 	log += '\t';
+ 	output << boost::lexical_cast<std::string>((boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds());
+  	output << '\t';
 
- 	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
- 	{
- 		log += boost::lexical_cast<std::string>(*it) + '\t';
- 	}
+  	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
+  	{
+  		output << boost::lexical_cast<std::string>(*it);
+  		output << '\t';
+  	}
 
- 	std::stringstream ss;
- 	ss << log << std::endl;
+  	output << std::endl;
 
- 	{
- 		boost::mutex::scoped_lock(logMutex);
- 		(*(this->log))[name].push(ss.str());
- 	}
- }
+  	{
+  		boost::mutex::scoped_lock(logMutex);
+  		(*(this->log))[name].push(output.str());
+  	}
+  }
 
 #endif

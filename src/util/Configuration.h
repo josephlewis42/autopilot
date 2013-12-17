@@ -57,7 +57,7 @@ public:
 	/**
 	 * Sets a path to be a value.
 	 */
-	void set(const std::string &key, const std::string value);
+	void set(const std::string &key, const std::string& value);
 
 	/**
 	 * Sets a path to be a double value
