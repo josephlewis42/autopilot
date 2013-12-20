@@ -10,6 +10,7 @@
 
 #include "Configuration.h"
 #include "File.h"
+#include "Debug.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -36,6 +37,8 @@ std::string DEFAULT_XML_FILE_PATH = "config.xml";
 std::string DEFAULT_PROPERTIES_FILE_PATH = "config.properties";
 const char NEWLINE_CHARACTER = '\n';
 
+const Logger LOG("Configuration: ");
+
 Configuration::Configuration()
 {
 	try
@@ -44,7 +47,7 @@ Configuration::Configuration()
 	}
 	catch(boost::exception const& e)
 	{
-		warning() << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH;
+		LOG.warning() << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH;
 	}
 	loadProperties(DEFAULT_PROPERTIES_FILE_PATH);
 
@@ -216,6 +219,6 @@ void Configuration::save()
 		write_xml(DEFAULT_XML_FILE_PATH, _properties, std::locale(), settings);
 	}catch(boost::exception const& ex)
 	{
-		warning() << "Can't save configuration";
+		LOG.warning() << "Can't save configuration";
 	}
 }

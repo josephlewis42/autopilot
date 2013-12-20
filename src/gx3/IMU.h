@@ -37,6 +37,7 @@ namespace blas = boost::numeric::ublas;
 /* Project Headers */
 #include "IMU_Filter.h"
 #include "Driver.h"
+#include "ThreadQueue.h"
 
 /**
  * @brief This class contains all the code for interacting with the 3DM-GX3 IMU.
@@ -127,9 +128,7 @@ private:
 	static IMU* _instance;
 	static boost::mutex _instance_lock;
 
-	/// thread to send data on serial port
-//	boost::thread send_thread;
-	boost::scoped_ptr<send_serial> _send_serial;
+	send_serial* _send_serial;
 	/// thread to receive data on serial port
 	boost::thread receive_thread;
 	/// thread to parse messages received from imu
@@ -139,55 +138,20 @@ private:
 	int fd_ser;
 	/// initialize the serial port
 	bool init_serial();
-	/// close the serial port
-	void close_serial();
 
 	/// compute the checksum for the imu data packet
 	static std::vector<uint8_t> compute_checksum(std::vector<uint8_t> data);
 
-	/// container for command messages
-	std::queue<std::vector<uint8_t> > command_queue;
-	/// serialize access to IMU::command_queue
-	mutable boost::mutex command_queue_lock;
-	/// threadsafe command_queue pop
-	template<typename T> T command_queue_pop();
-	/// threadsafe command_queue push
-	template<typename T> void command_queue_push(const T& message);
-	/// threadsafe empty for command_queue
-	inline bool command_queue_empty() const {boost::mutex::scoped_lock lock(command_queue_lock); return command_queue.empty();}
 
+	/// container for command data
+	ThreadQueue<std::vector<uint8_t> > command_queue;
 	/// container for ahrs data
-	std::queue<std::vector<uint8_t> > ahrs_queue;
-	/// serialize access to IMU::ahrs_queue
-	mutable boost::mutex ahrs_queue_lock;
-	/// threadsafe ahrs_queue pop
-	template<typename T> T ahrs_queue_pop();
-	/// threadsafe ahrs_queue push
-	template<typename T> void ahrs_queue_push(const T& message);
-	/// threadsafe empty for ahrs_queue
-	inline bool ahrs_queue_empty() const {boost::mutex::scoped_lock lock(ahrs_queue_lock); return ahrs_queue.empty();}
-
+	ThreadQueue<std::vector<uint8_t> > ahrs_queue;
 	/// container for gps data
-	std::queue<std::vector<uint8_t> > gps_queue;
-	/// serialize access to IMU::gps_queue
-	mutable boost::mutex gps_queue_lock;
-	/// threadsafe pop for gps_queue
-	template<typename T> T gps_queue_pop();
-	/// threadsafe push for gps_queue
-	template<typename T> void gps_queue_push(const T& message);
-	/// threadsafe empty for gps_queue
-	inline bool gps_queue_empty() const {boost::mutex::scoped_lock lock(gps_queue_lock); return gps_queue.empty();}
+	ThreadQueue<std::vector<uint8_t> > gps_queue;
+	/// container for nav data
+	ThreadQueue<std::vector<uint8_t> > nav_queue;
 
-	/// container for nav filter messages
-	std::queue<std::vector<uint8_t> > nav_queue;
-	/// serialize access to IMU::nav_queue
-	mutable boost::mutex nav_queue_lock;
-	/// threadsafe pop for nav_queue
-	template<typename T> T nav_queue_pop();
-	/// threadsafe push for nav_queue
-	template<typename T> void nav_queue_push(const T& message);
-	/// threadsafe empty for nav_queue
-	inline bool nav_queue_empty() const {boost::mutex::scoped_lock lock(nav_queue_lock); return nav_queue.empty();}
 
 	/// keep track of the gx3's mode
 	GX3_MODE gx3_mode;
@@ -297,64 +261,5 @@ private:
 	/// convert llh to ecef
 	static blas::vector<double> llh2ecef(const blas::vector<double>& llh_deg);
 };
-
-template<typename T> T IMU::command_queue_pop()
-{
-	boost::mutex::scoped_lock lock(command_queue_lock);
-	T message = command_queue.front();
-	command_queue.pop();
-	return message;
-}
-
-template<typename T> void IMU::command_queue_push(const T& message)
-{
-	boost::mutex::scoped_lock lock(command_queue_lock);
-	command_queue.push(message);
-}
-
-
-
-template<typename T> void IMU::ahrs_queue_push(const T& message)
-{
-	boost::mutex::scoped_lock lock(ahrs_queue_lock);
-	ahrs_queue.push(message);
-}
-
-template<typename T> T IMU::ahrs_queue_pop()
-{
-	boost::mutex::scoped_lock lock(ahrs_queue_lock);
-	T message = ahrs_queue.front();
-	ahrs_queue.pop();
-	return message;
-}
-
-template<typename T> void IMU::gps_queue_push(const T& message)
-{
-	boost::mutex::scoped_lock lock(gps_queue_lock);
-	gps_queue.push(message);
-}
-
-template<typename T> T IMU::gps_queue_pop()
-{
-	boost::mutex::scoped_lock lock(gps_queue_lock);
-	T message = gps_queue.front();
-	gps_queue.pop();
-	return message;
-}
-
-template<typename T> void IMU::nav_queue_push(const T& message)
-{
-	boost::mutex::scoped_lock lock(nav_queue_lock);
-	nav_queue.push(message);
-}
-
-template<typename T> T IMU::nav_queue_pop()
-{
-	boost::mutex::scoped_lock lock(nav_queue_lock);
-	T message = nav_queue.front();
-	nav_queue.pop();
-	return message;
-}
-
 
 #endif /* IMU_H_ */

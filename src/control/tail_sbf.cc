@@ -25,6 +25,7 @@
 #include "Helicopter.h"
 #include "Control.h"
 #include "Configuration.h"
+#include "LogFile.h"
 
 /* STL Headers */
 #include <math.h>

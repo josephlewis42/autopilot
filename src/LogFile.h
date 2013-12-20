@@ -39,6 +39,8 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "Driver.h"
+#include "ThreadSafeVariable.h"
 
 
 /**
@@ -109,7 +111,6 @@
 
 class LogFile
 {
-
  public:
   /// Destructor: frees memory used by the internal data structures
   ~LogFile();
@@ -139,13 +140,9 @@ class LogFile
    * @param msg message to append to name
    */
   void logMessage(const std::string& name, const std::string& msg);
- protected:
 
-  /// stores the log data
-  std::map<std::string, std::queue<std::string> > *log;
-  /// stores the headers for the log files
-  std::map<std::string, std::string> *headers;
-
+  boost::posix_time::ptime getStartTime(){return startTime;}
+  boost::filesystem::path getLogFolder(){return log_folder;}
  private:
   /// Singleton constructor: allocates memory for internal data structures
   LogFile();
@@ -154,96 +151,26 @@ class LogFile
   /// Mutex to make class instantiation threadsafe
   static boost::mutex _instance_lock;
 
-  /// Object to manage the thread that does the actual writing to disk
-  boost::thread data_out;
   /// Stores the time when the class is instantiated (i.e., the program starts)
   boost::posix_time::ptime startTime;
   /// Stores the folder name to store the log files in
   boost::filesystem::path log_folder;
-  /// Mutex to synchronize the writing thread with the logging (main or other) thread
-  boost::mutex logMutex;
-
-
-  /// Exception to be thrown if LogFileWrite is constructed without a valid pointer to a parent
-  class bad_logfile_parent : public std::exception
-  {
-	  virtual const char* what() const throw()
-		{
-		  return "LogFileWrite requires non-null LogFile parent";
-		}
-  };
-
-  /// Callable class for implementing the writing thread
-  class LogFileWrite
-  {
-  public:
-	  LogFileWrite(LogFile *parent=NULL);
-
-	  /** This is the functor used by boost::thread.  In this implementation
-	   * it simply calls write_thread() for clarity.
-	   */
-	  void operator()(){write_thread();}
-
-  private:
-	  /** This function runs periodically using a QNX timer.  It empties the
-	   * log buffers and writes sends their contents to the LogFileWrite::write
-	   * function which actually performs the disk write.
-	   */
-	  void write_thread();
-	  /** Write data out to disk
-	   * @param log pointer to new data to log
-	   * @param headers header to put at top of file.  This paramter is only used
-	   * when a file is first created
-	   */
-	  void write(std::map<std::string, std::queue<std::string> > *log, std::map<std::string, std::string> * headers);
-
-	  /// Pointer to LogFile class which instantiated LogFileWrite
-	  LogFile *parent;
-	  /** mutex used to protect the terminate flag, LogFile::LogFileWrite::terminate
-	   * this member must be static because LogFileWrite gets constructed and destructed
-	   * several times when LogFile::data_out is initialized, but the copy constructor
-	   * for boost::recursive_mutex is private (since it can't be copied).
-	   * \todo fix with mutable and copy constructor
-	   */
-	  static boost::recursive_mutex terminate_mutex;
-	  /// terminate flag (static for the same reason as terminate_mutex
-	  static bool terminate;
-	  /// function to determine if LogFile::LogFileWrite::terminate is true
-	  bool check_terminate();
-	  /// keep track of open files
-	  std::map<std::string, std::fstream*> openFiles;
-
-	  /// This is the slot used by boost::signals2 for terminating the writing thread
-	  class do_terminate
-	  {
-	  public:
-		  /// set LogFile::LogFileWrite::terminate to true
-		  void operator()();
-	  };
-  };
 };
 
 
- template<typename DataContainer>
-  void LogFile::logData(const std::string& name, const DataContainer& data)
-  {
- 	std::stringstream output;
+template<typename DataContainer>
+void LogFile::logData(const std::string& name, const DataContainer& data)
+{
+	std::stringstream output;
 
- 	output << boost::lexical_cast<std::string>((boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds());
-  	output << '\t';
+	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
+	{
+		output << boost::lexical_cast<std::string>(*it);
+		output << '\t';
+	}
 
-  	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
-  	{
-  		output << boost::lexical_cast<std::string>(*it);
-  		output << '\t';
-  	}
+	logMessage(name, output.str()); // adds timestamp, endline
+};
 
-  	output << std::endl;
-
-  	{
-  		boost::mutex::scoped_lock(logMutex);
-  		(*(this->log))[name].push(output.str());
-  	}
-  }
 
 #endif

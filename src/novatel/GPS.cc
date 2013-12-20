@@ -23,6 +23,8 @@
 // Project Headers
 #include "novatel_read_serial.h"
 #include "MainApp.h"
+#include "LogFile.h"
+
 
 // Boost Headers
 #include <boost/bind.hpp>

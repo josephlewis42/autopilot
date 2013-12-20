@@ -520,7 +520,6 @@ private:
 	static const uint8_t HEADER_SYNC_BYTES_LENGTH;
 	static const uint8_t HEADER_LENGTH_BYTES;
 
-
 	/**
 	 * Initialize the serial port that NovAtel is configured to run on.
 	 * @return true if serial was set up correctly, false otherwise

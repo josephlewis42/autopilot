@@ -21,12 +21,14 @@
 // Includes
 #include "Debug.h"
 #include <string.h>
+/* Project Headers */
+#include "LogFile.h"
 
 
 // Variables
 boost::mutex Debug::cerr_lock;
-boost::signals2::signal<void (std::string)> Debug::warning;
-boost::signals2::signal<void (std::string)> Debug::critical;
+boost::signals2::signal<void (std::string)> Debug::warningSignal;
+boost::signals2::signal<void (std::string)> Debug::criticalSignal;
 std::string Debug::last_message = "";
 int Debug::message_count = 0;
 
@@ -35,15 +37,40 @@ const char* ARRAY_SEPARATOR = ", ";
 const char* NUMBER_SEPARATOR = " ";
 
 
-Debug::Debug(DEBUG_LEVEL lvl)
+Debug::Debug(DEBUG_LEVEL lvl, std::string prefix)
 :debug_level(lvl)
 {
+	appendLevel();
+	ss << prefix;
 }
 
 Debug::Debug(const Debug& other)
 :debug_level(other.debug_level)
 {
 	ss << other.ss.rdbuf();
+}
+
+void Debug::appendLevel()
+{
+	switch(debug_level)
+	{
+		case WARNING:
+			ss << "Warning: ";
+			break;
+		case CRITICAL:
+			ss << "Critical: ";
+			break;
+		case MESSAGE:
+			ss << "Message: ";
+			break;
+		case DEBUG:
+			ss << "Debug: ";
+			break;
+		case IGNORE:
+			ss << "Ignore: ";
+		default:
+			ss << "UNKNOWN: ";
+	}
 }
 
 Debug::~Debug()
@@ -53,28 +80,7 @@ Debug::~Debug()
 		return;
 	}
 
-	std::string message;
-	switch(debug_level)
-	{
-		case WARNING:
-			message += "Warning: ";
-			break;
-		case CRITICAL:
-			message += "Critical: ";
-			break;
-		case MESSAGE:
-			message += "Message: ";
-			break;
-
-		case DEBUG:
-			message += "Debug: ";
-			break;
-		default:
-			message += "UNKNOWN: ";
-	}
-
-
-	message += ss.str();
+	std::string message = ss.str();
 
 #ifndef NDEBUG
 	{
@@ -98,12 +104,12 @@ Debug::~Debug()
 	{
 	case WARNING:
 		LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
-		Debug::warning(message);
+		Debug::warningSignal(message);
 		break;
 
 	case CRITICAL:
 		LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
-		Debug::critical(message);
+		Debug::criticalSignal(message);
 		break;
 
 	case MESSAGE:
@@ -111,10 +117,9 @@ Debug::~Debug()
 		break;
 
 	case DEBUG:
-		// do nothing for debug messages.
-		break;
 	case IGNORE:
-		break; // we're ignoring these
+		// do nothing for debug/ignore messages.
+		break;
 	}
 }
 
@@ -182,5 +187,11 @@ Debug& Debug::operator<<(const std::vector<uint8_t>& v)
 		}
 	}
 	ss << "]";
+	return *this;
+}
+
+Debug& Debug::operator<<(const void* ptr)
+{
+	ss << std::hex << ptr << std::dec;
 	return *this;
 }

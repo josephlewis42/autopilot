@@ -37,14 +37,14 @@ IMU::ack_handler::ack_handler(uint8_t command)
 IMU::ack_handler::ack_handler(const ack_handler& other)
 :command(other.command)
 {
-	debug() <<"called ack_handler() copy";
+	IMU::getInstance()->debug("called ack_handler() copy");
 	boost::mutex::scoped_lock lock(other.ack_received_lock);
 	ack_received = other.ack_received;
 }
 
 const IMU::ack_handler& IMU::ack_handler::operator=(const ack_handler& other)
 {
-	debug() << "called ack_handler::operator=";
+	IMU::getInstance()->debug("called ack_handler::operator=");
 	if (this == &other)
 		return *this;
 

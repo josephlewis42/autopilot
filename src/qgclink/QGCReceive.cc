@@ -113,20 +113,20 @@ void QGCLink::QGCReceive::receive()
 //					break;
 				case MAVLINK_MSG_ID_UALBERTA_ACTION:
 				{
-					debug() << "Received Ualberta Action";
+					qgc->debug() << "Received Ualberta Action";
 					mavlink_ualberta_action_t action;
 					mavlink_msg_ualberta_action_decode(&msg, &action);
 					switch (action.action)
 					{
 					case UALBERTA_RC_CALIBRATION:
 					{
-						debug() << "Send RC Calibration Data";
+						qgc->debug() << "Send RC Calibration Data";
 						qgc->set_requested_rc_calibration();
 						break;
 					}
 					case UALBERTA_SET_ORIGIN:
 					{
-						debug() << "Set Origin";
+						qgc->debug() << "Set Origin";
 						IMU::getInstance()->set_ned_origin();
 						break;
 					}
@@ -180,25 +180,25 @@ void QGCLink::QGCReceive::receive()
 					}
 					case UALBERTA_SHUTDOWN:
 					{
-						message() << "QGCReceive: Received shutdown message from QGC.  Sending shutdown signal.";
+						qgc->message() << "QGCReceive: Received shutdown message from QGC.  Sending shutdown signal.";
 						qgc->shutdown();
 						break;
 					}
 					case UALBERTA_RESET_FILTER:
 					{
-						message() << "QGCReceive: Received filter reset message from QGC.  Sending filter reset signal";
+						qgc->message() << "QGCReceive: Received filter reset message from QGC.  Sending filter reset signal";
 						qgc->reset_filter();
 						break;
 					}
 					case UALBERTA_INIT_ATTITUDE:
 					{
-						message() << "QGCReceive: Received filter init message from QGC.  Sending attitude init signal";
+						qgc->message("QGCReceive: Received filter init message from QGC. Sending attitude init signal");
 						qgc->init_filter();
 						break;
 					}
 					case UALBERTA_SET_ATTITUDE_SOURCE:
 					{
-						debug() << "Received change attitude source message with param " << static_cast<int>(action.param);
+						qgc->debug() << "Received change attitude source message with param " << static_cast<int>(action.param);
 						if (action.param==UALBERTA_NAV_FILTER)
 							qgc->attitude_source(true);
 						else if (action.param == UALBERTA_AHRS)
@@ -207,7 +207,7 @@ void QGCLink::QGCReceive::receive()
 					}
 					case UALBERTA_SET_REF_POS:
 					{
-						debug() << "Received set reference position message";
+						qgc->debug("Received set reference position message");
 						Control* control = Control::getInstance();
 						control->set_reference_position();
 						control->reset();
@@ -218,40 +218,40 @@ void QGCLink::QGCReceive::receive()
 				}
 				case MAVLINK_MSG_ID_REQUEST_DATA_STREAM:
 				{
-					debug() << "Request a Data Stream.";
+					qgc->debug("Request a Data Stream.");
 					mavlink_request_data_stream_t m;
 					mavlink_msg_request_data_stream_decode(&msg, &m);
 					switch (m.req_stream_id)
 					{
 					case MAV_DATA_STREAM_RC_CHANNELS:
 					{
-						debug() << "RC Channel Stream at " << m.req_message_rate << " Hz.";
+						qgc->debug() << "RC Channel Stream at " << m.req_message_rate << " Hz.";
 						qgc->set_rc_channel_rate(m.req_message_rate);
 
 						break;
 					}
 					case MAV_DATA_STREAM_RAW_CONTROLLER:
 					{
-						debug() << "Controller Data Stream at " << m.req_message_rate << " Hz.";
+						qgc->debug() << "Controller Data Stream at " << m.req_message_rate << " Hz.";
 						qgc->set_control_output_rate(m.req_message_rate);
 						break;
 					}
 					case MAV_DATA_STREAM_POSITION:
 					{
-						debug() << "Position Data Stream at " << m.req_message_rate << " Hz.";
+						qgc->debug() << "Position Data Stream at " << m.req_message_rate << " Hz.";
 						qgc->set_position_rate(m.req_message_rate);
 						break;
 					}
 					default:
 					{
-						debug() << "Unhandled Stream Requested";
+						qgc->debug("Unhandled Stream Requested");
 						break;
 					}
 					}
 				}
 				case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:		// refresh parameter list, UAV must send parameters to QGC.
 				{
-//					debug() << "QGCLink: received param request list.";
+					qgc->trace() << "received param request list.";
 					qgc->param_recv_lock.lock();
 					qgc->param_recv = true;
 					qgc->param_recv_lock.unlock();
@@ -261,7 +261,7 @@ void QGCLink::QGCReceive::receive()
 				break;
 				case MAVLINK_MSG_ID_PARAM_SET:
 				{
-//					debug() << "QGCLink: received param set.";
+					qgc->trace() << "received param set.";
 					mavlink_param_set_t set;
 					mavlink_msg_param_set_decode(&msg, &set);
 
@@ -280,7 +280,7 @@ void QGCLink::QGCReceive::receive()
 								{
 									boost::mutex::scoped_lock lock(qgc->requested_params_lock);
 									qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::CONTROLLER_ID));
-									debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
+									qgc->debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
 								}
 							}
 							break;
@@ -297,14 +297,14 @@ void QGCLink::QGCReceive::receive()
 								{
 									boost::mutex::scoped_lock lock(qgc->requested_params_lock);
 									qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::HELICOPTER_ID));
-									debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
+									qgc->debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
 									param_found = true;
 								}
 							}
 							break;
 						}
 						default:
-							warning() << "QGCLink: Received component id cannot be mapped to an on-board component.";
+							qgc->warning("Received component id cannot be mapped to an on-board component.");
 							break;
 						}
 					}
@@ -312,7 +312,7 @@ void QGCLink::QGCReceive::receive()
 				}
 				case MAVLINK_MSG_ID_PARAM_REQUEST_READ:		// read a single parameter on the list.
 				{
-//					debug() << "QGCReceive: received param read request.";
+					qgc->trace() << "QGCReceive: received param read request.";
 
 					mavlink_param_request_read_t set;
 					mavlink_msg_param_request_read_decode(&msg, &set);
@@ -337,13 +337,13 @@ void QGCLink::QGCReceive::receive()
 					{
 						std::vector<Parameter> plist(Control::getInstance()->getParameters());
 
-//						debug() << "Searching for controller param with index: " << set.param_index << "from list size: " << plist.size();
+						qgc->trace() << "Searching for controller param with index: " << set.param_index << "from list size: " << plist.size();
 						if (set.param_index >= 0)
 						{
 							uint index = set.param_index;
 							if (index < plist.size())
 							{
-//								debug() << "sending parameter: " << plist[index];
+								qgc->trace() << "sending parameter: " << plist[index];
 								qgc->requested_params.push(plist[index]);
 							}
 						}
@@ -383,7 +383,7 @@ void QGCLink::QGCReceive::receive()
 				#ifdef MAVLINK_ENABLED_UALBERTA
 					case MAVLINK_MSG_ID_RADIO_CALIBRATION:
 					{
-						debug() << "QGCLink: got radio calibration packet";
+						qgc->debug() << "QGCLink: got radio calibration packet";
 						mavlink_radio_calibration_t radio_cal_msg;
 						mavlink_msg_radio_calibration_decode(&msg, &radio_cal_msg);
 
@@ -430,7 +430,7 @@ void QGCLink::QGCReceive::receive()
 					}
 				#endif
 				default:
-					debug() << "QGCLink: Unknown Packet";
+					qgc->debug("QGCLink: Unknown Packet");
 					break;
 				}
 			}

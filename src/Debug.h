@@ -35,8 +35,6 @@ namespace blas = boost::numeric::ublas;
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/signals2/signal.hpp>
 
-/* Project Headers */
-#include "LogFile.h"
 
 
 
@@ -93,7 +91,7 @@ public:
 		MESSAGE,
 		IGNORE
 	};
-	explicit Debug(DEBUG_LEVEL debug_level = DEBUG);
+	explicit Debug(DEBUG_LEVEL debug_level = DEBUG, std::string prefix = "");
 	Debug(const Debug& other);
 	~Debug();
 	Debug& operator<<(const std::string& s);
@@ -102,6 +100,7 @@ public:
 	Debug& operator<<(const unsigned int i);
 	Debug& operator<<(const unsigned long i);
 	Debug& operator<<(const double d);
+	Debug& operator<<(const void* ptr);
 
 	template <typename T, size_t N>
 	Debug& operator<<(const boost::array<T,N>& a);
@@ -116,10 +115,9 @@ public:
 	Debug& operator<<(const blas::matrix<T>& m);
 
 	/// emitted when a warning message is created
-	static boost::signals2::signal<void (std::string)> warning;
+	static boost::signals2::signal<void (std::string)> warningSignal;
 	/// emitted when a critical message is created
-	static boost::signals2::signal<void (std::string)> critical;
-
+	static boost::signals2::signal<void (std::string)> criticalSignal;
 
 private:
 	static boost::mutex cerr_lock;
@@ -128,17 +126,39 @@ private:
 
 	std::stringstream ss;
 	DEBUG_LEVEL debug_level;
+
+	/// appends the string version of the current level to the start of the message.
+	void appendLevel();
 };
 
-static inline Debug ignore() {return Debug(Debug::IGNORE);}
-
-static inline Debug debug() {return Debug();}
-
+static inline Debug debug() {return Debug(Debug::DEBUG);}
 static inline Debug message() {return Debug(Debug::MESSAGE);}
-
 static inline Debug warning() {return Debug(Debug::WARNING);}
-
 static inline Debug critical() {return Debug(Debug::CRITICAL);}
+
+class Logger
+{
+private:
+	std::string _prefix;
+
+public:
+	Logger(std::string prefix)
+	:_prefix(prefix){}
+
+	Debug ignore() const {return Debug(Debug::IGNORE, _prefix);}
+	Debug debug() const {return Debug(Debug::DEBUG,  _prefix);}
+	Debug message() const {return Debug(Debug::MESSAGE, _prefix);}
+	Debug warning() const {return Debug(Debug::WARNING, _prefix);}
+	Debug critical() const {return Debug(Debug::CRITICAL, _prefix);}
+
+	void ignore(std::string value) const {}
+	void debug(std::string value) const {Debug(Debug::DEBUG,  _prefix) << value;}
+	void message(std::string value) const {Debug(Debug::MESSAGE, _prefix) << value;}
+	void warning(std::string value) const {Debug(Debug::WARNING, _prefix) << value;}
+	void critical(std::string value) const {Debug(Debug::CRITICAL, _prefix) << value;}
+
+};
+
 
 template <typename T, size_t N>
 Debug& Debug::operator<<(const boost::array<T,N>& a)

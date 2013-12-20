@@ -20,8 +20,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include "Debug.h"
-
 
 class Configuration
 {
@@ -86,6 +84,84 @@ private:
 
 	void save();
 
+};
+
+
+/**
+ * Allows you to perform configuration operations on a sub-tree of the main
+ * configuration as if it were an independent configuration tree.
+ *
+ */
+class ConfigurationSubTree
+{
+
+private:
+	std::string _prefix;
+
+public:
+	ConfigurationSubTree(std::string prefix)
+	:_prefix(prefix + "."){}
+	virtual ~ConfigurationSubTree(){};
+
+	/// Returns a string from the configuration.
+	std::string configGets(const std::string &key, const std::string &alt="")
+	{
+		return Configuration::getInstance()->gets(_prefix + key, alt);
+	}
+
+	/// Returns a bool from the configuration
+	bool configGetb(const std::string &key, bool alt=false)
+	{
+		return Configuration::getInstance()->getb(_prefix + key, alt);
+	}
+
+	/// Returns an int from the configuration.
+	int configGeti(const std::string &key, int alt=0)
+	{
+		return Configuration::getInstance()->geti(_prefix + key, alt);
+	}
+
+	/// Returns a float from the configuration
+	float configGetf(const std::string &key, float alt=0.0f)
+	{
+		return Configuration::getInstance()->getf(_prefix + key, alt);
+	}
+
+	/// Returns a double from the configuration
+	double configGetd(const std::string &key, double alt=0.0)
+	{
+		return Configuration::getInstance()->getd(_prefix + key, alt);
+	}
+
+	/**
+	 * Sets a path to be a value.
+	 */
+	void configSet(const std::string &key, const std::string& value)
+	{
+		Configuration::getInstance()->set(_prefix + key, value);
+	}
+
+	/**
+	 * Sets a path to be a double value
+	 *
+	 * @param key - the key to store the value under
+	 * @param value - the value of the param
+	 */
+	void configSetd(const std::string &key, const double value)
+	{
+		return Configuration::getInstance()->setd(_prefix + key, value);
+	}
+
+	/**
+	 * Sets a path to be an int value
+	 *
+	 * @param key - the key to store the value under
+	 * @param value - the value of the param
+	 */
+	void configSeti(const std::string &key, const int value)
+	{
+		Configuration::getInstance()->seti(_prefix + key, value);
+	}
 };
 
 #endif /* CONFIGURATION_H_ */

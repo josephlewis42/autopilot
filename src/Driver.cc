@@ -15,7 +15,9 @@ std::list<Driver*> Driver::all_drivers;
 
 
 Driver::Driver(std::string name, std::string config_prefix)
-: _terminate(false),
+: Logger(name + ": "),
+  ConfigurationSubTree(config_prefix),
+  _terminate(false),
   _config_prefix(config_prefix),
   _name(name)
 {
@@ -56,7 +58,5 @@ Debug Driver::trace()
 		return ignore();
 	}
 
-	Debug dbg = debug();
-	dbg << getName() << ": ";
-	return dbg;
+	return debug();
 }

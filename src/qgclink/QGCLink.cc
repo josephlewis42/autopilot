@@ -45,7 +45,8 @@ boost::mutex QGCLink::_instance_lock;
 // Function definitions
 
 QGCLink::QGCLink()
-: socket(io_service),
+: Driver("QGCLink", "qgroundcontrol"),
+  socket(io_service),
   heartbeat_rate(10),
   rc_channel_rate(10),
   control_output_rate(10),
@@ -80,7 +81,7 @@ void QGCLink::init()
 	}
 	catch (std::exception& e)
 	{
-		critical() << "QGCLink: " << e.what();
+		critical() << e.what();
 		throw e;
 	}
 }

@@ -13,32 +13,67 @@
 #include <boost/thread.hpp>
 #include "Debug.h"
 #include <stdint.h>
+#include <errno.h>
 
 int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeout) {
+
+	if(n == 0){
+		return 0;
+	}
+
+	assert(min >= 0);
+	assert(n >= 0);
+	assert(fd >= 0);
+
+
+	debug() << "readcond " << n << std::hex << buf;
 	struct termios orig;
-	struct termios termios;
+	struct termios modified;
 
-	tcgetattr(fd, &termios);
-	orig = termios;
-	termios.c_lflag &= ~ICANON; /* Set non-canonical mode */
-	termios.c_cc[VTIME] = time;
-	termios.c_cc[VMIN] = min;
-	tcsetattr(fd, TCSANOW, &termios);
+	tcgetattr(fd, &orig);
+	modified = orig;
+	modified.c_lflag &= ~ICANON; /* Set non-canonical mode */
+	modified.c_cc[VTIME] = time;
+	modified.c_cc[VMIN] = min;
+	tcsetattr(fd, TCSANOW, &modified);
 
-	char* pointer = (char*)buf; // convert to a pointer of bytes
+	uint8_t buffer[n];
 
 	int totalBytesRead = 0;
 	if(timeout == 0)
 	{
-		totalBytesRead = read(fd, pointer, n);
+		totalBytesRead = read(fd, buffer, n);
 	}
 	else
 	{
 		for(int i = 0; i < timeout; i++)
 		{
-			int bytesRead = read(fd, pointer, n - totalBytesRead);
+			assert(totalBytesRead < n);
+
+			int bytesRead = read(fd, &buffer[totalBytesRead], n - totalBytesRead);
+
+			if(bytesRead < 0)
+			{
+				bytesRead = 0;
+				if(errno == EAGAIN || errno == EWOULDBLOCK)
+					warning() << "Tried to do a blocking read from a nonblocking socket";
+				if(errno == EBADF)
+					warning() << "Bad fd";
+				if(errno == EFAULT)
+					warning() << "buf is outside your address space";
+				if(errno == EINTR)
+					warning() << "Call interrupted before data read";
+				if(errno == EINVAL)
+					warning() << "object is not suitable for reading";
+				if(errno == EIO)
+					warning() << "I/O error";
+				if(errno == EISDIR)
+					warning() << "fd is a directory";
+			}
 			totalBytesRead += bytesRead;
-			pointer += bytesRead;
+
+			debug() << "bytes read" <<  totalBytesRead;
+			assert(totalBytesRead <= n);
 
 			// if we've read enough, stop
 			if(totalBytesRead == n)
@@ -48,11 +83,10 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 
 			// QNX specification says this is 1/10th of a second.
 			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-
-			//debug() << "read: " << bytesRead << " of " << n << " ptr is: " << (intptr_t) pointer << "orig: " << (intptr_t) buf;
-
 		}
 	}
+
+	memcpy(buf, buffer, n);
 
 	tcsetattr(fd, TCSANOW, &orig); // return to the original state.
 	return totalBytesRead;

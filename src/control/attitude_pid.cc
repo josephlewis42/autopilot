@@ -25,6 +25,8 @@
 #include "IMU.h"
 #include "Control.h"
 #include "Configuration.h"
+#include "LogFile.h"
+
 
 const std::string XML_ROLL_PROPORTIONAL = "controller_params.attitude_pid.roll.gain.proportional";
 const std::string XML_ROLL_DERIVATIVE = "controller_params.attitude_pid.roll.gain.derivative";

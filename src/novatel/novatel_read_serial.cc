@@ -42,6 +42,8 @@
 #include "heli.h"
 #include "MainApp.h"
 #include "qnx2linux.h"
+#include "LogFile.h"
+
 
 
 // Constant definitions
@@ -71,13 +73,14 @@ GPS::ReadSerial::ReadSerial()
 
 void GPS::ReadSerial::operator()()
 {
+	GPS* gps = GPS::getInstance();
 	if(!Configuration::getInstance()->getb(GPS::GPS_ENABLED, GPS::GPS_ENABLED_DEFAULT))
 	{
-		warning() << "NovAtel disabled!";
+		gps->warning() << "NovAtel disabled!";
 		return;
 	}
 
-	debug() << "Initialize the NovAtel serial port";
+	gps->debug() << "Initialize the NovAtel serial port";
 	if(initPort())
 	{
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
@@ -86,7 +89,7 @@ void GPS::ReadSerial::operator()()
 	}
 	else
 	{
-		warning() << "Could not init NovAtel";
+		gps->warning() << "Could not init NovAtel";
 		MainApp::terminate();
 	}
 
@@ -140,13 +143,13 @@ bool GPS::ReadSerial::initPort()
 	// Clear terminal output flow control.
 	if (tcsetattr(fd_ser, TCSADRAIN, &port_config) != 0)
 	{
-		critical() << "NovAtel could not set serial port attributes";
+		gps->critical() << "NovAtel could not set serial port attributes";
 		return false;
 	}
 
 	if(tcflush(fd_ser, TCIOFLUSH) == -1)
 	{
-		critical() << "could not purge the NovAtel serial port";
+		gps->critical() << "could not purge the NovAtel serial port";
 		return false;
 	}
 
@@ -170,7 +173,7 @@ bool GPS::ReadSerial::synchronize()
 		// Check for overall timeout.
 		if ((boost::posix_time::second_clock::local_time() - last_data).total_seconds() > 10)
 		{
-			warning() << "NovAtel: Stopped receiving data, attempting restart.";
+			gps->warning() << "NovAtel: Stopped receiving data, attempting restart.";
 			last_data = boost::posix_time::second_clock::local_time();
 			send_unlog_command();
 			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
@@ -217,7 +220,7 @@ void GPS::ReadSerial::readPort()
 		int bytes = readSerialBytes(fd_ser, &header[0], HEADER_LENGTH_BYTES);
 		if (bytes < HEADER_LENGTH_BYTES)
 		{
-			warning() << "NovAtel: Received valid sync bytes, but could not read header";
+			gps->warning("Received valid sync bytes, but could not read header");
 			continue;
 		}
 
@@ -228,7 +231,7 @@ void GPS::ReadSerial::readPort()
 		bytes = readSerialBytes(fd_ser, &log_data[0], data_size);
 		if (bytes < data_size)
 		{
-			warning() << "NovAtel: Received header, but could not receive data log.";
+			gps->warning("Received header, but could not receive data log.");
 			continue;
 		}
 
@@ -239,7 +242,7 @@ void GPS::ReadSerial::readPort()
 		bytes = readSerialBytes(fd_ser, &checksum[0], checksum_size);
 		if (bytes < checksum_size)
 		{
-			warning() << "NovAtel: received log data but could not receive checksum.";
+			gps->warning("received log data but could not receive checksum.");
 			continue;
 		}
 
@@ -256,7 +259,7 @@ void GPS::ReadSerial::readPort()
 		std::vector<uint8_t> computed_checksum(compute_checksum(whole_message));
 		if (checksum != computed_checksum)
 		{
-			warning() << "NovAtel: received complete message but checksum was invalid";
+			gps->warning("received complete message but checksum was invalid");
 
 			gps->trace() << "NovAtel: checksum: " << checksum << ", computed checksum: " << computed_checksum;
 			continue;
@@ -265,7 +268,7 @@ void GPS::ReadSerial::readPort()
 		uint16_t message_id = raw_to_int<uint16_t>(header.begin() + 1);
 		if (is_response(header))
 		{
-			debug() << "NovAtel: response message: " << std::string(log_data.begin() + 4, log_data.end());
+			gps->debug() << "response message: " << std::string(log_data.begin() + 4, log_data.end());
 		}
 		switch (message_id)
 		{
@@ -275,13 +278,13 @@ void GPS::ReadSerial::readPort()
 				switch(parse_enum(log_data))
 				{
 				case OEM6_OK:
-					message() << "NovAtel: data logging successfully initialized";
+					gps->message("data logging successfully initialized");
 					break;
 				case OEM6_INVALID_CHECKSUM:
-					warning() << "NovAtel: checksum failure";
+					gps->warning("checksum failure");
 					break;
 				default:
-					warning() << "NovAtel: RX Message: \"" << std::string(log_data.begin() + 4, log_data.end()) << '"';
+					gps->warning() << "RX Message: \"" << std::string(log_data.begin() + 4, log_data.end()) << '"';
 				}
 			}
 		case OEM6_LOG_RTKXYZ:  // RTKXYZ
@@ -299,7 +302,7 @@ void GPS::ReadSerial::readPort()
 			break;
 
 		default:
-			warning() << "NovAtel: Received unexpected message id: " << message_id;
+			gps->warning() << "NovAtel: Received unexpected message id: " << message_id;
 			continue;
 		}
 	}
@@ -313,10 +316,11 @@ bool GPS::ReadSerial::is_response(const std::vector<uint8_t>& header)
 
 void GPS::ReadSerial::parse_header(const std::vector<uint8_t>& header, std::vector<double>& log)
 {
+	GPS* gps = GPS::getInstance();
 	std::vector<uint8_t>::const_iterator it = header.begin() + 10;
 	uint32_t time_status = *it;
 
-	gps->trace() << "NovAtel: time status: " << time_status;
+	gps->trace() << "time status: " << time_status;
 
 	log += time_status;
 	it += 1;
@@ -325,7 +329,7 @@ void GPS::ReadSerial::parse_header(const std::vector<uint8_t>& header, std::vect
 	it += 2;
 	uint32_t milliseconds = raw_to_int<uint32_t>(it);
 	log += milliseconds;
-	GPS::getInstance()->set_gps_time(gps_time(week, milliseconds, static_cast<gps_time::TIME_STATUS>(time_status)));
+	gps->set_gps_time(gps_time(week, milliseconds, static_cast<gps_time::TIME_STATUS>(time_status)));
 }
 
 void GPS::ReadSerial::parse_log(const std::vector<uint8_t>& data, std::vector<double>& log)
@@ -468,6 +472,7 @@ void GPS::ReadSerial::send_unlog_command()
 
 void GPS::ReadSerial::_genericUnlog(OEM6_LOG message)
 {
+	GPS* gps = GPS::getInstance();
 	gps->trace() << "NovAtel: Unlogging message: " << message;
 
 	std::vector<uint8_t> command(generate_header(OEM6_COMMAND_UNLOG, 8));

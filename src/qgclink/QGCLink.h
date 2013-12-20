@@ -30,6 +30,7 @@ using boost::asio::ip::address;
 #include <boost/thread.hpp>
 #include <boost/signals2/signal.hpp>
 #include "heli.h"
+#include "Driver.h"
 
 
 /* STL Headers */
@@ -47,7 +48,7 @@ using boost::asio::ip::address;
  *  @date February 6, 2012: Broke class into multiple files
   */
 
-class QGCLink
+class QGCLink : public Driver
 {
 
 public:

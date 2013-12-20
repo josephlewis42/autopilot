@@ -34,13 +34,12 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 
-LogFile::LogFile()
-:data_out(LogFileWrite(this)),
- startTime(boost::posix_time::microsec_clock::local_time())
-{
-	log = new std::map<std::string, std::queue<std::string> >();
-	headers = new std::map<std::string, std::string>();
+#include "LogFileWriter.h"
 
+
+LogFile::LogFile()
+:startTime(boost::posix_time::microsec_clock::local_time())
+{
 	std::stringstream ss;
 	ss.str("");
 
@@ -75,14 +74,10 @@ LogFile::LogFile()
 			critical() << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
 		}
 	}
-
-	MainApp::add_thread(&data_out, std::string("Log File"));
 }
 
 LogFile::~LogFile()
 {
-	delete log;
-	delete headers;
 }
 
 LogFile* LogFile::_instance = NULL;
@@ -101,117 +96,7 @@ LogFile* LogFile::getInstance()
 
 void LogFile::logHeader(const std::string& name, const std::string& header)
 {
-	(*headers)[name] = header;
-}
-
-boost::recursive_mutex LogFile::LogFileWrite::terminate_mutex;
-bool LogFile::LogFileWrite::terminate = false;
-
-
-
-LogFile::LogFileWrite::LogFileWrite(LogFile* parent)
-{
-	if (parent == NULL)
-		throw(bad_logfile_parent());
-	this->parent = parent;
-
-	MainApp::terminate.connect(LogFile::LogFileWrite::do_terminate());
-}
-
-void LogFile::LogFileWrite::write_thread()
-{
-
-	RateLimiter rl(2);
-
-	while(check_terminate())
-	{
-		rl.wait();
-
-		std::map<std::string, std::queue<std::string> > *old_log;
-		std::map<std::string, std::string> *old_headers;
-		{
-			boost::mutex::scoped_lock lock(parent->logMutex);
-			LogFile *l = LogFile::getInstance();
-			old_log = l->log;
-			old_headers = l->headers;
-			l->log = new std::map<std::string, std::queue<std::string> >();
-			l->headers = new std::map<std::string, std::string>();
-		} // let lock go out of scope (to unlock mutex)
-		write(old_log, old_headers);
-		delete old_log;
-		delete old_headers;
-
-		rl.finishedCriticalSection();
-	}
-	// close open files
-	for (std::map<std::string, std::fstream*>::iterator it = openFiles.begin(); it != openFiles.end(); ++it)
-	{
-		debug() << "LogFileWrite: Closing " << it->first;
-		it->second->close();
-	}
-
-	debug() << "LogFileWrite: Terminated";
-}
-
-bool LogFile::LogFileWrite::check_terminate()
-{
-	terminate_mutex.lock();
-	bool t = terminate;
-	terminate_mutex.unlock();
-	return !t;
-}
-
-
-void LogFile::LogFileWrite::write(std::map<std::string, std::queue<std::string> > * log, std::map<std::string, std::string> * headers)
-{
-	for (std::map<std::string, std::queue<std::string> >::iterator it = log->begin();
-			it != log->end();
-			++it)
-	{
-		if (openFiles.count(it->first) == 0)
-		{
-			openFiles[it->first] = new std::fstream;
-			boost::filesystem::path filename;
-			if (!(boost::filesystem::path(it->first)).has_extension())//?it->first : it->first + ".dat");
-				filename = LogFile::getInstance()->log_folder / (it->first + ".dat");
-			else
-				filename = LogFile::getInstance()->log_folder / it->first;
-
-			try
-			{
-				if (!boost::filesystem::exists(filename))
-				{
-					debug() << "LogFileWrite: Creating log file " << filename.c_str();
-					openFiles[it->first]->open(filename.c_str(), std::fstream::out);
-					(*openFiles[it->first]) << "Time(ms)\t";
-					if (headers->count(it->first) > 0)
-						(*openFiles[it->first]) << (*headers)[it->first];
-					(*openFiles[it->first]) << std::endl;
-					debug() << "LogFileWrite: Created";
-				}
-				else
-					openFiles[it->first]->open(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
-			}
-			catch (boost::filesystem::filesystem_error& fserr)
-			{
-				critical() << fserr.what();
-			}
-		}
-
-		while(!it->second.empty())
-		{
-			(*openFiles[it->first]) << it->second.front();
-			it->second.pop();
-		}
-	}
-}
-
-void LogFile::LogFileWrite::do_terminate::operator()()
-{
-	terminate_mutex.lock();
-	terminate = true;
-	message() << "LogFileWrite: Received terminate signal.  Closing log files.";
-	terminate_mutex.unlock();
+	LogfileWriter::getLogger(name)->setHeader(header);
 }
 
 void LogFile::logMessage(const std::string& name, const std::string& msg)
@@ -222,8 +107,6 @@ void LogFile::logMessage(const std::string& name, const std::string& msg)
 	dataStr << ((time-startTime).total_milliseconds()) << '\t';
 	dataStr << msg;
 	dataStr << std::endl;
-	{
-		boost::mutex::scoped_lock(this->logMutex);
-		(*log)[name].push(dataStr.str());
-	}
+
+	LogfileWriter::getLogger(name)->log(dataStr.str());
 }

@@ -31,6 +31,8 @@
 
 // stl headers
 #include "Debug.h"
+#include "LogFile.h"
+
 
 
 /* File Handling Headers */
@@ -251,7 +253,7 @@ void servo_switch::read_serial::read_data()
 		// get checksum
 		readSerialBytes(fd_ser, &checksum[0], 2);
 
-		message() << "ID: " << id << " Count: " << count;
+		servo->message() << "ID: " << id << " Count: " << count;
 
 		if (checksum == compute_checksum(id, count, payload))
 		{
@@ -262,7 +264,10 @@ void servo_switch::read_serial::read_data()
 
 void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint8_t>& payload)
 {
+	servo_switch* servo = getInstance();
+
 	// TODO enumerate these numbers - Joseph
+
 
 	switch (id)
 	{
@@ -274,14 +279,14 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 		switch (status)
 		{
 		case 1:
-			getInstance()->set_pilot_mode(heli::PILOT_MANUAL);
+			servo->set_pilot_mode(heli::PILOT_MANUAL);
 			break;
 		case 2:
 		case 3:
-			getInstance()->set_pilot_mode(heli::PILOT_AUTO);
+			servo->set_pilot_mode(heli::PILOT_AUTO);
 			break;
 		default:
-			warning() << "Command channel state signal not present on servo switch";
+			servo->warning("Command channel state signal not present on servo switch");
 		}
 		break;
 	}
@@ -296,7 +301,7 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 		break;
 	}
 	default:
-		debug() << "Received unknown message from servo switch";
+		servo->debug("Received unknown message from servo switch");
 	}
 }
 
@@ -324,10 +329,13 @@ void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& p
 
 void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& payload)
 {
+	servo_switch& ss = *servo_switch::getInstance();
+
+
 	std::bitset<8> meas_byte (payload[2]);
 	if(meas_byte.test(7))
 	{
-		debug() << "Time measurement over range";
+		ss.debug("Time measurement over range");
 		return ;
 	}
 
@@ -341,7 +349,6 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 	double speed = 1 / (time_measurement*32.0*0.000001);
 	std::vector<double> speeds;
 	speeds.push_back(speed);
-	servo_switch& ss = *servo_switch::getInstance();
 	if (speed < 15000.0/60.0)
 	{
 		ss.set_engine_speed(speed);
@@ -356,7 +363,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 void servo_switch::read_serial::find_next_header()
 {
 	servo_switch* servo = servo_switch::getInstance();
-	debug() << "Finding next header";
+	servo->debug("Finding next header");
 	bool synchronized = false;
 	int fd_ser = servo->get_serial_descriptor();
 
@@ -377,6 +384,8 @@ void servo_switch::read_serial::find_next_header()
 
 void servo_switch::send_serial::send_data()
 {
+	servo_switch* servo = getInstance();
+
 	RateLimiter rl(50);
 
 	while(true)
@@ -384,10 +393,10 @@ void servo_switch::send_serial::send_data()
 		rl.wait();
 
 		std::vector<uint8_t> pulse_message = get_pulse_message();
-		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, getInstance()->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
-		while (write(getInstance()->get_serial_descriptor(), &pulse_message[0], pulse_message.size()) < 0)
+		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, servo->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
+		while (write(servo->get_serial_descriptor(), &pulse_message[0], pulse_message.size()) < 0)
 		{
-			debug() << "Error sending pulse output message to servo switch";
+			servo->debug("Error sending pulse output message to servo switch");
 		}
 		rl.finishedCriticalSection();
 	}

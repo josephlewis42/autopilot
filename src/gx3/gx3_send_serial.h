@@ -60,6 +60,15 @@ private:
 	/// update the gx3 with the novatel measurement @note llh converted to degrees for transmission to gx3
 	void external_gps_update();
 
+	/**
+	 * Finishes a packet by computing and appending the checksum, sending it, creating
+	 * an ack from the given command, and waiting for it to return;
+	 *
+	 * returns the ack error code
+	 */
+	uint8_t finish_packet(std::vector<uint8_t> &vec, uint8_t ack_command);
+
+
 	template <typename floating_type>
 	static std::vector<uint8_t> float_to_raw(const floating_type f);
 

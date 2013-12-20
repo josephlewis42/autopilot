@@ -28,6 +28,8 @@
 #include "QGCLink.h"
 #include "heli.h"
 #include "Configuration.h"
+#include "LogFile.h"
+
 
 /* Boost Headers */
 #include <boost/bind.hpp>

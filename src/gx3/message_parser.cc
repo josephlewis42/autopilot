@@ -76,23 +76,23 @@ void IMU::message_parser::operator()()
 	while (true)
 	{
 		// parse messages in order of priority
-		while (!IMU::getInstance()->nav_queue_empty())
+		while (!IMU::getInstance()->nav_queue.empty())
 		{
-			parse_nav_message(IMU::getInstance()->nav_queue_pop<std::vector<uint8_t> >());
+			parse_nav_message(IMU::getInstance()->nav_queue.pop());
 		}
-		while (!IMU::getInstance()->ahrs_queue_empty())
+		while (!IMU::getInstance()->ahrs_queue.empty())
 		{
 			// ahrs messages currently unhandled
-			parse_ahrs_message(IMU::getInstance()->ahrs_queue_pop<std::vector<uint8_t> >());
+			parse_ahrs_message(IMU::getInstance()->ahrs_queue.pop());
 		}
-		while (!IMU::getInstance()->gps_queue_empty())
+		while (!IMU::getInstance()->gps_queue.empty())
 		{
 			// gps messages currently unhandled
-			IMU::getInstance()->gps_queue_pop<std::vector<uint8_t> >();
+			IMU::getInstance()->gps_queue.pop();
 		}
-		while (!IMU::getInstance()->command_queue_empty())
+		while (!IMU::getInstance()->command_queue.empty())
 		{
-			parse_command_message(IMU::getInstance()->command_queue_pop<std::vector<uint8_t> >());
+			parse_command_message(IMU::getInstance()->command_queue.pop());
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); // don't need precise timing, just want to yield
 	}
@@ -100,6 +100,8 @@ void IMU::message_parser::operator()()
 
 void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message)
 {
+	IMU* imu = IMU::getInstance();
+
 	// divide message into fields
 	std::vector<std::vector<uint8_t> > payload;
 	{
@@ -127,7 +129,7 @@ void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message
 			for (int i=0; i<3; ++i)
 				ang_rate[i] = ahrs_filters[i](ang_rate[i]);
 			LogFile::getInstance()->logData(heli::Log_AHRS_Ang_Rate_Filtered, ang_rate);
-			IMU::getInstance()->set_ahrs_angular_rate(ang_rate);
+			imu->set_ahrs_angular_rate(ang_rate);
 //			debug() << "ahrs ang rage" << ang_rate;
 			break;
 		}
@@ -140,12 +142,12 @@ void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message
 			euler[1] = raw_to_float(first_data + 4);
 			euler[2] = raw_to_float(first_data + 8);
 			LogFile::getInstance()->logData(heli::Log_AHRS_Euler, euler);
-			IMU::getInstance()->set_ahrs_euler(euler);
+			imu->set_ahrs_euler(euler);
 //			debug() << "AHRS euler: " << euler;
 			break;
 		}
 		default:
-			warning() << "Message Parser: Received unhandled AHRS message with descriptor: " << std::hex << it->at(1);
+			imu->warning() << "Message Parser: Received unhandled AHRS message with descriptor: " << std::hex << it->at(1);
 			break;
 		}
 	}
@@ -228,7 +230,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 
 				if (!message.empty())
 				{
-					critical() << "GX3:" << message;
+					imu->critical() << message;
 					imu->gx3_status_message(message);
 				}
 			}
@@ -336,7 +338,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			break;
 		}
 		default:
-			warning() << "Message Parser: Received unhandled NAV message with descriptor: " << std::hex << it->at(1);
+			IMU::getInstance()->warning() << "Message Parser: Received unhandled NAV message with descriptor: " << std::hex << it->at(1);
 			break;
 		}
 	}
@@ -365,7 +367,7 @@ void IMU::message_parser::parse_command_message(const std::vector<uint8_t>& mess
 			break;
 		}
 		default:
-			warning() << "Message Parser: Received unknown command message with descriptor: " << std::hex << it->at(1);
+			IMU::getInstance()->warning() << "Message Parser: Received unknown command message with descriptor: " << std::hex << it->at(1);
 			break;
 		}
 	}

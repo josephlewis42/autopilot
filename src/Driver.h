@@ -23,6 +23,7 @@
 #include <boost/thread.hpp>
 #include <string.h>
 #include "Debug.h"
+#include "Configuration.h"
 
 
 /**
@@ -30,7 +31,7 @@
  *
  * @author Joseph Lewis <joehms22@gmail.com>
  */
-class Driver
+class Driver : public Logger, public ConfigurationSubTree
 {
 private:
 	/// store whether to terminate the thread

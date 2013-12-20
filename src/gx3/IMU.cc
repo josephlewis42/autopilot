@@ -67,7 +67,8 @@ IMU* IMU::getInstance()
 }
 
 IMU::IMU()
-:Driver("GX3 IMU", "imu"),
+:Driver("GX3 IMU", "gx3"),
+ fd_ser(-1),
  position(blas::zero_vector<double>(3)),
  ned_origin(blas::zero_vector<double>(3)),
  velocity(blas::zero_vector<double>(3)),
@@ -96,20 +97,25 @@ IMU::IMU()
 
 	receive_thread = boost::thread(read_serial());
 	parse_thread = boost::thread(message_parser());
-	_send_serial.reset(new send_serial(this));
+	_send_serial = new send_serial(this);
 }
 
 IMU::~IMU()
 {
-	close_serial();
+	close(fd_ser);
 }
 
 bool IMU::init_serial()
 {
+	if(fd_ser != -1)
+	{
+		close(fd_ser);
+	}
+
 	std::string serial_path = Configuration::getInstance()->gets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
-	trace() << "GX3 starting on " << serial_path;
-	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY );//| O_NDELAY);
-	trace() << "GX3 port opened";
+	trace() << "starting on " << serial_path;
+	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY);// | O_NDELAY);
+	trace() << "port opened";
 
 	if(-1 == fd_ser)
 	{
@@ -157,15 +163,12 @@ bool IMU::init_serial()
 		return false;
 	}
 
-	debug() << "GX3 started ";
+	trace() << "started";
+
+	set_last_data(); // start the timer for the data timeout.
 
 	return true;
 
-}
-
-void IMU::close_serial()
-{
-	close(fd_ser);
 }
 
 std::vector<uint8_t> IMU::compute_checksum(std::vector<uint8_t> data)

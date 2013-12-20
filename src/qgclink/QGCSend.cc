@@ -152,9 +152,9 @@ void QGCLink::QGCSend::send()
 		  boost::bind(&QGCLink::QGCSend::set_gx3_message, this, _1)));
   attitude_source_connection = QGCLink::getInstance()->attitude_source.connect(
 		  boost::bind(&QGCLink::QGCSend::set_attitude_source, this, _1));
-  boost::signals2::scoped_connection warning_connection(Debug::warning.connect(
+  boost::signals2::scoped_connection warning_connection(Debug::warningSignal.connect(
 		  boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
-  boost::signals2::scoped_connection critical_connection(Debug::critical.connect(
+  boost::signals2::scoped_connection critical_connection(Debug::criticalSignal.connect(
 		  boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
 
   for (;;)
@@ -227,7 +227,7 @@ void QGCLink::QGCSend::send()
 		  }
 		  catch (boost::system::system_error e)
 		  {
-			  warning() << e.what();
+			  qgc->warning() << e.what();
 		  }
 		  /* Increment loop count */
 		  loop_count++;
@@ -303,7 +303,7 @@ void QGCLink::QGCSend::send_position(std::queue<std::vector<uint8_t> > *sendq)
 
 void QGCLink::QGCSend::send_param(std::queue<std::vector<uint8_t> > *sendq)
 {
-	debug() << "attempting to send parameter list";
+	qgc->debug("attempting to send parameter list");
 	mavlink_message_t msg;
 	std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
 

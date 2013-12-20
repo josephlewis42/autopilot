@@ -23,6 +23,8 @@
 #include "IMU.h"
 #include "Control.h"
 #include "Configuration.h"
+#include "LogFile.h"
+
 
 // constants
 std::string translation_outer_pid::XML_TRANSLATION_X_PROPORTIONAL = "controller_params.translation_outer_pid.x.proportional";
