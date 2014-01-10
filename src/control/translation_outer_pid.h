@@ -28,7 +28,6 @@
 /* Project Headers */
 #include "Parameter.h"
 #include "pid_channel.h"
-#include "GPS_Filter.h"
 #include "ControllerInterface.h"
 
 /* Boost Headers */
@@ -143,9 +142,6 @@ private:
 	mutable boost::mutex x_lock;
 	pid_channel y;
 	mutable boost::mutex y_lock;
-
-	boost::array<GPS_Filter, 3> pos_filters;
-	boost::array<GPS_Filter, 3> vel_filters;
 
 	/// store the current control effort
 	blas::vector<double> control_effort;

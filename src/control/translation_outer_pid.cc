@@ -105,11 +105,6 @@ void translation_outer_pid::operator()(const blas::vector<double>& reference) th
 
 void translation_outer_pid::reset()
 {
-	for (boost::array<GPS_Filter, 3>::iterator it = pos_filters.begin(); it != pos_filters.end(); ++it)
-		(*it).reset();
-	for (boost::array<GPS_Filter, 3>::iterator it = vel_filters.begin(); it != vel_filters.end(); ++it)
-		(*it).reset();
-
 	x.reset();
 	y.reset();
 }
