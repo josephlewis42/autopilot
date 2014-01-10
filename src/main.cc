@@ -48,7 +48,8 @@
 /* Project Headers */
 #include "MainApp.h"
 #include "Configuration.h"
-#include "SelfTest.h"
+#include "SystemInformation.h"
+#include "Debug.h"
 
 int main(int argc, char* argv[])
 {
@@ -57,8 +58,10 @@ int main(int argc, char* argv[])
 	// Set configuration params from CLI if applicable
 	Configuration::getInstance()->overrideWith(argc, argv);
 
-	// Perform system tests before we fully init the main loop.
-	SelfTest();
+	// Show system information.
+	message() << "Running on: " <<  SystemInformation::uname_like();
+	message() << "Autopilot Version: " << __DATE__ << " " << __TIME__;
+
 
 	// Start up the main application.
 	MainApp m;
