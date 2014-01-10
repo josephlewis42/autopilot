@@ -204,5 +204,3 @@ enum Channel
 
 }
 #endif
-
-// todo include priority codes here.

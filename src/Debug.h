@@ -79,7 +79,6 @@ namespace blas = boost::numeric::ublas;
  * }
  * @endcode
  */
-// FIXME This should be polymorphic instead of using an enum. See Microsoft's "Code Complete Ed. 2" Chapter 6 for more info Joseph
 class Debug
 {
 public:

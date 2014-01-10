@@ -19,6 +19,7 @@
 
 #include "RadioCalibration.h"
 #include "Configuration.h"
+#include "Helicopter.h"
 
 
 RadioCalibration::RadioCalibration()

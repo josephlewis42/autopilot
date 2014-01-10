@@ -90,12 +90,6 @@ void MainApp::run()
 
 	request_mode.connect(change_mode(this));
 
-	/** \todo Priority of threads must be decided */
-	//struct sched_param      param;
-	//SchedSet(0, 0, SCHED_RR, &param);     // set Scheduling Policy to Round Robin of current thread in current process.
-	//setprio(getpid(),63);                 // set Scheduling Priority to max possible under Round Robin scheduling.
-	// TODO FIXME Set this back up to max out the CPU. - Joseph
-
 	signal(SIGINT, heli::shutdown);             // Shutdown program by sending a SIGINT.
 
 	/* Construct components of the autopilot */
