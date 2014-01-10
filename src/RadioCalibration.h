@@ -81,65 +81,16 @@ private:
 	static RadioCalibration* _instance;
 
 	/**
-	 * Set the endpoints and center for the aileron servo
-	 * @param setpoints new setpoint values
+	 * Locks the calibration, and transfers n points from
+	 * setpoints to toset where n = numvals;
+	 *
+	 * @param setpoints - new setpoint values
+	 * @param toset - the vector to copy to
+	 * @param numvals - the quantity of numbers to copy over
 	 */
-	void setAileron(const boost::array<uint16_t, 3>& setpoints);
-	/**
-	 * Set the endpoints and center for the aileron servo
-	 * @param setpoints new setpoint values
-	 */
-	void setAileron(const std::vector<uint16_t>& setpoints);
-	/**
-	 * Set the endpoints and center for the elevator servo
-	 * @param setpoints new setpoint values
-	 */
-	void setElevator(const boost::array<uint16_t, 3>& setpoints);
-	/**
-	 * Set the endpoints and center for the elevator servo
-	 * @param setpoints new setpoint values
-	 */
-	void setElevator(const std::vector<uint16_t>& setpoints);
-	/**
-	 * Set the 5 point throttle curve
-	 * @param setpoints new setpoint values
-	 */
-	void setThrottle(const boost::array<uint16_t, 5>& setpoints);
-	/**
-	 * Set the 5 point throttle curve
-	 * @param setpoints new setpoint values
-	 */
-	void setThrottle(const std::vector<uint16_t>& setpoints);
-	/**
-	 * Set the rudder channel endpoints and center
-	 * @param setpoints
-	 */
-	void setRudder(const boost::array<uint16_t, 3>& setpoints);
-	/**
-	 * Set the rudder channel endpoints and center
-	 * @param setpoints new setpoint values
-	 */
-	void setRudder(const std::vector<uint16_t>& setpoints);
-	/**
-	 * Set the gyro mode switch endpoints
-	 * @param setpoints new setpoint values
-	 */
-	void setGyro(const boost::array<uint16_t, 2>& setpoints);
-	/**
-	 * Set the gyro mode switch endpoints
-	 * @param setpoints new setpoint values
-	 */
-	void setGyro(const std::vector<uint16_t>& setpoints);
-	/**
-	 * Set the 5 point pitch curve setpoints
-	 * @param setpoints new setpoint values
-	 */
-	void setPitch(const boost::array<uint16_t, 5>& setpoints);
-	/**
-	 * Set the 5 point pitch curve setpoints
-	 * @param setpoints new setpoint values
-	 */
-	void setPitch(const std::vector<uint16_t>& setpoints);
+	void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 2>& toset);
+	void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 3>& toset);
+	void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 5>& toset);
 
 	boost::recursive_mutex calibration_lock;
 	boost::mutex calibration_file_lock;

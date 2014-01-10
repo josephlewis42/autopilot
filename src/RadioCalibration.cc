@@ -71,18 +71,16 @@ RadioCalibration* RadioCalibration::getInstance()
 // FIXME See if we can replace the indexes here with the values from Channel in heli.h - Joseph
 void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >& calibration_data)
 {
-	setAileron(calibration_data[0]);
-	setElevator(calibration_data[1]);
-	setThrottle(calibration_data[2]);
-	setRudder(calibration_data[3]);
-	setGyro(calibration_data[4]);
-	setPitch(calibration_data[5]);
+	populateVector(calibration_data[0], aileron);
+	populateVector(calibration_data[1], elevator);
+	populateVector(calibration_data[2], throttle);
+	populateVector(calibration_data[3], rudder);
+	populateVector(calibration_data[4], gyro);
+	populateVector(calibration_data[5], pitch);
 
 	saveFile();
 }
 
-
-// FIXME, there are lots of subtly different methods here perhaps there should be a template. - Joseph
 boost::array<uint16_t, 3> RadioCalibration::getAileron()
 {
 	calibration_lock.lock();
@@ -140,96 +138,32 @@ boost::array<uint16_t, 3> RadioCalibration::getFlightMode()
         return flight_Mode;
 }
 
-void RadioCalibration::setAileron(const boost::array<uint16_t, 3>& setpoints)
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 2>& toset)
 {
 	calibration_lock.lock();
-	aileron = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setAileron(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for (int i=0; i<3; i++)
-		aileron[i] = setpoints[i];
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setElevator(const boost::array<uint16_t, 3>& setpoints)
-{
-	calibration_lock.lock();
-	elevator = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setElevator(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for (int i=0; i<3; i++)
-		elevator[i] = setpoints[i];
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setThrottle(const boost::array<uint16_t, 5>& setpoints)
-{
-	calibration_lock.lock();
-	throttle = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setThrottle(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for(int i=0; i<5; i++)
+	for(uint32_t i = 0; i < toset.size(); i++)
 	{
-		throttle[i]=setpoints[i];
+		toset[i] = setpoints[i];
 	}
 	calibration_lock.unlock();
 }
 
-void RadioCalibration::setRudder(const boost::array<uint16_t, 3>& setpoints)
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 3>& toset)
 {
 	calibration_lock.lock();
-	rudder = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setRudder(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for (int i=0; i<3; i++)
-		rudder[i] = setpoints[i];
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setGyro(const boost::array<uint16_t, 2>& setpoints)
-{
-	calibration_lock.lock();
-	gyro = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setGyro(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for (int i=0; i<2; i++)
-		gyro[i]=setpoints[i];
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setPitch(const boost::array<uint16_t, 5>& setpoints)
-{
-	calibration_lock.lock();
-	pitch = setpoints;
-	calibration_lock.unlock();
-}
-
-void RadioCalibration::setPitch(const std::vector<uint16_t>& setpoints)
-{
-	calibration_lock.lock();
-	for(int i=0; i<5; i++)
+	for(uint32_t i = 0; i < toset.size(); i++)
 	{
-		pitch[i]=setpoints[i];
+		toset[i] = setpoints[i];
+	}
+	calibration_lock.unlock();
+}
+
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 5>& toset)
+{
+	calibration_lock.lock();
+	for(uint32_t i = 0; i < toset.size(); i++)
+	{
+		toset[i] = setpoints[i];
 	}
 	calibration_lock.unlock();
 }
@@ -241,32 +175,32 @@ void RadioCalibration::loadFile()
 
     // set the gyro
     parseDelimiter(config->gets("channels.two.gyro.value","1050, 1800"), setpoints);
-    setGyro(setpoints);
+	populateVector(setpoints, gyro);
     setpoints.clear();
 
     // set the aileron
     parseDelimiter(config->gets("channels.three.aileron.value","1000, 1500, 2000"), setpoints);
-	setAileron(setpoints);
+	populateVector(setpoints, aileron);
 	setpoints.clear();
 
 	// set the elevator
 	parseDelimiter(config->gets("channels.three.elevator.value","1000, 1500, 2000"), setpoints);
-	setElevator(setpoints);
+	populateVector(setpoints, elevator);
 	setpoints.clear();
 
 	// set the rudder
 	parseDelimiter(config->gets("channels.three.rudder.value","1000, 1500, 2000"), setpoints);
-	setRudder(setpoints);
+	populateVector(setpoints, rudder);
 	setpoints.clear();
 
 	// set the throttle
 	parseDelimiter(config->gets("channels.five.throttle.value","1000, 1250, 1500, 1750, 2000"), setpoints);
-	setThrottle(setpoints);
+	populateVector(setpoints, throttle);
 	setpoints.clear();
 
 	// set the pitch
 	parseDelimiter(config->gets("channels.five.pitch.value","1000, 1250, 1500, 1750, 2000"), setpoints);
-	setPitch(setpoints);
+	populateVector(setpoints, pitch);
 	setpoints.clear();
 }
 
