@@ -120,7 +120,7 @@ bool servo_switch::init_port()
 	boost::mutex::scoped_lock lock(fd_ser1_lock);
 	debug() << "Servo switch: got lock ";
 
-	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY);       // GPS is connected to serial port#2
+	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if(fd_ser1 == -1)
 	{
@@ -217,7 +217,8 @@ int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+	return read(fd, buf, n);
+	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
 #endif
 }
 
@@ -232,7 +233,7 @@ void servo_switch::read_serial::read_data()
 	std::vector<uint8_t> checksum(2);
 	while(! servo->terminateRequested())
 	{
-		// debug() << "searching for header";
+		servo->trace() << "searching for header";
 		find_next_header();
 
 		// get message id
@@ -253,10 +254,11 @@ void servo_switch::read_serial::read_data()
 		// get checksum
 		readSerialBytes(fd_ser, &checksum[0], 2);
 
-		servo->message() << "ID: " << id << " Count: " << count;
+		servo->trace() << "ID: " << id << " Count: " << count;
 
 		if (checksum == compute_checksum(id, count, payload))
 		{
+			servo->trace() << "parsing message";
 			parse_message(id, payload);
 		}
 	}
@@ -265,9 +267,6 @@ void servo_switch::read_serial::read_data()
 void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint8_t>& payload)
 {
 	servo_switch* servo = getInstance();
-
-	// TODO enumerate these numbers - Joseph
-
 
 	switch (id)
 	{
@@ -363,7 +362,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 void servo_switch::read_serial::find_next_header()
 {
 	servo_switch* servo = servo_switch::getInstance();
-	servo->debug("Finding next header");
+	servo->trace() << "Finding next header";
 	bool synchronized = false;
 	int fd_ser = servo->get_serial_descriptor();
 

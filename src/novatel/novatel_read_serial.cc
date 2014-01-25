@@ -62,7 +62,10 @@ int GPS::ReadSerial::readSerialBytes(int fd, void * buf, int n)
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+	//return read(fd, buf, n);
+	return QNX2Linux::readUntilMin(fd, buf, n, n);
+
+	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
 #endif
 }
 
@@ -193,6 +196,7 @@ bool GPS::ReadSerial::synchronize()
 
 			if(position == HEADER_SYNC_BYTES_LENGTH)
 			{
+				gps->trace() << "Got sync!";
 				return true;
 			}
 
@@ -218,28 +222,39 @@ void GPS::ReadSerial::readPort()
 		// Read the header
 		std::vector<uint8_t> header(HEADER_LENGTH_BYTES);
 		int bytes = readSerialBytes(fd_ser, &header[0], HEADER_LENGTH_BYTES);
+		gps->trace() << "NovAtel: got header bytes: " << bytes << " " << header;
 		if (bytes < HEADER_LENGTH_BYTES)
 		{
-			gps->warning("Received valid sync bytes, but could not read header");
+			gps->warning("Received valid sync bytes, but could not read header ");
 			continue;
 		}
 
-		gps->trace() << "NovAtel: Received Header: " << header;
+		gps->trace() << "Received Header: " << header;
 
 		int data_size = raw_to_int<uint16_t>(header.begin() + 5);
+
+
+		gps->trace() << "Fetching data";
+
 		std::vector<uint8_t> log_data(data_size);
 		bytes = readSerialBytes(fd_ser, &log_data[0], data_size);
+
+		gps->trace() << "received data bytes: " << bytes << " " << log_data;
+
 		if (bytes < data_size)
 		{
 			gps->warning("Received header, but could not receive data log.");
 			continue;
 		}
 
-		gps->trace() << "NovAtel: Received Message: " << log_data;
 
+		gps->trace() << "looking up checksum";
 		int checksum_size = 4;
 		std::vector<uint8_t> checksum(checksum_size);
 		bytes = readSerialBytes(fd_ser, &checksum[0], checksum_size);
+
+		gps->trace() << "got checksum bytes " << bytes << " " << checksum;
+
 		if (bytes < checksum_size)
 		{
 			gps->warning("received log data but could not receive checksum.");
@@ -270,6 +285,8 @@ void GPS::ReadSerial::readPort()
 		{
 			gps->debug() << "response message: " << std::string(log_data.begin() + 4, log_data.end());
 		}
+
+		gps->debug() << "got message";
 		switch (message_id)
 		{
 		case OEM6_COMMAND_LOG: // log command (response)

@@ -46,7 +46,9 @@ int IMU::read_serial::read_ser(int fd, void * buf, int n)
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	return QNX2Linux::readcond(fd, buf, n, n, 10, 10);
+
+	return read(fd, buf, n);
+	//return QNX2Linux::readcond(fd, buf, n, n, 10, 10);
 #endif
 }
 

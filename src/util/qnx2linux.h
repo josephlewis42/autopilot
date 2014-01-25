@@ -27,6 +27,12 @@ namespace QNX2Linux
 	 * @param timeout - in tenths of a second to time out multiple reades
 	 */
 	int readcond(int fd, void * buf, int n, int min, int time, int timeout);
+
+	/**
+	 * Reads until min, on a blocking fd.
+	 */
+	int readUntilMin(int fd, void * buf, int n, int min);
+
 #endif
 }
 

@@ -69,6 +69,7 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 					warning() << "I/O error";
 				if(errno == EISDIR)
 					warning() << "fd is a directory";
+				continue;
 			}
 			totalBytesRead += bytesRead;
 
@@ -91,4 +92,53 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 	tcsetattr(fd, TCSANOW, &orig); // return to the original state.
 	return totalBytesRead;
 }
+
+int QNX2Linux::readUntilMin(int fd, void* buf, int n, int min)
+{
+	uint8_t buffer[n];
+	int totalBytesRead = 0;
+
+	while(totalBytesRead < min)
+	{
+		assert(totalBytesRead < n);
+
+		int bytesRead = read(fd, &buffer[totalBytesRead], n - totalBytesRead);
+
+		if(bytesRead < 0)
+		{
+			bytesRead = 0;
+			if(errno == EAGAIN || errno == EWOULDBLOCK)
+				warning() << "Tried to do a blocking read from a nonblocking socket";
+			if(errno == EBADF)
+				warning() << "Bad fd";
+			if(errno == EFAULT)
+				warning() << "buf is outside your address space";
+			if(errno == EINTR)
+				warning() << "Call interrupted before data read";
+			if(errno == EINVAL)
+				warning() << "object is not suitable for reading";
+			if(errno == EIO)
+				warning() << "I/O error";
+			if(errno == EISDIR)
+				warning() << "fd is a directory";
+			continue;
+		}
+
+		totalBytesRead += bytesRead;
+
+		assert(totalBytesRead <= n);
+
+		// if we've read enough, stop
+		if(totalBytesRead >= min)
+		{
+			break;
+		}
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+	}
+
+	memcpy(buf, buffer, totalBytesRead);
+	return totalBytesRead;
+}
+
 #endif
