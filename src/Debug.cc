@@ -55,21 +55,21 @@ void Debug::appendLevel()
 	switch(debug_level)
 	{
 		case WARNING:
-			ss << "Warning: ";
+			ss << "Warning:  ";
 			break;
 		case CRITICAL:
 			ss << "Critical: ";
 			break;
 		case MESSAGE:
-			ss << "Message: ";
+			ss << "Message:  ";
 			break;
 		case DEBUG:
-			ss << "Debug: ";
+			ss << "Debug:    ";
 			break;
 		case IGNORE:
-			ss << "Ignore: ";
+			ss << "Ignore:   ";
 		default:
-			ss << "UNKNOWN: ";
+			ss << "UNKNOWN:  ";
 	}
 }
 
