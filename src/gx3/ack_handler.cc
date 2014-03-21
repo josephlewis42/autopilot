@@ -25,7 +25,6 @@
 
 /* Boost Headers */
 #include <boost/thread.hpp>
-//#include <boost/bind.hpp>
 
 IMU::ack_handler::ack_handler(uint8_t command)
 :ack_received(false),

@@ -6,7 +6,7 @@
  */
 
 #include "Driver.h"
-#include <boost/foreach.hpp>
+//#include <boost/foreach.hpp>
 
 #include "Configuration.h"
 
@@ -41,7 +41,7 @@ void Driver::terminateAll()
 {
 	{
 		boost::mutex::scoped_lock(_all_drivers_lock);
-		BOOST_FOREACH(Driver* d, all_drivers)
+		for(Driver* d : all_drivers)
 		{
 			d->terminate();
 		}
