@@ -39,7 +39,7 @@ const std::string QGCLINK_HOST_PORT_PARAM = "qgroundcontrol.host.port";
 const int QGCLINK_HOST_PORT_DEFAULT = 14550;
 
 QGCLink* QGCLink::_instance = NULL;
-boost::mutex QGCLink::_instance_lock;
+std::mutex QGCLink::_instance_lock;
 
 
 // Function definitions
@@ -88,7 +88,7 @@ void QGCLink::init()
 
 QGCLink* QGCLink::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 	if(!_instance)
 	{
 		_instance = new QGCLink;

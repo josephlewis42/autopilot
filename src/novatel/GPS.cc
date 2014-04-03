@@ -25,12 +25,14 @@
 #include "MainApp.h"
 #include "LogFile.h"
 
+#include <mutex>
+
 
 // Boost Headers
 #include <boost/bind.hpp>
 
 GPS* GPS::_instance = NULL;
-boost::mutex GPS::_instance_lock;
+std::mutex GPS::_instance_lock;
 
 /// path to serial device connected to Novatel
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
@@ -47,7 +49,7 @@ const std::string READ_GPS_THREAD_NAME = "Novatel GPS";
 
 GPS* GPS::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 
 	if (!_instance)
 	{

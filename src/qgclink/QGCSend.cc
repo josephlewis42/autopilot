@@ -61,23 +61,23 @@ QGCLink::QGCSend::QGCSend(const QGCSend& other)
  startTime(other.startTime)
 {
 	{
-		boost::mutex::scoped_lock scoped_lock(other.servo_source_lock);
+		std::lock_guard<std::mutex> scoped_lock(other.servo_source_lock);
 		servo_source = other.servo_source;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.pilot_mode_lock);
+		std::lock_guard<std::mutex> lock(other.pilot_mode_lock);
 		pilot_mode = other.pilot_mode;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.filter_state_lock);
+		std::lock_guard<std::mutex> lock(other.filter_state_lock);
 		filter_state = other.filter_state;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.control_mode_lock);
+		std::lock_guard<std::mutex> lock(other.control_mode_lock);
 		control_mode = other.control_mode;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.attitude_source_lock);
+		std::lock_guard<std::mutex> lock(other.attitude_source_lock);
 		attitude_source = other.attitude_source;
 	}
 
@@ -94,28 +94,28 @@ QGCLink::QGCSend& QGCLink::QGCSend::operator=(const QGCLink::QGCSend& other)
 		return *this;
 
 	{
-		boost::mutex::scoped_lock lock1(&servo_source_lock < &other.servo_source_lock ? servo_source_lock: other.servo_source_lock);
-		boost::mutex::scoped_lock lock2(&servo_source_lock > &other.servo_source_lock ? servo_source_lock : other.servo_source_lock);
+		std::lock_guard<std::mutex> lock1(&servo_source_lock < &other.servo_source_lock ? servo_source_lock: other.servo_source_lock);
+		std::lock_guard<std::mutex> lock2(&servo_source_lock > &other.servo_source_lock ? servo_source_lock : other.servo_source_lock);
 		servo_source = other.servo_source;
 	}
 	{
-		boost::mutex::scoped_lock lock1(&pilot_mode_lock < &other.pilot_mode_lock ? pilot_mode_lock: other.pilot_mode_lock);
-		boost::mutex::scoped_lock lock2(&pilot_mode_lock > &other.pilot_mode_lock ? pilot_mode_lock : other.pilot_mode_lock);
+		std::lock_guard<std::mutex> lock1(&pilot_mode_lock < &other.pilot_mode_lock ? pilot_mode_lock: other.pilot_mode_lock);
+		std::lock_guard<std::mutex> lock2(&pilot_mode_lock > &other.pilot_mode_lock ? pilot_mode_lock : other.pilot_mode_lock);
 		pilot_mode = other.pilot_mode;
 	}
 	{
-		boost::mutex::scoped_lock lock1(&filter_state_lock < &other.filter_state_lock ? filter_state_lock: other.filter_state_lock);
-		boost::mutex::scoped_lock lock2(&filter_state_lock > &other.filter_state_lock ? filter_state_lock : other.filter_state_lock);
+		std::lock_guard<std::mutex> lock1(&filter_state_lock < &other.filter_state_lock ? filter_state_lock: other.filter_state_lock);
+		std::lock_guard<std::mutex> lock2(&filter_state_lock > &other.filter_state_lock ? filter_state_lock : other.filter_state_lock);
 		filter_state = other.filter_state;
 	}
 	{
-		boost::mutex::scoped_lock lock1(&control_mode_lock < &other.control_mode_lock ? control_mode_lock: other.control_mode_lock);
-		boost::mutex::scoped_lock lock2(&control_mode_lock > &other.control_mode_lock ? control_mode_lock : other.control_mode_lock);
+		std::lock_guard<std::mutex> lock1(&control_mode_lock < &other.control_mode_lock ? control_mode_lock: other.control_mode_lock);
+		std::lock_guard<std::mutex> lock2(&control_mode_lock > &other.control_mode_lock ? control_mode_lock : other.control_mode_lock);
 		control_mode = other.control_mode;
 	}
 	{
-		boost::mutex::scoped_lock lock1(&attitude_source_lock < &other.attitude_source_lock ? attitude_source_lock: other.attitude_source_lock);
-		boost::mutex::scoped_lock lock2(&attitude_source_lock > &other.attitude_source_lock ? attitude_source_lock : other.attitude_source_lock);
+		std::lock_guard<std::mutex> lock1(&attitude_source_lock < &other.attitude_source_lock ? attitude_source_lock: other.attitude_source_lock);
+		std::lock_guard<std::mutex> lock2(&attitude_source_lock > &other.attitude_source_lock ? attitude_source_lock : other.attitude_source_lock);
 		attitude_source = other.attitude_source;
 	}
 
@@ -605,7 +605,7 @@ void QGCLink::QGCSend::send_gx3_message(std::queue<std::vector<uint8_t> > *sendq
 
 std::string QGCLink::QGCSend::message_queue_pop()
 {
-	boost::mutex::scoped_lock lock(message_queue_lock);
+	std::lock_guard<std::mutex> lock(message_queue_lock);
 	std::string message(message_queue.front());
 	message_queue.pop();
 	return message;

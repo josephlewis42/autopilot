@@ -21,18 +21,20 @@
 #ifndef THREADSAFEVARIABLE_H_
 #define THREADSAFEVARIABLE_H_
 
+#include <mutex>
+
 template<typename T>
 class ThreadSafeVariable
 {
 private:
-	mutable boost::mutex _mutex;
+	mutable std::mutex _mutex;
 	T _value;
 public:
-	operator T() const {boost::mutex::scoped_lock(_mutex); return _value;}
+	operator T() const {std::lock_guard<std::mutex> lock(_mutex); return _value;}
 
 	ThreadSafeVariable<T>& operator =(const T& newValue)
 	{
-		boost::mutex::scoped_lock(_mutex);
+		std::lock_guard<std::mutex> lock(_mutex);
 		_value = newValue;
 		return *this;
 	}

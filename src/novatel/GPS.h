@@ -23,6 +23,7 @@
 
 /* STL Headers */
 #include <string>
+#include <mutex>
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>
@@ -63,25 +64,25 @@ public:
 	class ReadSerial;
 
 	/// threadsafe get llh_position
-	inline blas::vector<double> get_llh_position() const {boost::mutex::scoped_lock(llh_position_lock); return llh_position;}
+	inline blas::vector<double> get_llh_position() {std::lock_guard<std::mutex> lock(llh_position_lock); return llh_position;}
 	/// threadsafe get ned_velocity
-	inline blas::vector<double> get_ned_velocity() const {boost::mutex::scoped_lock(ned_velocity_lock); return ned_velocity;}
+	inline blas::vector<double> get_ned_velocity() {std::lock_guard<std::mutex> lock(ned_velocity_lock); return ned_velocity;}
 	/// threadafe get position error std dev
-	inline blas::vector<double> get_pos_sigma() const {boost::mutex::scoped_lock(pos_sigma_lock); return pos_sigma;}
+	inline blas::vector<double> get_pos_sigma() {std::lock_guard<std::mutex> lock(pos_sigma_lock); return pos_sigma;}
 	/// threadsafe get vel error std dev
-	inline blas::vector<double> get_vel_sigma() const {boost::mutex::scoped_lock(vel_sigma_lock); return vel_sigma;}
+	inline blas::vector<double> get_vel_sigma() {std::lock_guard<std::mutex> lock(vel_sigma_lock); return vel_sigma;}
 	/// threadsafe get gps time
-	inline gps_time get_gps_time() const {boost::mutex::scoped_lock(_gps_time_lock); return _gps_time;}
+	inline gps_time get_gps_time() {std::lock_guard<std::mutex> lock(_gps_time_lock); return _gps_time;}
 
-	inline uint get_position_type() const {boost::mutex::scoped_lock(position_type_lock); return position_type;}
+	inline uint get_position_type() {std::lock_guard<std::mutex> lock(position_type_lock); return position_type;}
 
-	inline uint get_position_status() const {boost::mutex::scoped_lock(position_status_lock); return position_status;}
+	inline uint get_position_status() {std::lock_guard<std::mutex> lock(position_status_lock); return position_status;}
 
-	inline uint get_velocity_type() const {boost::mutex::scoped_lock(velocity_type_lock); return velocity_type;}
+	inline uint get_velocity_type() {std::lock_guard<std::mutex> lock(velocity_type_lock); return velocity_type;}
 
-	inline uint get_velocity_status() const {boost::mutex::scoped_lock(velocity_status_lock); return velocity_status;}
+	inline uint get_velocity_status() {std::lock_guard<std::mutex> lock(velocity_status_lock); return velocity_status;}
 
-	inline uint8_t get_num_sats() const {boost::mutex::scoped_lock(num_sats_lock); return num_sats;}
+	inline uint8_t get_num_sats() {std::lock_guard<std::mutex> lock(num_sats_lock); return num_sats;}
 
 	/// signal when gps measurement is updated
 	boost::signals2::signal<void ()> gps_updated;
@@ -99,7 +100,7 @@ private:
 	/// pointer to <em> the </em> instance of GPS
 	static GPS* _instance;
 	/// serialize access to _instance
-	static boost::mutex _instance_lock;
+	static std::mutex _instance_lock;
 
 	/// thread used to communicate with the GPS
 	boost::thread read_serial_thread;
@@ -107,57 +108,57 @@ private:
 	/// container for llh_position
 	blas::vector<double> llh_position;
 	/// serialize access to llh_position
-	boost::mutex llh_position_lock;
+	std::mutex llh_position_lock;
 	/// threadsafe set llh_position
-	inline void set_llh_position(const blas::vector<double>& llh) {boost::mutex::scoped_lock(llh_position_lock); llh_position = llh;}
+	inline void set_llh_position(const blas::vector<double>& llh) {std::lock_guard<std::mutex> lock(llh_position_lock); llh_position = llh;}
 
 	/// container for ned_velocity
 	blas::vector<double> ned_velocity;
 	/// serialize access to ned_velocity
-	boost::mutex ned_velocity_lock;
+	std::mutex ned_velocity_lock;
 	/// threadsafe set ned_velocity
-	inline void set_ned_velocity(const blas::vector<double>& ned_vel) {boost::mutex::scoped_lock(ned_velocity_lock); ned_velocity = ned_vel;}
+	inline void set_ned_velocity(const blas::vector<double>& ned_vel) {std::lock_guard<std::mutex> lock(ned_velocity_lock); ned_velocity = ned_vel;}
 
 	/// container for pos error std dev
 	blas::vector<double> pos_sigma;
 	/// serialize access to pos_sigma
-	boost::mutex pos_sigma_lock;
+	std::mutex pos_sigma_lock;
 	/// threadsafe set pos_sigma
-	inline void set_pos_sigma(const blas::vector<double>& pos_error) {boost::mutex::scoped_lock(pos_sigma_lock); pos_sigma = pos_error;}
+	inline void set_pos_sigma(const blas::vector<double>& pos_error) {std::lock_guard<std::mutex> lock(pos_sigma_lock); pos_sigma = pos_error;}
 
 	/// container for velocity error std dev
 	blas::vector<double> vel_sigma;
 	/// serialize access to vel_sigma
-	boost::mutex vel_sigma_lock;
+	std::mutex vel_sigma_lock;
 	/// threadsafe set vel sigma
-	inline void set_vel_sigma(const blas::vector<double>& vel_error) {boost::mutex::scoped_lock(vel_sigma_lock); vel_sigma = vel_error;}
+	inline void set_vel_sigma(const blas::vector<double>& vel_error) {std::lock_guard<std::mutex> lock(vel_sigma_lock); vel_sigma = vel_error;}
 
 	/// container for gps_time
 	gps_time _gps_time;
 	/// serialize access to gps_time
-	boost::mutex _gps_time_lock;
+	std::mutex _gps_time_lock;
 	/// threadsafe set gps_time
-	inline void set_gps_time(const gps_time& time) {boost::mutex::scoped_lock(_gps_time_lock); _gps_time = time;}
+	inline void set_gps_time(const gps_time& time) {std::lock_guard<std::mutex> lock(_gps_time_lock); _gps_time = time;}
 
 	uint position_status;
-	boost::mutex position_status_lock;
-	inline void set_position_status(const uint status) {boost::mutex::scoped_lock(position_status_lock); position_status = status;}
+	std::mutex position_status_lock;
+	inline void set_position_status(const uint status) {std::lock_guard<std::mutex> lock(position_status_lock); position_status = status;}
 
 	uint position_type;
-	boost::mutex position_type_lock;
-	inline void set_position_type(const uint type) {boost::mutex::scoped_lock(position_type_lock); position_type = type;}
+	std::mutex position_type_lock;
+	inline void set_position_type(const uint type) {std::lock_guard<std::mutex> lock(position_type_lock); position_type = type;}
 
 	uint velocity_status;
-	boost::mutex velocity_status_lock;
-	inline void set_velocity_status(const uint status) {boost::mutex::scoped_lock(velocity_status_lock); velocity_status = status;}
+	std::mutex velocity_status_lock;
+	inline void set_velocity_status(const uint status) {std::lock_guard<std::mutex> lock(velocity_status_lock); velocity_status = status;}
 
 	uint velocity_type;
-	boost::mutex velocity_type_lock;
-	inline void set_velocity_type(const uint type) {boost::mutex::scoped_lock(velocity_type_lock); velocity_type = type;}
+	std::mutex velocity_type_lock;
+	inline void set_velocity_type(const uint type) {std::lock_guard<std::mutex> lock(velocity_type_lock); velocity_type = type;}
 
 	uint8_t num_sats;
-	boost::mutex num_sats_lock;
-	inline void set_num_sats(const uint8_t num) {boost::mutex::scoped_lock(num_sats_lock); num_sats = num;}
+	std::mutex num_sats_lock;
+	inline void set_num_sats(const uint8_t num) {std::lock_guard<std::mutex> lock(num_sats_lock); num_sats = num;}
 
 	/// convert a raw string of bytes to a signed integer
 	template <typename ReturnType, typename IteratorType>

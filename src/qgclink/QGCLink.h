@@ -36,6 +36,7 @@ using boost::asio::ip::address;
 /* STL Headers */
 #include <vector>
 #include <queue>
+#include <mutex>
 
 /**
  *  @brief Sends and receives data to QGroundControl via UDP.
@@ -82,12 +83,12 @@ private:
 	/// Pointer to instance of QGCLink
 	static QGCLink* _instance;
 	/// Mutex to make class instantiation threadsafe
-	static boost::mutex _instance_lock;
+	static std::mutex _instance_lock;
 	/// creates the udp socket to qgc and spawns the receive and send threads
 	void init();
 
 	/// mutex to make access to send_queue threadsafe
-//	boost::mutex send_queue_lock;
+//	std::mutex send_queue_lock;
 
 	udp::endpoint qgc;
 	boost::asio::io_service io_service;
@@ -101,64 +102,64 @@ private:
 	/// frequency to send heartbeat messages.  also used for system status messages
 	int heartbeat_rate;
 	/// serialized access to heartbeat_rate
-	mutable boost::mutex heartbeat_rate_lock;
+	mutable std::mutex heartbeat_rate_lock;
 	/// threadsafe get heartbeat_rate
-	inline int get_heartbeat_rate() const {boost::mutex::scoped_lock lock(heartbeat_rate_lock); return heartbeat_rate;}
+	inline int get_heartbeat_rate() {std::lock_guard<std::mutex> lock(heartbeat_rate_lock); return heartbeat_rate;}
 	///threadsafe set heartbeat_rate
-	inline void set_heartbeat_reate(int rate) {boost::mutex::scoped_lock lock(heartbeat_rate_lock); heartbeat_rate = rate;}
+	inline void set_heartbeat_reate(int rate) {std::lock_guard<std::mutex> lock(heartbeat_rate_lock); heartbeat_rate = rate;}
 
 	/// frequency to send rc channel measurements
 	int rc_channel_rate;
 	/// serialize access to rc_channel_rate
-	mutable boost::mutex rc_channel_rate_lock;
+	mutable std::mutex rc_channel_rate_lock;
 	/// threadsafe get rc_channel_rate
-	inline int get_rc_channel_rate() const {boost::mutex::scoped_lock lock(rc_channel_rate_lock); return rc_channel_rate;}
+	inline int get_rc_channel_rate() {std::lock_guard<std::mutex> lock(rc_channel_rate_lock); return rc_channel_rate;}
 	/// threadsafe set rc_channel_rate
-	inline void set_rc_channel_rate(int rate) {boost::mutex::scoped_lock lock(rc_channel_rate_lock); rc_channel_rate = rate;}
+	inline void set_rc_channel_rate(int rate) {std::lock_guard<std::mutex> lock(rc_channel_rate_lock); rc_channel_rate = rate;}
 
 	/// frequency to send control output
 	int control_output_rate;
 	/// serialize access to control_output_rate
-	mutable boost::mutex control_output_rate_lock;
+	mutable std::mutex control_output_rate_lock;
 	/// threadsafe get control_output_rate
-	inline int get_control_output_rate() const {boost::mutex::scoped_lock lock(control_output_rate_lock); return control_output_rate;}
+	inline int get_control_output_rate() const {std::lock_guard<std::mutex> lock(control_output_rate_lock); return control_output_rate;}
 	/// threadsafe set control output rate
-	inline void set_control_output_rate(int rate) {boost::mutex::scoped_lock lock(control_output_rate_lock); control_output_rate = rate;}
+	inline void set_control_output_rate(int rate) {std::lock_guard<std::mutex> lock(control_output_rate_lock); control_output_rate = rate;}
 
 	/// store frequency to send position measurement rate
 	int position_rate;
 	/// serialize access to position_rate
-	mutable boost::mutex position_rate_lock;
+	mutable std::mutex position_rate_lock;
 	/// threadsafe get position rate
-	inline int get_position_rate() const {boost::mutex::scoped_lock lock(position_rate_lock); return position_rate;}
+	inline int get_position_rate() const {std::lock_guard<std::mutex> lock(position_rate_lock); return position_rate;}
 	/// threadsafe set position rate
-	inline void set_position_rate(int rate) {boost::mutex::scoped_lock lock(position_rate_lock); position_rate = rate;}
+	inline void set_position_rate(int rate) {std::lock_guard<std::mutex> lock(position_rate_lock); position_rate = rate;}
 
 	/// Store desired transmission rate for attitude state estimate
 	int attitude_rate;
 	/// Mutex to protect QGCLink::ahrs_attitude_rate
-	mutable boost::mutex attitude_rate_lock;
+	mutable std::mutex attitude_rate_lock;
 	/// treadsafe attitude rate set
-	inline void set_attitude_rate(int rate) {boost::mutex::scoped_lock lock(attitude_rate_lock); attitude_rate = rate;}
+	inline void set_attitude_rate(int rate) {std::lock_guard<std::mutex> lock(attitude_rate_lock); attitude_rate = rate;}
 	/// threadsafe get attitude rate
-	inline int get_attitude_rate() const {boost::mutex::scoped_lock lock(attitude_rate_lock); return attitude_rate;}
+	inline int get_attitude_rate() const {std::lock_guard<std::mutex> lock(attitude_rate_lock); return attitude_rate;}
 
-	mutable boost::mutex param_recv_lock;
+	mutable std::mutex param_recv_lock;
 	bool param_recv;
 
-	mutable boost::mutex requested_params_lock;
+	mutable std::mutex requested_params_lock;
 	std::queue<Parameter> requested_params;
 
 	/// store whether rc_calibration packet has been requested
 	bool requested_rc_calibration;
 	/// serialize access to requested_rc_calibration
-	mutable boost::mutex requested_rc_calibration_lock;
+	mutable std::mutex requested_rc_calibration_lock;
 	/// threadsafe set requested rc calibration (could be used as slot)
-	inline void set_requested_rc_calibration() {boost::mutex::scoped_lock lock(requested_rc_calibration_lock); requested_rc_calibration = true;}
+	inline void set_requested_rc_calibration() {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); requested_rc_calibration = true;}
 	/// threadsafe clear requested rc calibration
-	inline void clear_requested_rc_calibration() {boost::mutex::scoped_lock lock(requested_rc_calibration_lock); requested_rc_calibration = false;}
+	inline void clear_requested_rc_calibration() {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); requested_rc_calibration = false;}
 	/// threadsafe get requested rc calibration
-	inline bool get_requested_rc_calibration() const {boost::mutex::scoped_lock lock(requested_rc_calibration_lock); return requested_rc_calibration;}
+	inline bool get_requested_rc_calibration() const {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); return requested_rc_calibration;}
 
 	int uasId;
 };
