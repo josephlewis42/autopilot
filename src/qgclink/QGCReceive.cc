@@ -278,7 +278,7 @@ void QGCLink::QGCReceive::receive()
 							{
 								if ((*it).getParamID() == (const char*)(set.param_id))
 								{
-									boostd::lock_guard<std::mutex> lock(qgc->requested_params_lock);
+									std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
 									qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::CONTROLLER_ID));
 									qgc->debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
 								}
