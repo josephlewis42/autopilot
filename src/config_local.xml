@@ -1,7 +1,0 @@
-<!--
-This document specifies the default configuration for the helicopter.
--->
-<QGROUNDCONTROL_HOST_IP_ADDRESS>192.168.56.1</QGROUNDCONTROL_HOST_IP_ADDRESS>
-<imu_serial_port>/dev/urandom</imu_serial_port>
-<gps_serial>/dev/urandom</gps_serial>
-<servo_serial_port>/dev/ser1</servo_serial_port>

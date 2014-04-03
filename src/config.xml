@@ -1,7 +1,0 @@
-<!--
-This document specifies the default configuration for the helicopter.
--->
-<QGROUNDCONTROL_HOST_IP_ADDRESS>10.42.0.1</QGROUNDCONTROL_HOST_IP_ADDRESS>
-<imu_serial_port>/dev/ser2</imu_serial_port>
-<gps_serial>/dev/ser1</gps_serial>
-<servo_serial_port>/dev/ser3</servo_serial_port>
