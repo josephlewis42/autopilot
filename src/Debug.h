@@ -25,6 +25,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <mutex>
 
 /* Boost Headers */
 #include <boost/thread.hpp>
@@ -119,7 +120,7 @@ public:
 	static boost::signals2::signal<void (std::string)> criticalSignal;
 
 private:
-	static boost::mutex cerr_lock;
+	static std::mutex cerr_lock;
 	static int message_count;
 	static std::string last_message;
 

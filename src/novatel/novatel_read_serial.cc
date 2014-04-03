@@ -59,11 +59,15 @@ const uint8_t GPS::ReadSerial::HEADER_LENGTH_BYTES = 25;
 
 int GPS::ReadSerial::readSerialBytes(int fd, void * buf, int n)
 {
+
+	GPS* gps = GPS::getInstance();
+	gps->trace() << "reading serial " << fd << " bytes " << n;
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	//return read(fd, buf, n);
-	return QNX2Linux::readUntilMin(fd, buf, n, n);
+
+	return read(fd, buf, n);
+	//return QNX2Linux::readUntilMin(fd, buf, n, n);
 
 	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
 #endif
@@ -86,8 +90,9 @@ void GPS::ReadSerial::operator()()
 	gps->debug() << "Initialize the NovAtel serial port";
 	if(initPort())
 	{
+		gps->debug() << "Waiting a moment to startup";
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
-		//	send_log_command();
+		//send_log_command();
 		readPort();
 	}
 	else

@@ -18,15 +18,16 @@
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-// Includes
-#include "Debug.h"
 #include <string.h>
+#include <mutex> // c++11
+
 /* Project Headers */
+#include "Debug.h"
 #include "LogFile.h"
 
 
 // Variables
-boost::mutex Debug::cerr_lock;
+std::mutex Debug::cerr_lock;
 boost::signals2::signal<void (std::string)> Debug::warningSignal;
 boost::signals2::signal<void (std::string)> Debug::criticalSignal;
 std::string Debug::last_message = "";
@@ -85,7 +86,7 @@ Debug::~Debug()
 #ifndef NDEBUG
 	{
 
-		boost::mutex::scoped_lock lock(cerr_lock);
+		std::lock_guard<std::mutex> lock(cerr_lock);
 		if(strcmp(last_message.c_str(), message.c_str()) == 0)
 		{
 			message_count++;

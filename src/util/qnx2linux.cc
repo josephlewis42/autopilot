@@ -108,7 +108,7 @@ int QNX2Linux::readUntilMin(int fd, void* buf, int n, int min)
 		{
 			bytesRead = 0;
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
-				warning() << "Tried to do a blocking read from a nonblocking socket";
+				//warning() << "Tried to do a blocking read from a nonblocking socket";
 			if(errno == EBADF)
 				warning() << "Bad fd";
 			if(errno == EFAULT)
