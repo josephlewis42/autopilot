@@ -23,6 +23,7 @@
 #include <boost/thread.hpp>
 #include <string.h>
 #include <mutex>
+#include <atomic>
 #include "Debug.h"
 #include "Configuration.h"
 
@@ -36,9 +37,7 @@ class Driver : public Logger, public ConfigurationSubTree
 {
 private:
 	/// store whether to terminate the thread
-	bool _terminate;
-	/// serialize access to _terminate
-	std::mutex _terminate_lock;
+	std::atomic_bool _terminate;
 
 	/// stores the prefix for the driver
 	std::string _config_prefix;
@@ -60,10 +59,9 @@ public:
 	virtual ~Driver();
 	static void terminateAll();
 	inline const std::string getName(){return _name;};
-	inline bool terminateRequested() {boost::mutex::scoped_lock(_terminate_lock); return _terminate;};
+	inline bool terminateRequested() {return _terminate;};
 	inline void terminate() {
 		debug() << "Driver Terminating: " << getName();
-		std::lock_guard<std::mutex> lock(_terminate_lock);
 		_terminate = true;
 	};
 
