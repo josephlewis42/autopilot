@@ -23,6 +23,7 @@
 
 /* STL Headers */
 #include <string>
+#include <mutex>
 
 /* Boost Headers */
 #include <boost/thread.hpp>
@@ -56,7 +57,7 @@ public:
 	void operator()(const blas::vector<double>& reference) throw(bad_control);
 
 	/// threadsafe get control_effort
-	inline blas::vector<double> get_control_effort() const {boost::mutex::scoped_lock lock(control_effort_lock); return control_effort;}
+	inline blas::vector<double> get_control_effort() const {std::lock_guard<std::mutex> lock(control_effort_lock); return control_effort;}
 
 	/// reset the integrator error states
 	void reset();
@@ -122,11 +123,11 @@ public:
 	/** set the roll trim point.  threadsafe
 	 * @param trim roll trim in radians
 	 */
-	inline void set_roll_trim_radians(double trim) {boost::mutex::scoped_lock lock(roll_trim_lock); roll_trim = trim;}
+	inline void set_roll_trim_radians(double trim) {std::lock_guard<std::mutex> lock(roll_trim_lock); roll_trim = trim;}
 	/** get the roll trim point.  threadsafe
 	 * @returns roll trim in radians
 	 */
-	inline double get_roll_trim_radians() {boost::mutex::scoped_lock lock(roll_trim_lock); return roll_trim;}
+	inline double get_roll_trim_radians() {std::lock_guard<std::mutex> lock(roll_trim_lock); return roll_trim;}
 	/** set the roll trim point.  threadsafe
 	 * @param trim roll trim in degrees
 	 */
@@ -134,15 +135,15 @@ public:
 	/** get the roll trim point.  threadsafe
 	 * @returns roll trim in degress
 	 */
-	inline double get_roll_trim_degrees() {boost::mutex::scoped_lock lock(roll_trim_lock); return roll_trim * 180 / boost::math::constants::pi<double>();}
+	inline double get_roll_trim_degrees() {std::lock_guard<std::mutex> lock(roll_trim_lock); return roll_trim * 180 / boost::math::constants::pi<double>();}
 	/** set the pitch trim point.  threadsafe
 	 * @param trim pitch trim in radians
 	 */
-	inline void set_pitch_trim_radians(double trim) {boost::mutex::scoped_lock lock(pitch_trim_lock); pitch_trim = trim;}
+	inline void set_pitch_trim_radians(double trim) {std::lock_guard<std::mutex> lock(pitch_trim_lock); pitch_trim = trim;}
 	/** get the pitch trim point.  threadsafe
 	 * @returns pitch trim in radians
 	 */
-	inline double get_pitch_trim_radians() {boost::mutex::scoped_lock lock(pitch_trim_lock); return pitch_trim;}
+	inline double get_pitch_trim_radians() {std::lock_guard<std::mutex> lock(pitch_trim_lock); return pitch_trim;}
 	/** set the pitch trim point.  threadsafe
 	 * @param trim pitch trim in degrees
 	 */
@@ -150,7 +151,7 @@ public:
 	/** get the pitch trim point.  threadsafe
 	 * @returns pitch trim in degress
 	 */
-	inline double get_pitch_trim_degrees() {boost::mutex::scoped_lock lock(pitch_trim_lock); return pitch_trim * 180 / boost::math::constants::pi<double>();}
+	inline double get_pitch_trim_degrees() {std::lock_guard<std::mutex> lock(pitch_trim_lock); return pitch_trim * 180 / boost::math::constants::pi<double>();}
 	/// threadsafe get runnable
 	inline bool runnable() const {return _runnable;}
 
@@ -164,34 +165,34 @@ public:
 
 private:
 	pid_channel roll;
-	mutable boost::mutex roll_lock;
+	mutable std::mutex roll_lock;
 	pid_channel pitch;
-	mutable boost::mutex pitch_lock;
+	mutable std::mutex pitch_lock;
 
 	/// store the current normalized servo commands
 	blas::vector<double> control_effort;
 	/// serialize access to control_effort
-	mutable boost::mutex control_effort_lock;
+	mutable std::mutex control_effort_lock;
 	/// threadsafe set control_effort
-	inline void set_control_effort(const blas::vector<double>& control_effort) {boost::mutex::scoped_lock lock(control_effort_lock); this->control_effort = control_effort;}
+	inline void set_control_effort(const blas::vector<double>& control_effort) {std::lock_guard<std::mutex> lock(control_effort_lock); this->control_effort = control_effort;}
 
 	/// trim point regulated by the controller.  it is stored in radians
 	double roll_trim;
 	/// serialize access to roll_trim
-	mutable boost::mutex roll_trim_lock;
+	mutable std::mutex roll_trim_lock;
 	/// trim point regulated by the control.  stored in radians
 	double pitch_trim;
 	/// serialize access to pitch_trim
-	mutable boost::mutex pitch_trim_lock;
+	mutable std::mutex pitch_trim_lock;
 
 	/// is this controller runnable?
 	bool _runnable;
 	/// serialize access to runnable
-	mutable boost::mutex runnable_lock;
+	mutable std::mutex runnable_lock;
 	/// threadsafe clear _runnable
-	inline void clear_runnable() {boost::mutex::scoped_lock lock(runnable_lock); _runnable = false;}
+	inline void clear_runnable() {std::lock_guard<std::mutex> lock(runnable_lock); _runnable = false;}
 	/// threadsafe _runnable
-	inline void set_runnable() {boost::mutex::scoped_lock lock(runnable_lock); _runnable = true;}
+	inline void set_runnable() {std::lock_guard<std::mutex> lock(runnable_lock); _runnable = true;}
 
 
 };

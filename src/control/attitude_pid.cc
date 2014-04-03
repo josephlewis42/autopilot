@@ -69,28 +69,28 @@ attitude_pid::attitude_pid(const attitude_pid& other)
 {
 
 	{
-		boost::mutex::scoped_lock lock(other.control_effort_lock);
+		std::lock_guard<std::mutex> lock(other.control_effort_lock);
 		control_effort = other.control_effort;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.roll_lock);
+		std::lock_guard<std::mutex> lock(other.roll_lock);
 		roll = other.roll;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.pitch_lock);
+		std::lock_guard<std::mutex> lock(other.pitch_lock);
 		pitch = other.pitch;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.roll_trim_lock);
+		std::lock_guard<std::mutex> lock(other.roll_trim_lock);
 		roll_trim = other.roll_trim;
 	}
 
 	{
-		boost::mutex::scoped_lock lock(other.pitch_trim_lock);
+		std::lock_guard<std::mutex> lock(other.pitch_trim_lock);
 		pitch_trim = other.pitch_trim;
 	}
 	{
-		boost::mutex::scoped_lock lock(other.runnable_lock);
+		std::lock_guard<std::mutex> lock(other.runnable_lock);
 		_runnable = other._runnable;
 	}
 
@@ -179,7 +179,7 @@ std::vector<Parameter> attitude_pid::getParameters()
 void attitude_pid::set_roll_proportional(double kp)
 {
 	{
-		boost::mutex::scoped_lock lock(roll_lock);
+		std::lock_guard<std::mutex> lock(roll_lock);
 		roll.gains().proportional() = kp;
 	}
 	message() << "Set roll proportional gain to: " << kp;
@@ -187,45 +187,45 @@ void attitude_pid::set_roll_proportional(double kp)
 
 double attitude_pid::get_pitch_proportional()
 {
-	boost::mutex::scoped_lock lock(pitch_lock);
+	std::lock_guard<std::mutex> lock(pitch_lock);
 	return pitch.gains().proportional();
 }
 
 double attitude_pid::get_pitch_derivative()
 {
-	boost::mutex::scoped_lock lock(pitch_lock);
+	std::lock_guard<std::mutex> lock(pitch_lock);
 	return pitch.gains().derivative();
 }
 
 double attitude_pid::get_pitch_integral()
 {
-	boost::mutex::scoped_lock lock(pitch_lock);
+	std::lock_guard<std::mutex> lock(pitch_lock);
 	return pitch.gains().integral();
 }
 
 
 double attitude_pid::get_roll_proportional()
 {
-	boost::mutex::scoped_lock lock(roll_lock);
+	std::lock_guard<std::mutex> lock(roll_lock);
 	return roll.gains().proportional();
 }
 
 double attitude_pid::get_roll_derivative()
 {
-	boost::mutex::scoped_lock lock(roll_lock);
+	std::lock_guard<std::mutex> lock(roll_lock);
 	return roll.gains().derivative();
 }
 
 double attitude_pid::get_roll_integral()
 {
-	boost::mutex::scoped_lock lock(roll_lock);
+	std::lock_guard<std::mutex> lock(roll_lock);
 	return roll.gains().integral();
 }
 
 void attitude_pid::set_roll_derivative(double kd)
 {
 	{
-		boost::mutex::scoped_lock lock(roll_lock);
+		std::lock_guard<std::mutex> lock(roll_lock);
 		roll.gains().derivative() = kd;
 	}
 	message() << "Set roll derivative gain to: " << kd;
@@ -234,7 +234,7 @@ void attitude_pid::set_roll_derivative(double kd)
 void attitude_pid::set_roll_integral(double ki)
 {
 	{
-		boost::mutex::scoped_lock lock(roll_lock);
+		std::lock_guard<std::mutex> lock(roll_lock);
 		roll.gains().integral() = ki;
 	}
 	message() << "Set roll integral gain to: " << ki;
@@ -243,7 +243,7 @@ void attitude_pid::set_roll_integral(double ki)
 void attitude_pid::set_pitch_proportional(double kp)
 {
 	{
-		boost::mutex::scoped_lock lock(pitch_lock);
+		std::lock_guard<std::mutex> lock(pitch_lock);
 		pitch.gains().proportional() = kp;
 	}
 	message() << "Set pitch proportional gain to: " << kp;
@@ -252,7 +252,7 @@ void attitude_pid::set_pitch_proportional(double kp)
 void attitude_pid::set_pitch_derivative(double kd)
 {
 	{
-		boost::mutex::scoped_lock lock(pitch_lock);
+		std::lock_guard<std::mutex> lock(pitch_lock);
 		pitch.gains().derivative() = kd;
 	}
 	message() << "Set pitch derivative gain to: " << kd;
@@ -261,7 +261,7 @@ void attitude_pid::set_pitch_derivative(double kd)
 void attitude_pid::set_pitch_integral(double ki)
 {
 	{
-		boost::mutex::scoped_lock lock(pitch_lock);
+		std::lock_guard<std::mutex> lock(pitch_lock);
 		pitch.gains().integral() = ki;
 	}
 	message() << "Set pitch integral gain to: " << ki;
@@ -269,7 +269,7 @@ void attitude_pid::set_pitch_integral(double ki)
 void attitude_pid::set_roll_trim_degrees(double trim_degrees)
 {
 	{
-		boost::mutex::scoped_lock lock(roll_trim_lock);
+		std::lock_guard<std::mutex> lock(roll_trim_lock);
 		roll_trim = trim_degrees * boost::math::constants::pi<double>()/180;
 	}
 	message() << "Set roll trim to " << trim_degrees << " deg.";
@@ -278,7 +278,7 @@ void attitude_pid::set_roll_trim_degrees(double trim_degrees)
 void attitude_pid::set_pitch_trim_degrees(double trim_degrees)
 {
 	{
-		boost::mutex::scoped_lock lock(pitch_trim_lock);
+		std::lock_guard<std::mutex> lock(pitch_trim_lock);
 		pitch_trim = trim_degrees * boost::math::constants::pi<double>()/180;
 	}
 	message() << "Set pitch trim to " << trim_degrees << " deg.";
