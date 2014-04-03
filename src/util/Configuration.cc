@@ -28,8 +28,8 @@
 
 // Static Class variable instantiation
 Configuration* Configuration::_instance = NULL;
-boost::mutex Configuration::_instance_lock;
-boost::mutex Configuration::_propertiesLock;
+std::mutex Configuration::_instance_lock;
+std::mutex Configuration::_propertiesLock;
 
 // Variables
 std::string ROOT_ELEMENT = "configuration.";
@@ -104,7 +104,7 @@ void Configuration::overrideWith(int argc, char* const argv[])
 
 Configuration* Configuration::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 
 	if(NULL == _instance)
 	{
@@ -117,7 +117,7 @@ Configuration* Configuration::getInstance()
 
 std::string Configuration::gets(const std::string &key, const std::string &alt)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 	try
 	{
 		return _properties.get<std::string>(ROOT_ELEMENT + key);
@@ -132,7 +132,7 @@ std::string Configuration::gets(const std::string &key, const std::string &alt)
 
 bool Configuration::getb(const std::string &key, bool alt)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 
 	try
 	{
@@ -148,7 +148,7 @@ bool Configuration::getb(const std::string &key, bool alt)
 
 int Configuration::geti(const std::string &key, int alt)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 
 	try
 	{
@@ -164,7 +164,7 @@ int Configuration::geti(const std::string &key, int alt)
 
 double Configuration::getd(const std::string &key, double alt)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 
 	try
 	{
@@ -180,7 +180,7 @@ double Configuration::getd(const std::string &key, double alt)
 
 float Configuration::getf(const std::string &key, float alt)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 
 	try
 	{
@@ -195,7 +195,7 @@ float Configuration::getf(const std::string &key, float alt)
 
 void Configuration::set(const std::string &key, const std::string& value)
 {
-	boost::mutex::scoped_lock lock(_propertiesLock);
+	std::lock_guard<std::mutex> lock(_propertiesLock);
 
 	_properties.put(ROOT_ELEMENT + key, value);
 	save();

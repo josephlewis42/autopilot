@@ -13,6 +13,7 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 
 #include <boost/thread.hpp>
 #include <boost/signals2.hpp>
@@ -75,9 +76,9 @@ public:
 
 private:
 	static Configuration* _instance;
-	static boost::mutex _instance_lock;
+	static std::mutex _instance_lock;
 	boost::property_tree::ptree _properties;
-	static boost::mutex _propertiesLock;
+	static std::mutex _propertiesLock;
 
 	Configuration();
 	virtual ~Configuration();
