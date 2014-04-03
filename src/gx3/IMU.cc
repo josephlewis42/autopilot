@@ -46,7 +46,7 @@
 #include <boost/math/constants/constants.hpp>
 
 IMU* IMU::_instance = NULL;
-boost::mutex IMU::_instance_lock;
+std::mutex IMU::_instance_lock;
 
 // path to serial device connected to gx3
 const std::string IMU_SERIAL_PORT_CONFIG_NAME = "gx3.serial_port";
@@ -56,7 +56,7 @@ const bool IMU_ENABLED_DEFAULT = true;
 
 IMU* IMU::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 
 	if (!_instance)
 	{
@@ -186,7 +186,7 @@ void IMU::set_gx3_mode(IMU::GX3_MODE mode)
 {
 	bool mode_changed = false;
 	{
-		boost::mutex::scoped_lock lock(gx3_mode_lock);
+		std::lock_guard<std::mutex> lock(gx3_mode_lock);
 		if (mode != gx3_mode)
 		{
 			if (mode == RUNNING && gx3_mode != ERROR) // just came out of init or startup
@@ -255,7 +255,7 @@ blas::vector<double> IMU::llh2ecef(const blas::vector<double>& llh_deg)
 
 void IMU::set_use_nav_attitude(bool attitude_source)
 {
-	boost::mutex::scoped_lock lock(use_nav_attitude_lock);
+	std::lock_guard<std::mutex> lock(use_nav_attitude_lock);
 	use_nav_attitude = attitude_source;
 	message() << "Attitude source changed to " << (attitude_source?"nav filter":"ahrs") << ".";
 }
@@ -296,7 +296,7 @@ blas::matrix<double> IMU::get_heading_rotation() const
 void IMU::set_ned_origin(const blas::vector<double>& origin)
 {
 	{
-	boost::mutex::scoped_lock lock(ned_origin_lock);
+		std::lock_guard<std::mutex> lock(ned_origin_lock);
 	ned_origin = origin;
 	}
 	message() << "Origin set to: " << origin;

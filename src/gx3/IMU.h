@@ -33,6 +33,7 @@ namespace blas = boost::numeric::ublas;
 #include <vector>
 #include <queue>
 #include <map>
+#include <mutex>
 
 /* Project Headers */
 #include "IMU_Filter.h"
@@ -94,25 +95,25 @@ public:
 	/// function to keep names symmetrical with position
 	inline blas::vector<double> get_ned_velocity() const {return get_velocity();}
 	/// threadsafe get velocity (ned)
-	inline blas::vector<double> get_velocity() const {boost::mutex::scoped_lock lock(velocity_lock); return velocity;}
+	inline blas::vector<double> get_velocity() const {std::lock_guard<std::mutex> lock(velocity_lock); return velocity;}
 	/// get rotation matrix depending on use_nav_attitude
 	inline blas::matrix<double> get_rotation() const {return euler_to_rotation(get_euler());}
 	/// get the rotation matrix for the heading angle only (body->navigation)
 	blas::matrix<double> get_heading_rotation() const;
 	/// threadsafe get rotation
-	inline blas::matrix<double> get_nav_rotation() const {boost::mutex::scoped_lock lock(nav_rotation_lock); return nav_rotation;}
+	inline blas::matrix<double> get_nav_rotation() const {std::lock_guard<std::mutex> lock(nav_rotation_lock); return nav_rotation;}
 	/// get the euler angles depending on use_nav_attitude
 	inline blas::vector<double> get_euler() const {return (get_use_nav_attitude()?get_nav_euler():get_ahrs_euler());}
 	/// threadsafe get nav_euler
-	inline blas::vector<double> get_nav_euler() const {boost::mutex::scoped_lock lock(nav_euler_lock); return nav_euler;}
+	inline blas::vector<double> get_nav_euler() const {std::lock_guard<std::mutex> lock(nav_euler_lock); return nav_euler;}
 	/// threadsafe get ahrs_euler
-	inline blas::vector<double> get_ahrs_euler() const {boost::mutex::scoped_lock lock(ahrs_euler_lock); return ahrs_euler;}
+	inline blas::vector<double> get_ahrs_euler() const {std::lock_guard<std::mutex> lock(ahrs_euler_lock); return ahrs_euler;}
 	/// get nav or ahrs angular rate according to use_nav_attitude
 	inline blas::vector<double> get_angular_rate() const {return (get_use_nav_attitude()?get_nav_angular_rate():get_ahrs_angular_rate());}
 	/// threadsafe get nav angular_rate
-	inline blas::vector<double> get_nav_angular_rate() const {boost::mutex::scoped_lock lock(nav_angular_rate_lock); return nav_angular_rate;}
+	inline blas::vector<double> get_nav_angular_rate() const {std::lock_guard<std::mutex> lock(nav_angular_rate_lock); return nav_angular_rate;}
 	/// threadsafe get ahrs angular_rate
-	inline blas::vector<double> get_ahrs_angular_rate() const {boost::mutex::scoped_lock lock(ahrs_angular_rate_lock); return ahrs_angular_rate;}
+	inline blas::vector<double> get_ahrs_angular_rate() const {std::lock_guard<std::mutex> lock(ahrs_angular_rate_lock); return ahrs_angular_rate;}
 	/// get the euler angle derivatives
 	blas::vector<double> get_euler_rate() const;
 
@@ -126,7 +127,7 @@ public:
 private:
 	IMU();
 	static IMU* _instance;
-	static boost::mutex _instance_lock;
+	static std::mutex _instance_lock;
 
 	send_serial* _send_serial;
 	/// thread to receive data on serial port
@@ -156,11 +157,11 @@ private:
 	/// keep track of the gx3's mode
 	GX3_MODE gx3_mode;
 	/// serialize access to IMU::gx3_mode
-	mutable boost::mutex gx3_mode_lock;
+	mutable std::mutex gx3_mode_lock;
 	/// threadsafe mode set.  emits IMU::gx3_mode_changed if mode has changed
 	void set_gx3_mode(GX3_MODE mode);
 	/// threadsafe get mode
-	inline GX3_MODE get_gx3_mode() const {boost::mutex::scoped_lock lock(gx3_mode_lock); return gx3_mode;}
+	inline GX3_MODE get_gx3_mode() const {std::lock_guard<std::mutex> lock(gx3_mode_lock); return gx3_mode;}
 
 
 	/// signal when covariance of position measurement is too high (pos measurement invalid)
@@ -173,34 +174,34 @@ private:
 	/// store the current position
 	blas::vector<double> position;
 	/// serialize access to IMU::position
-	mutable boost::mutex position_lock;
+	mutable std::mutex position_lock;
 	/// threadsafe set position
-	inline void set_position(const blas::vector<double>& position) {boost::mutex::scoped_lock lock(position_lock); this->position = position;}
+	inline void set_position(const blas::vector<double>& position) {std::lock_guard<std::mutex> lock(position_lock); this->position = position;}
 	/// threadsafe get position
-	inline blas::vector<double> get_position() const {boost::mutex::scoped_lock lock(position_lock); return position;}
+	inline blas::vector<double> get_position() const {std::lock_guard<std::mutex> lock(position_lock); return position;}
 
 	/// store the current ned origin (in llh)
 	blas::vector<double> ned_origin;
 	/// serialize access to ned_origin
-	mutable boost::mutex ned_origin_lock;
+	mutable std::mutex ned_origin_lock;
 	/// threadsafe set ned origin @arg origin in llh
 	void set_ned_origin(const blas::vector<double>& origin);
 	/// threadsafe get ned origin (in llh)
-	inline blas::vector<double> get_ned_origin() const {boost::mutex::scoped_lock lock(ned_origin_lock); return ned_origin;}
+	inline blas::vector<double> get_ned_origin() const {std::lock_guard<std::mutex> lock(ned_origin_lock); return ned_origin;}
 
 	/// store current velocity in ned coords
 	blas::vector<double> velocity;
 	/// serialize access to IMU::velocity
-	mutable boost::mutex velocity_lock;
+	mutable std::mutex velocity_lock;
 	/// threadsafe set velocity
-	inline void set_velocity(const blas::vector<double>& velocity) {boost::mutex::scoped_lock lock(velocity_lock); this->velocity = velocity;}
+	inline void set_velocity(const blas::vector<double>& velocity) {std::lock_guard<std::mutex> lock(velocity_lock); this->velocity = velocity;}
 
 	/// use nav attitude measurements if true, ahrs if false
 	bool use_nav_attitude;
 	/// serialize access to use_nav_attitude
-	mutable boost::mutex use_nav_attitude_lock;
+	mutable std::mutex use_nav_attitude_lock;
 	/// threadsafe get use_nav_attitude
-	inline bool get_use_nav_attitude() const {boost::mutex::scoped_lock lock(use_nav_attitude_lock); return use_nav_attitude;}
+	inline bool get_use_nav_attitude() const {std::lock_guard<std::mutex> lock(use_nav_attitude_lock); return use_nav_attitude;}
 	/// threadsafe set use_nav_attitude
 	void set_use_nav_attitude(bool attitude_source);
 	/// connection to allow use_nav_attitude to be set from qgc
@@ -209,47 +210,47 @@ private:
 	/// store the current euler angle estimate from the nav filter
 	blas::vector<double> nav_euler;
 	/// serialize access to nav_euler
-	mutable boost::mutex nav_euler_lock;
+	mutable std::mutex nav_euler_lock;
 	/// threadsafe set nav_euler
-	inline void set_nav_euler(const blas::vector<double>& euler) {boost::mutex::scoped_lock lock(nav_euler_lock); nav_euler = euler;}
+	inline void set_nav_euler(const blas::vector<double>& euler) {std::lock_guard<std::mutex> lock(nav_euler_lock); nav_euler = euler;}
 
 	/// store the current euler angle estimate from the ahrs filter
 	blas::vector<double> ahrs_euler;
 	/// serialize access to ahrs_euler
-	mutable boost::mutex ahrs_euler_lock;
+	mutable std::mutex ahrs_euler_lock;
 	/// threadsafe set ahrs_euler
-	inline void set_ahrs_euler(const blas::vector<double>& euler) {boost::mutex::scoped_lock lock(ahrs_euler_lock); ahrs_euler = euler;}
+	inline void set_ahrs_euler(const blas::vector<double>& euler) {std::lock_guard<std::mutex> lock(ahrs_euler_lock); ahrs_euler = euler;}
 
 	/// store the current rotation matrix between ned and body frames
 	blas::matrix<double> nav_rotation;
 	/// serialize access to IMU::rotation
-	mutable boost::mutex nav_rotation_lock;
+	mutable std::mutex nav_rotation_lock;
 	/// threadsafe set rotation
-	inline void set_nav_rotation(const blas::matrix<double>& rotation) {boost::mutex::scoped_lock lock(nav_rotation_lock); this->nav_rotation = rotation;}
+	inline void set_nav_rotation(const blas::matrix<double>& rotation) {std::lock_guard<std::mutex> lock(nav_rotation_lock); this->nav_rotation = rotation;}
 
 	/// store the current angular rates
 	blas::vector<double> nav_angular_rate;
 	/// serialize access to IMU::angular_rate
-	mutable boost::mutex nav_angular_rate_lock;
+	mutable std::mutex nav_angular_rate_lock;
 	/// threadsafe set angular_rate
-	inline void set_nav_angular_rate(const blas::vector<double>& angular_rate) {boost::mutex::scoped_lock lock(nav_angular_rate_lock); nav_angular_rate = angular_rate;}
+	inline void set_nav_angular_rate(const blas::vector<double>& angular_rate) {std::lock_guard<std::mutex> lock(nav_angular_rate_lock); nav_angular_rate = angular_rate;}
 
 
 	/// store the current angular rates
 	blas::vector<double> ahrs_angular_rate;
 	/// serialize access to IMU::angular_rate
-	mutable boost::mutex ahrs_angular_rate_lock;
+	mutable std::mutex ahrs_angular_rate_lock;
 	/// threadsafe set angular_rate
-	inline void set_ahrs_angular_rate(const blas::vector<double>& angular_rate) {boost::mutex::scoped_lock lock(ahrs_angular_rate_lock); ahrs_angular_rate = angular_rate;}
+	inline void set_ahrs_angular_rate(const blas::vector<double>& angular_rate) {std::lock_guard<std::mutex> lock(ahrs_angular_rate_lock); ahrs_angular_rate = angular_rate;}
 
 	/// store the last time data was successfully received
 	boost::posix_time::ptime last_data;
 	/// serialize access to last_data
-	mutable boost::mutex last_data_lock;
+	mutable std::mutex last_data_lock;
 	/// set last_data to the current time
-	inline void set_last_data() {boost::mutex::scoped_lock lock(last_data_lock); last_data = boost::posix_time::second_clock::local_time();}
+	inline void set_last_data() {std::lock_guard<std::mutex> lock(last_data_lock); last_data = boost::posix_time::second_clock::local_time();}
 	/// get the number of seconds since data was received
-	inline int seconds_since_last_data() const {boost::mutex::scoped_lock lock(last_data_lock); return (boost::posix_time::second_clock::local_time() - last_data).total_seconds();}
+	inline int seconds_since_last_data() const {std::lock_guard<std::mutex> lock(last_data_lock); return (boost::posix_time::second_clock::local_time() - last_data).total_seconds();}
 
 
 	/// send ack/nack signal when received from imu
