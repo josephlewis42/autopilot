@@ -10,7 +10,7 @@
 
 #include "Configuration.h"
 
-boost::mutex Driver::_all_drivers_lock;
+std::mutex Driver::_all_drivers_lock;
 std::list<Driver*> Driver::all_drivers;
 
 
@@ -23,7 +23,7 @@ Driver::Driver(std::string name, std::string config_prefix)
 {
 	debug() << "Driver: Setting up " << name;
 
-	boost::mutex::scoped_lock(_all_drivers_lock);
+	std::lock_guard<std::mutex> lock(_all_drivers_lock);
 	all_drivers.push_front(this);
 
 
@@ -33,14 +33,14 @@ Driver::Driver(std::string name, std::string config_prefix)
 
 Driver::~Driver()
 {
-	boost::mutex::scoped_lock(_all_drivers_lock);
+	std::lock_guard<std::mutex> lock(_all_drivers_lock);
 	all_drivers.remove(this);
 }
 
 void Driver::terminateAll()
 {
 	{
-		boost::mutex::scoped_lock(_all_drivers_lock);
+		std::lock_guard<std::mutex> lock(_all_drivers_lock);
 		for(Driver* d : all_drivers)
 		{
 			d->terminate();

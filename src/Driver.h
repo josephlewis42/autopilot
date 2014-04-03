@@ -22,6 +22,7 @@
 
 #include <boost/thread.hpp>
 #include <string.h>
+#include <mutex>
 #include "Debug.h"
 #include "Configuration.h"
 
@@ -37,7 +38,7 @@ private:
 	/// store whether to terminate the thread
 	bool _terminate;
 	/// serialize access to _terminate
-	boost::mutex _terminate_lock;
+	std::mutex _terminate_lock;
 
 	/// stores the prefix for the driver
 	std::string _config_prefix;
@@ -49,7 +50,7 @@ private:
 	bool _debug;
 
 	// Keeps a list of all drivers so we can terminate them later.
-	static boost::mutex _all_drivers_lock;
+	static std::mutex _all_drivers_lock;
 	static std::list<Driver*> all_drivers;
 
 
@@ -62,7 +63,7 @@ public:
 	inline bool terminateRequested() {boost::mutex::scoped_lock(_terminate_lock); return _terminate;};
 	inline void terminate() {
 		debug() << "Driver Terminating: " << getName();
-		boost::mutex::scoped_lock(_terminate_lock);
+		std::lock_guard<std::mutex> lock(_terminate_lock);
 		_terminate = true;
 	};
 
