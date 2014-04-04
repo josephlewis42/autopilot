@@ -37,7 +37,7 @@ IMU::ack_handler::ack_handler(const ack_handler& other)
 :command(other.command)
 {
 	IMU::getInstance()->debug("called ack_handler() copy");
-	boost::mutex::scoped_lock lock(other.ack_received_lock);
+	std::lock_guard<std::mutex> lock(other.ack_received_lock);
 	ack_received = other.ack_received;
 }
 
@@ -47,8 +47,8 @@ const IMU::ack_handler& IMU::ack_handler::operator=(const ack_handler& other)
 	if (this == &other)
 		return *this;
 
-	boost::mutex::scoped_lock lock1(&ack_received_lock < &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
-	boost::mutex::scoped_lock lock2(&ack_received_lock > &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
+	std::lock_guard<std::mutex> lock1(&ack_received_lock < &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
+	std::lock_guard<std::mutex> lock2(&ack_received_lock > &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
 	ack_received = other.ack_received;
 
 	return *this;

@@ -48,12 +48,12 @@ MainApp::MainApp()
 MainApp::MainApp(const MainApp& other)
 {
 	{
-	boost::mutex::scoped_lock scoped_lock(other.terminate_lock);
-	_terminate = other._terminate;
+		std::lock_guard<std::mutex> scoped_lock(other.terminate_lock);
+		_terminate = other._terminate;
 	}
 	{
-	boost::mutex::scoped_lock scoped_lock(other.autopilot_mode_lock);
-	autopilot_mode = other.autopilot_mode;
+		std::lock_guard<std::mutex> scoped_lock(other.autopilot_mode_lock);
+		autopilot_mode = other.autopilot_mode;
 	}
 }
 
@@ -63,8 +63,8 @@ const MainApp& MainApp::operator=(const MainApp& other)
 		return *this;
 
 	// use addresses to ensure mutexes are always locked in same order
-	boost::mutex::scoped_lock lock1(&terminate_lock < &other.terminate_lock? terminate_lock : other.terminate_lock);
-	boost::mutex::scoped_lock lock2(&terminate_lock > &other.terminate_lock? terminate_lock : other.terminate_lock);
+	std::lock_guard<std::mutex> lock1(&terminate_lock < &other.terminate_lock? terminate_lock : other.terminate_lock);
+	std::lock_guard<std::mutex> lock2(&terminate_lock > &other.terminate_lock? terminate_lock : other.terminate_lock);
 	_terminate = other._terminate;
 
 	return *this;
@@ -259,7 +259,7 @@ void MainApp::do_terminate::operator()()
 
 void MainApp::change_mode::operator()(heli::AUTOPILOT_MODE mode)
 {
-	boost::mutex::scoped_lock lock(parent->autopilot_mode_lock);
+	std::lock_guard<std::mutex> lock(parent->autopilot_mode_lock);
 	debug() << "Switching autopilot mode out of " << MainApp::getModeString(parent->autopilot_mode);
 	parent->autopilot_mode = mode;
 	message() << "Switched autopilot mode into " << MainApp::getModeString(parent->autopilot_mode);
@@ -268,7 +268,7 @@ void MainApp::change_mode::operator()(heli::AUTOPILOT_MODE mode)
 
 int MainApp::getMode()
 {
-	boost::mutex::scoped_lock lock(autopilot_mode_lock);
+	std::lock_guard<std::mutex> lock(autopilot_mode_lock);
 	return autopilot_mode;
 }
 

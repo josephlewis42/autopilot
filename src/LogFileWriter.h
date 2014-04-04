@@ -27,6 +27,7 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <mutex>
 
 #include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
@@ -38,13 +39,13 @@
 class LogfileWriter : public Driver
 {
 private:
-	static boost::mutex _ALL_LOGGERS_MUTEX;
+	static std::mutex _ALL_LOGGERS_MUTEX;
 	static std::map<std::string, LogfileWriter* > _ALL_LOGGERS;
 
 	std::string _logName;
 	ThreadSafeVariable<std::string> _header;
 
-	mutable boost::mutex _currentBufferLock;
+	mutable std::mutex _currentBufferLock;
 	std::stringstream* _currentBuffer;
 
 	std::stringstream _firstBuffer;

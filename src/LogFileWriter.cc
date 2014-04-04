@@ -27,12 +27,12 @@
 
 // static members
 std::map<std::string, LogfileWriter*> LogfileWriter::_ALL_LOGGERS;
-boost::mutex LogfileWriter::_ALL_LOGGERS_MUTEX;
+std::mutex LogfileWriter::_ALL_LOGGERS_MUTEX;
 
 
 LogfileWriter* LogfileWriter::getLogger(const std::string& path)
 {
-	boost::mutex::scoped_lock lock(_ALL_LOGGERS_MUTEX);
+	std::lock_guard<std::mutex> lock(_ALL_LOGGERS_MUTEX);
 	if(_ALL_LOGGERS.count(path) > 0)
 	{
 		return _ALL_LOGGERS[path];
@@ -61,7 +61,7 @@ LogfileWriter::LogfileWriter(std::string path)
 
 LogfileWriter::~LogfileWriter()
 {
-	boost::mutex::scoped_lock lock(_ALL_LOGGERS_MUTEX);
+	std::lock_guard<std::mutex> lock(_ALL_LOGGERS_MUTEX);
 	_ALL_LOGGERS.erase(_logName);
 }
 
@@ -82,7 +82,7 @@ boost::filesystem::path LogfileWriter::getLogPath()
 
 std::stringstream* LogfileWriter::swapBuffers()
 {
-	boost::mutex::scoped_lock lock(_currentBufferLock);
+	std::lock_guard<std::mutex> lock(_currentBufferLock);
 
 	std::stringstream* firstPtr = &_firstBuffer;
 	std::stringstream* secondPtr = &_secondBuffer;
@@ -101,7 +101,7 @@ std::stringstream* LogfileWriter::swapBuffers()
 
 void LogfileWriter::log(const std::string& message)
 {
-	boost::mutex::scoped_lock lock(_currentBufferLock);
+	std::lock_guard<std::mutex> lock(_currentBufferLock);
 	*_currentBuffer << message;
 }
 

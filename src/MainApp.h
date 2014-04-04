@@ -24,6 +24,7 @@
 #include <iostream> // used only while quick debugging to print to screen.
 #include <string>
 #include <vector>
+#include <mutex>
 
 /* Project Headers */
 #include "heli.h"
@@ -96,7 +97,7 @@ private:
 	bool _terminate;
 
 	/// synchronizes thread access to MainApp::_terminate
-	mutable boost::mutex terminate_lock;
+	mutable std::mutex terminate_lock;
 
 	/// returns the value of _terminate using MainApp::terminate_lock for synchronization
 	bool check_terminate();
@@ -124,7 +125,7 @@ private:
 	heli::AUTOPILOT_MODE autopilot_mode;
 
 	/// synchronizes thread access to MainApp::autopilot_mode
-	mutable boost::mutex autopilot_mode_lock;
+	mutable std::mutex autopilot_mode_lock;
 
 	/// @returns the value of MainApp::autopilot_mode using MainApp::autopilot_mode_lock
 	int getMode();

@@ -80,11 +80,11 @@ private:
 	/// flag to tell when ack is received
 	bool ack_received;
 	/// serialize access to IMU::ack_handler::ack_received
-	mutable boost::mutex ack_received_lock;
+	mutable std::mutex ack_received_lock;
 	/// threadsafe set ack_received
-	void set_ack_received() {boost::mutex::scoped_lock lock(ack_received_lock); ack_received = true;}
+	void set_ack_received() {std::lock_guard<std::mutex> lock(ack_received_lock); ack_received = true;}
 	/// threadsafe get ack_received
-	bool get_ack_received() {boost::mutex::scoped_lock lock(ack_received_lock); return ack_received;}
+	bool get_ack_received() {std::lock_guard<std::mutex> lock(ack_received_lock); return ack_received;}
 	/// store the command code to wait for
 	uint8_t command;
 	/// store the ack/nack message

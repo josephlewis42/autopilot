@@ -26,7 +26,7 @@
 #include <map>
 #include <exception>
 #include <queue>
-
+#include <mutex>
 
 /* boost headers */
 #include <boost/thread.hpp>
@@ -149,7 +149,7 @@ class LogFile
   /// stores a pointer to the instance of this class
   static LogFile* _instance;
   /// Mutex to make class instantiation threadsafe
-  static boost::mutex _instance_lock;
+  static std::mutex _instance_lock;
 
   /// Stores the time when the class is instantiated (i.e., the program starts)
   boost::posix_time::ptime startTime;

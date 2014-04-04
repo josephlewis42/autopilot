@@ -81,11 +81,11 @@ LogFile::~LogFile()
 }
 
 LogFile* LogFile::_instance = NULL;
-boost::mutex LogFile::_instance_lock;
+std::mutex LogFile::_instance_lock;
 
 LogFile* LogFile::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 	if (NULL == _instance)
 	{
 		_instance = new LogFile;
