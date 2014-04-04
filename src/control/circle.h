@@ -31,6 +31,7 @@ namespace blas = boost::numeric::ublas;
 /* STL Headers */
 #include <string>
 #include <vector>
+#include <mutex>
 
 /* Project Headers */
 #include "Debug.h"
@@ -53,19 +54,19 @@ public:
 	void reset();
 
 	/// set the speed
-	void set_speed(const double speed) {{boost::mutex::scoped_lock(speed_lock); this->speed = speed;} message() << "Circle: speed set to " << speed;}
+	void set_speed(const double speed) {{std::lock_guard<std::mutex> lock(speed_lock); this->speed = speed;} message() << "Circle: speed set to " << speed;}
 	/// get the speed
-	double get_speed() const {boost::mutex::scoped_lock(speed_lock); return speed;}
+	double get_speed() const {std::lock_guard<std::mutex> lock(speed_lock); return speed;}
 
 	/// set the radius
-	void set_radius(const double radius) {boost::mutex::scoped_lock lock(radius_lock); this->radius = radius;}
+	void set_radius(const double radius) {std::lock_guard<std::mutex> lock(radius_lock); this->radius = radius;}
 	/// get the radius
-	double get_radius() const {boost::mutex::scoped_lock lock(radius_lock); return radius;}
+	double get_radius() const {std::lock_guard<std::mutex>  lock(radius_lock); return radius;}
 
 	/// set the initial hover time before trajectory begins
-	void set_hover_time(const double hover_time) {{boost::mutex::scoped_lock(hover_time_lock); this->hover_time = hover_time;} message() << "Circle: Hover time set to " << hover_time;}
+	void set_hover_time(const double hover_time) {{std::lock_guard<std::mutex>  lock(hover_time_lock); this->hover_time = hover_time;} message() << "Circle: Hover time set to " << hover_time;}
 	/// get the hover time
-	double get_hover_time() const {boost::mutex::scoped_lock(hover_time_lock); return hover_time;}
+	double get_hover_time() const {std::lock_guard<std::mutex> lock(hover_time_lock); return hover_time;}
 
 	/// return the parameter list to send to qgc
 	std::vector<Parameter> getParameters() const;
@@ -82,53 +83,53 @@ protected:
 	/// radius of circular trajectory
 	double radius;
 	///serialize access to radius
-	mutable boost::mutex radius_lock;
+	mutable std::mutex radius_lock;
 
 	/// position to begin trajectory in NED frame
 	blas::vector<double> start_location;
 	/// serialzie access to start_location
-	mutable boost::mutex start_location_lock;
+	mutable std::mutex start_location_lock;
 	/// set the start_location
-	void set_start_location(const blas::vector<double>& start_location) {{boost::mutex::scoped_lock(start_location_lock); this->start_location = start_location;} message() << "Circle: start location set to " << start_location;}
+	void set_start_location(const blas::vector<double>& start_location) {{std::lock_guard<std::mutex>  lock(start_location_lock); this->start_location = start_location;} message() << "Circle: start location set to " << start_location;}
 	/// get the start_location
-	blas::vector<double> get_start_location() const {boost::mutex::scoped_lock(start_location_lock); return start_location;}
+	blas::vector<double> get_start_location() const {std::lock_guard<std::mutex>  lock(start_location_lock); return start_location;}
 
 	/// position of center of circle
 	blas::vector<double> center_location;
 	/// serialize access to center_location
-	mutable boost::mutex center_location_lock;
+	mutable std::mutex center_location_lock;
 	/// set the center location based on the current start_location, radius, and heading
 	void set_center_location();
 	/// get the center location
-	blas::vector<double> get_center_location() const {boost::mutex::scoped_lock lock(center_location_lock); return center_location;}
+	blas::vector<double> get_center_location() const {std::lock_guard<std::mutex> lock(center_location_lock); return center_location;}
 
 	/// average speed to fly trajectory in m/s
 	double speed;
 	/// serialize access to speed
-	mutable boost::mutex speed_lock;
+	mutable std::mutex speed_lock;
 
 	/// time to hover before manouever in seconds
 	double hover_time;
 	/// serialize access to hover_time
-	mutable boost::mutex hover_time_lock;
+	mutable std::mutex hover_time_lock;
 
 	/// time the trajectory started
 	boost::posix_time::ptime start_time;
 	/// serialize access to start_time
-	mutable boost::mutex start_time_lock;
+	mutable std::mutex start_time_lock;
 	/// set the start_time to the current time
-	void set_start_time() {{boost::mutex::scoped_lock lock(start_time_lock); start_time = boost::posix_time::microsec_clock::local_time();} message() << "Circle Trajectory Started";}
+	void set_start_time() {{std::lock_guard<std::mutex>  lock(start_time_lock); start_time = boost::posix_time::microsec_clock::local_time();} message() << "Circle Trajectory Started";}
 	/// get the start_Time
-	boost::posix_time::ptime get_start_time() const {boost::mutex::scoped_lock lock(start_time_lock); return start_time;}
+	boost::posix_time::ptime get_start_time() const {std::lock_guard<std::mutex>  lock(start_time_lock); return start_time;}
 
 	/// initial angle (where the helicopter started in polar)
 	double initial_angle;
 	/// serialize access to initial_angle
-	mutable boost::mutex initial_angle_lock;
+	mutable std::mutex initial_angle_lock;
 	/// set the initial angle
-	void set_initial_angle(const double initial_angle) {boost::mutex::scoped_lock lock(initial_angle_lock); this->initial_angle = initial_angle; message() << "Circle: Initial angle set to: " << initial_angle;}
+	void set_initial_angle(const double initial_angle) {std::lock_guard<std::mutex>  lock(initial_angle_lock); this->initial_angle = initial_angle; message() << "Circle: Initial angle set to: " << initial_angle;}
 	/// get the initial angle
-	double get_initial_angle() const {boost::mutex::scoped_lock lock(initial_angle_lock); return initial_angle;}
+	double get_initial_angle() const {std::lock_guard<std::mutex>  lock(initial_angle_lock); return initial_angle;}
 
 	/// return circumference of the circular trajectory
 	double get_circumference() const;

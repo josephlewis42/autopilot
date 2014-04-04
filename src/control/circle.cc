@@ -42,10 +42,10 @@ const double XML_SPEED_PARAM_DEFAULT  = 0.30000001192092896;
 
 circle::circle()
 : radius(0),
-  hover_time(XML_HOVER_PARAM_DEFAULT),
-  speed(XML_SPEED_PARAM_DEFAULT),
   start_location(blas::zero_vector<double>(3)),
   center_location(blas::zero_vector<double>(3)),
+  speed(XML_SPEED_PARAM_DEFAULT),
+  hover_time(XML_HOVER_PARAM_DEFAULT),
   initial_angle(0)
 {
 
@@ -105,7 +105,7 @@ void circle::set_center_location()
 	blas::vector<double> center(blas::zero_vector<double>(3));
 	center(0) = get_radius();  // vector in body frame with origin at heli
 	{
-		boost::mutex::scoped_lock lock(center_location_lock);
+		std::lock_guard<std::mutex> lock(center_location_lock);
 		center_location = prod(IMU::getInstance()->get_heading_rotation(), center) + get_start_location();
 	}
 	message() << "Circle: center_location set to: " << center_location;
