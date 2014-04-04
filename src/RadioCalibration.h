@@ -31,6 +31,7 @@
 #include <iostream>	// for debugging.
 #include <fstream>
 #include <string>
+#include <mutex>
 
 /* Project Headers */
 #include "heli.h"
@@ -92,8 +93,8 @@ private:
 	void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 3>& toset);
 	void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 5>& toset);
 
-	boost::recursive_mutex calibration_lock;
-	boost::mutex calibration_file_lock;
+	std::recursive_mutex calibration_lock;
+	std::mutex calibration_file_lock;
 	boost::array<uint16_t, 2> gyro;
 
 	boost::array<uint16_t, 3> aileron;

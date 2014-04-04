@@ -21,7 +21,6 @@
 #include "Configuration.h"
 #include "Helicopter.h"
 
-
 RadioCalibration::RadioCalibration()
 {
   gyro[0] = 1050;

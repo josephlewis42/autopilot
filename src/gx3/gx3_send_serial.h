@@ -23,9 +23,12 @@
 #include "IMU.h"
 #include "Debug.h"
 
+#include <mutex>
+
 /* Boost Headers */
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
+
 
 /**
  * Class to send commands to 3DM-GX3
@@ -83,7 +86,7 @@ private:
 	static void pack_int(const IntegerType i, std::vector<uint8_t>& message);
 
 	/// serialize messages being sent to imu.  any thread intending to write data to the serial port should lock this mutex
-	mutable boost::mutex send_lock;
+	mutable std::mutex send_lock;
 
 	/// start a thread to send a message
 	template <typename Callable>

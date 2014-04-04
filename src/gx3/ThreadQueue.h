@@ -24,7 +24,7 @@
 #include <boost/thread.hpp>
 #include <boost/signals2.hpp>
 #include <queue>
-
+#include <mutex>
 
 /// A threadsafe queue
 template<class T>
@@ -34,7 +34,7 @@ private:
 	std::queue<T> _queue;
 
 	/// mutex for the queue
-	mutable boost::mutex _queue_lock;
+	mutable std::mutex _queue_lock;
 
 public:
 
@@ -61,7 +61,7 @@ ThreadQueue<T>::~ThreadQueue()
 template<class T>
 T ThreadQueue<T>::pop()
 {
-	boost::mutex::scoped_lock lock(_queue_lock);
+	std::lock_guard<std::mutex> lock(_queue_lock);
 	T value = _queue.front();
 	_queue.pop();
 	return value;
@@ -70,21 +70,21 @@ T ThreadQueue<T>::pop()
 template<class T>
 void ThreadQueue<T>::push(T value)
 {
-	boost::mutex::scoped_lock lock(_queue_lock);
+	std::lock_guard<std::mutex> lock(_queue_lock);
 	_queue.push(value);
 }
 
 template<class T>
 bool ThreadQueue<T>::empty()
 {
-	boost::mutex::scoped_lock lock(_queue_lock);
+	std::lock_guard<std::mutex> lock(_queue_lock);
 	return _queue.empty();
 }
 
 template<class T>
 int ThreadQueue<T>::size()
 {
-	boost::mutex::scoped_lock lock(_queue_lock);
+	std::lock_guard<std::mutex> lock(_queue_lock);
 	return _queue.size();
 }
 

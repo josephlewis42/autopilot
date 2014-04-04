@@ -155,7 +155,7 @@ void attitude_pid::operator()(const blas::vector<double>& reference) throw(bad_c
 
 std::vector<Parameter> attitude_pid::getParameters()
 {
-//	boost::mutex::scoped_lock lock(read_params_lock);
+//	std::lock_guard<std::mutex> lock(read_params_lock);
 	std::vector<Parameter> plist;
 
 	roll_lock.lock();
