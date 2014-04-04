@@ -158,7 +158,7 @@ void Helicopter::setParameter(Parameter p)
 	saveFile();
 }
 
-void Helicopter::saveFile() const
+void Helicopter::saveFile()
 {
 	Configuration* config = Configuration::getInstance();
 

@@ -40,6 +40,8 @@ namespace blas = boost::numeric::ublas;
 /* STL Headers */
 #include <vector>
 #include <string>
+#include <mutex>
+
 
 class tail_sbf : public ControllerInterface
 {
@@ -56,10 +58,10 @@ public:
 	void operator()(const blas::vector<double>& reference) throw(bad_control);
 
 	/// @returns the roll pitch reference in radians (threadsafe)
-	inline blas::vector<double> get_control_effort() const {boost::mutex::scoped_lock lock(control_effort_lock); return control_effort;}
+	inline blas::vector<double> get_control_effort() const {std::lock_guard<std::mutex> lock(control_effort_lock); return control_effort;}
 
 	/// return the scaled travel in degrees
-	inline double scaled_travel_degrees() const {boost::mutex::scoped_lock lock(scaled_travel_lock); return scaled_travel;}
+	inline double scaled_travel_degrees() const {std::lock_guard<std::mutex> lock(scaled_travel_lock); return scaled_travel;}
 	/// return the scaled travel in radians
 	inline double scaled_travel_radians() const {return scaled_travel_degrees()*boost::math::constants::pi<double>()/180;}
 	/// set the scaled travel in degrees
@@ -139,14 +141,14 @@ private:
 	/// error states in ned x,y directions
 	pid_channel ned_x, ned_y;
 	/// serialize access to error states
-	mutable boost::mutex ned_x_lock, ned_y_lock;
+	mutable std::mutex ned_x_lock, ned_y_lock;
 
 	/// store the current control effort
 	blas::vector<double> control_effort;
 	/// serialize access to control_effort
-	mutable boost::mutex control_effort_lock;
+	mutable std::mutex control_effort_lock;
 	/// threadsafe set control_effort
-	inline void set_control_effort(const blas::vector<double>& control_effort) {boost::mutex::scoped_lock lock(control_effort_lock); this->control_effort = control_effort;}
+	inline void set_control_effort(const blas::vector<double>& control_effort) {std::lock_guard<std::mutex> lock(control_effort_lock); this->control_effort = control_effort;}
 
 	/**
 	 * Stores the rotational travel which is used to map the output of the
@@ -155,7 +157,7 @@ private:
 	 */
 	double scaled_travel;
 	/// serializes access to scaled_travel
-	mutable boost::mutex scaled_travel_lock;
+	mutable std::mutex scaled_travel_lock;
 	/**
 	 * Set the scaled travel used to represent the pilot stick position
 	 * @param travel new travel value in degrees

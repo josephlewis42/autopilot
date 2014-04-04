@@ -71,14 +71,14 @@ void tail_sbf::operator()(const blas::vector<double>& reference) throw(bad_contr
 	ned_control.clear();
 	std::vector<double> error_states;
 	{
-		boost::mutex::scoped_lock lock(ned_x_lock);
+		std::lock_guard<std::mutex> lock(ned_x_lock);
 		error_states.push_back(ned_x.error().proportional() = ned_position_error(0));
 		error_states.push_back(ned_x.error().derivative() = ned_velocity_error(0));
 		error_states.push_back(++(ned_x.error()));
 		ned_control(0) = ned_x.compute_pid();
 	}
 	{
-		boost::mutex::scoped_lock lock(ned_y_lock);
+		std::lock_guard<std::mutex> lock(ned_y_lock);
 		error_states.push_back(ned_y.error().proportional() = ned_position_error(1));
 		error_states.push_back(ned_y.error().derivative() = ned_velocity_error(1));
 		error_states.push_back(++(ned_y.error()));
@@ -131,14 +131,14 @@ std::vector<Parameter> tail_sbf::getParameters() const
 	std::vector<Parameter> plist;
 
 	{
-		boost::mutex::scoped_lock lock(ned_x_lock);
+		std::lock_guard<std::mutex> lock(ned_x_lock);
 		plist.push_back(Parameter(PARAM_X_KP, ned_x.gains().proportional(), heli::CONTROLLER_ID));
 		plist.push_back(Parameter(PARAM_X_KD, ned_x.gains().derivative(), heli::CONTROLLER_ID));
 		plist.push_back(Parameter(PARAM_X_KI, ned_x.gains().integral(), heli::CONTROLLER_ID));
 	}
 
 	{
-		boost::mutex::scoped_lock lock(ned_y_lock);
+		std::lock_guard<std::mutex> lock(ned_y_lock);
 		plist.push_back(Parameter(PARAM_Y_KP, ned_y.gains().proportional(), heli::CONTROLLER_ID));
 		plist.push_back(Parameter(PARAM_Y_KD, ned_y.gains().derivative(), heli::CONTROLLER_ID));
 		plist.push_back(Parameter(PARAM_Y_KI, ned_y.gains().integral(), heli::CONTROLLER_ID));
@@ -152,7 +152,7 @@ std::vector<Parameter> tail_sbf::getParameters() const
 void tail_sbf::set_x_proportional(double kp)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_x_lock);
+		std::lock_guard<std::mutex> lock(ned_x_lock);
 		ned_x.gains().proportional() = kp;
 	}
 	message() << "Set SBF x proportional gain to: " << kp;
@@ -161,7 +161,7 @@ void tail_sbf::set_x_proportional(double kp)
 void tail_sbf::set_x_derivative(double kd)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_x_lock);
+		std::lock_guard<std::mutex> lock(ned_x_lock);
 		ned_x.gains().derivative() = kd;
 	}
 	message() << "Set SBF x derivative gain to: " << kd;
@@ -170,7 +170,7 @@ void tail_sbf::set_x_derivative(double kd)
 void tail_sbf::set_x_integral(double ki)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_x_lock);
+		std::lock_guard<std::mutex> lock(ned_x_lock);
 		ned_x.gains().integral() = ki;
 	}
 	message() << "Set SBF x integral gain to: " << ki;
@@ -179,7 +179,7 @@ void tail_sbf::set_x_integral(double ki)
 void tail_sbf::set_y_proportional(double kp)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_y_lock);
+		std::lock_guard<std::mutex> lock(ned_y_lock);
 		ned_y.gains().proportional() = kp;
 	}
 	message() << "Set SBF y proportional gain to: " << kp;
@@ -188,7 +188,7 @@ void tail_sbf::set_y_proportional(double kp)
 void tail_sbf::set_y_derivative(double kd)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_y_lock);
+		std::lock_guard<std::mutex> lock(ned_y_lock);
 		ned_y.gains().derivative() = kd;
 	}
 	message() << "Set SBF y derivative gain to: " << kd;
@@ -197,7 +197,7 @@ void tail_sbf::set_y_derivative(double kd)
 void tail_sbf::set_y_integral(double ki)
 {
 	{
-		boost::mutex::scoped_lock lock(ned_y_lock);
+		std::lock_guard<std::mutex> lock(ned_y_lock);
 		ned_y.gains().integral() = ki;
 	}
 	message() << "Set SBF y integral gain to: " << ki;
@@ -206,7 +206,7 @@ void tail_sbf::set_y_integral(double ki)
 void tail_sbf::set_scaled_travel(double travel)
 {
 	{
-		boost::mutex::scoped_lock lock(scaled_travel_lock);
+		std::lock_guard<std::mutex> lock(scaled_travel_lock);
 		scaled_travel = travel;
 	}
 	message() << "Set travel to: " << travel;
@@ -214,37 +214,37 @@ void tail_sbf::set_scaled_travel(double travel)
 
 double tail_sbf::get_x_proportional() const
 {
-	boost::mutex::scoped_lock lock(ned_x_lock);
+	std::lock_guard<std::mutex> lock(ned_x_lock);
 	return ned_x.gains().proportional();
 }
 
 double tail_sbf::get_y_proportional() const
 {
-	boost::mutex::scoped_lock lock(ned_y_lock);
+	std::lock_guard<std::mutex> lock(ned_y_lock);
 	return ned_y.gains().proportional();
 }
 
 double tail_sbf::get_x_derivative() const
 {
-	boost::mutex::scoped_lock lock(ned_x_lock);
+	std::lock_guard<std::mutex> lock(ned_x_lock);
 	return ned_x.gains().derivative();
 }
 
 double tail_sbf::get_y_derivative() const
 {
-	boost::mutex::scoped_lock lock(ned_y_lock);
+	std::lock_guard<std::mutex> lock(ned_y_lock);
 	return ned_y.gains().derivative();
 }
 
 double tail_sbf::get_x_integral() const
 {
-	boost::mutex::scoped_lock lock(ned_x_lock);
+	std::lock_guard<std::mutex> lock(ned_x_lock);
 	return ned_x.gains().integral();
 }
 
 double tail_sbf::get_y_integral() const
 {
-	boost::mutex::scoped_lock lock(ned_y_lock);
+	std::lock_guard<std::mutex> lock(ned_y_lock);
 	return ned_y.gains().integral();
 }
 

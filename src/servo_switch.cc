@@ -44,7 +44,7 @@
 
 
 servo_switch* servo_switch::_instance = NULL;
-boost::mutex servo_switch::_instance_lock;
+std::mutex servo_switch::_instance_lock;
 
 
 
@@ -75,7 +75,7 @@ const bool SERVO_SWITCH_ENABLED_DEFAULT = true;
 
 servo_switch* servo_switch::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 	if (!_instance)
 	{
 		_instance = new servo_switch;
@@ -117,7 +117,7 @@ bool servo_switch::init_port()
 
 	debug() << "Servo switch: port is " << port;
 
-	boost::mutex::scoped_lock lock(fd_ser1_lock);
+	std::lock_guard<std::mutex> lock(fd_ser1_lock);
 	debug() << "Servo switch: got lock ";
 
 	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
@@ -174,7 +174,7 @@ bool servo_switch::init_port()
 
 void servo_switch::set_pilot_mode(heli::PILOT_MODE mode)
 {
-	boost::mutex::scoped_lock lock(pilot_mode_lock);
+	std::lock_guard<std::mutex> lock(pilot_mode_lock);
 	if (pilot_mode == mode)
 	{
 		return;

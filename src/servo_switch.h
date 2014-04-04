@@ -27,7 +27,7 @@
 /* STL Headers */
 #include <vector>
 #include <sys/types.h>
-
+#include <mutex>
 
 /* Project Headers */
 #include "Driver.h"
@@ -86,29 +86,29 @@ public:
 	uint16_t getRaw(heli::Channel ch) {return get_raw_inputs()[ch];}
 	/// set the value of the servo outputs
 	void setRaw(const std::vector<uint16_t>& raw_outputs) {set_raw_outputs(raw_outputs);}
-	inline void setRaw(heli::Channel ch, uint16_t pulse_width) {boost::mutex::scoped_lock lock(raw_outputs_lock); raw_outputs[ch] = pulse_width;}
+	inline void setRaw(heli::Channel ch, uint16_t pulse_width) {std::lock_guard<std::mutex> lock(raw_outputs_lock); raw_outputs[ch] = pulse_width;}
 
 	/// signal with new mode as argument
 	boost::signals2::signal<void (heli::PILOT_MODE)> pilot_mode_changed;
-	inline heli::PILOT_MODE get_pilot_mode() {boost::mutex::scoped_lock lock(pilot_mode_lock); return pilot_mode;}
+	inline heli::PILOT_MODE get_pilot_mode() {std::lock_guard<std::mutex> lock(pilot_mode_lock); return pilot_mode;}
 
-	inline double get_engine_speed() const {boost::mutex::scoped_lock(engine_speed_lock); return engine_speed;}
-	inline double get_engine_rpm() const {return get_engine_speed()*60;}
-	inline double get_main_rotor_speed() const {return get_engine_speed()*13.0/90.0;}
-	inline double get_main_rotor_rpm() const {return get_engine_rpm()*13.0/90.0;}
+	inline double get_engine_speed() {std::lock_guard<std::mutex> lock(engine_speed_lock); return engine_speed;}
+	inline double get_engine_rpm() {return get_engine_speed()*60;}
+	inline double get_main_rotor_speed() {return get_engine_speed()*13.0/90.0;}
+	inline double get_main_rotor_rpm() {return get_engine_rpm()*13.0/90.0;}
 
 private:
 	servo_switch();
 	static servo_switch* _instance;
-	static boost::mutex _instance_lock;
+	static std::mutex _instance_lock;
 
 	/// @returns true if the port was successfully set up, false otherwise
 	bool init_port();
 
 	/// @returns the file descriptor of the serial port (threadsafe)
-	inline int get_serial_descriptor() {boost::mutex::scoped_lock lock(fd_ser1_lock); return fd_ser1;}
+	inline int get_serial_descriptor() {std::lock_guard<std::mutex> lock(fd_ser1_lock); return fd_ser1;}
 	int fd_ser1;
-	boost::mutex fd_ser1_lock;
+	std::mutex fd_ser1_lock;
 
 	boost::thread receive;
 	boost::thread send;
@@ -116,23 +116,23 @@ private:
 	static std::vector<uint8_t> compute_checksum(uint8_t id, uint8_t count, const std::vector<uint8_t>& payload);
 
 	std::vector<uint16_t> raw_inputs;
-	boost::mutex raw_inputs_lock;
-	inline std::vector<uint16_t> get_raw_inputs() {boost::mutex::scoped_lock lock(raw_inputs_lock); return raw_inputs;}
-	inline void set_raw_inputs(const std::vector<uint16_t>& raw_inputs) {boost::mutex::scoped_lock lock(raw_inputs_lock); this->raw_inputs = raw_inputs;}
+	std::mutex raw_inputs_lock;
+	inline std::vector<uint16_t> get_raw_inputs() {std::lock_guard<std::mutex> lock(raw_inputs_lock); return raw_inputs;}
+	inline void set_raw_inputs(const std::vector<uint16_t>& raw_inputs) {std::lock_guard<std::mutex> lock(raw_inputs_lock); this->raw_inputs = raw_inputs;}
 
 	std::vector<uint16_t> raw_outputs;
-	boost::mutex raw_outputs_lock;
-	inline std::vector<uint16_t> get_raw_outputs() {boost::mutex::scoped_lock lock(raw_outputs_lock); return raw_outputs;}
-	inline void set_raw_outputs(const std::vector<uint16_t>& raw_outputs) {boost::mutex::scoped_lock lock(raw_outputs_lock); this->raw_outputs = raw_outputs;}
+	std::mutex raw_outputs_lock;
+	inline std::vector<uint16_t> get_raw_outputs() {std::lock_guard<std::mutex> lock(raw_outputs_lock); return raw_outputs;}
+	inline void set_raw_outputs(const std::vector<uint16_t>& raw_outputs) {std::lock_guard<std::mutex> lock(raw_outputs_lock); this->raw_outputs = raw_outputs;}
 
 	heli::PILOT_MODE pilot_mode;
-	boost::mutex pilot_mode_lock;
+	std::mutex pilot_mode_lock;
 	void set_pilot_mode(heli::PILOT_MODE mode);
 	static std::string pilot_mode_string(heli::PILOT_MODE mode);
 
 	double engine_speed;
-	boost::mutex engine_speed_lock;
-	inline void set_engine_speed(double speed) {boost::mutex::scoped_lock(engine_speed_lock); engine_speed = speed;}
+	std::mutex engine_speed_lock;
+	inline void set_engine_speed(double speed) {std::lock_guard<std::mutex> lock(engine_speed_lock); engine_speed = speed;}
 };
 
 #endif

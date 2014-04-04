@@ -30,6 +30,7 @@ namespace blas = boost::numeric::ublas;
 /* STL Headers */
 #include <string>
 #include <vector>
+#include <mutex>
 
 /* Project Headers */
 #include "Debug.h"
@@ -51,24 +52,24 @@ public:
 	void reset();
 
 	/// set the x_travel
-	void set_x_travel(const double x_travel) {{boost::mutex::scoped_lock(x_travel_lock); this->x_travel = x_travel;} message() << "Line: x travel set to " << x_travel;}
+	void set_x_travel(const double x_travel) {{std::lock_guard<std::mutex> lock(x_travel_lock); this->x_travel = x_travel;} message() << "Line: x travel set to " << x_travel;}
 	/// get the x_travel
-	double get_x_travel() const {boost::mutex::scoped_lock(x_travel_lock); return x_travel;}
+	double get_x_travel() const {std::lock_guard<std::mutex> lock(x_travel_lock); return x_travel;}
 
 	/// set y_travel
-	void set_y_travel(const double y_travel) {{boost::mutex::scoped_lock(y_travel_lock); this->y_travel = y_travel;} message() << "Line: y travel set to " << y_travel;}
+	void set_y_travel(const double y_travel) {{std::lock_guard<std::mutex> lock(y_travel_lock); this->y_travel = y_travel;} message() << "Line: y travel set to " << y_travel;}
 	/// get y_travel
-	double get_y_travel() const {boost::mutex::scoped_lock(y_travel_lock); return y_travel;}
+	double get_y_travel() const {std::lock_guard<std::mutex> lock(y_travel_lock); return y_travel;}
 
 	/// set the initial hover time before trajectory begins
-	void set_hover_time(const double hover_time) {{boost::mutex::scoped_lock(hover_time_lock); this->hover_time = hover_time;} message() << "Line: hover time set to " << hover_time;}
+	void set_hover_time(const double hover_time) {{std::lock_guard<std::mutex> lock(hover_time_lock); this->hover_time = hover_time;} message() << "Line: hover time set to " << hover_time;}
 	/// get the hover time
-	double get_hover_time() const {boost::mutex::scoped_lock(hover_time_lock); return hover_time;}
+	double get_hover_time() const {std::lock_guard<std::mutex> lock(hover_time_lock); return hover_time;}
 
 	/// set the speed
-	void set_speed(const double speed) {{boost::mutex::scoped_lock(speed_lock); this->speed = speed;} message() << "Line: speed set to " << speed;}
+	void set_speed(const double speed) {{std::lock_guard<std::mutex> lock(speed_lock); this->speed = speed;} message() << "Line: speed set to " << speed;}
 	/// get the speed
-	double get_speed() const {boost::mutex::scoped_lock(speed_lock); return speed;}
+	double get_speed() const {std::lock_guard<std::mutex> lock(speed_lock); return speed;}
 
 	/// return the parameter list to send to qgc
 	std::vector<Parameter> getParameters() const;
@@ -87,49 +88,49 @@ protected:
 	/// position to begin trajectory in NED frame
 	blas::vector<double> start_location;
 	/// serialzie access to start_location
-	mutable boost::mutex start_location_lock;
+	mutable std::mutex start_location_lock;
 	/// set the start_location
-	void set_start_location(const blas::vector<double>& start_location) {{boost::mutex::scoped_lock(start_location_lock); this->start_location = start_location;} message() << "Line: Start Location set to " << start_location;}
+	void set_start_location(const blas::vector<double>& start_location) {{std::lock_guard<std::mutex> lock(start_location_lock); this->start_location = start_location;} message() << "Line: Start Location set to " << start_location;}
 	/// get the start_location
-	blas::vector<double> get_start_location() const {boost::mutex::scoped_lock(start_location_lock); return start_location;}
+	blas::vector<double> get_start_location() const {std::lock_guard<std::mutex> lock(start_location_lock); return start_location;}
 
 	/// end location in NED frame
 	blas::vector<double> end_location;
 	/// serialize access to end_location
-	mutable boost::mutex end_location_lock;
+	mutable std::mutex end_location_lock;
 	/// set the end_location
-	void set_end_location(const blas::vector<double>& end_location) {{boost::mutex::scoped_lock(end_location_lock); this->end_location = end_location;} message() << "Line: End location set to " << end_location;}
+	void set_end_location(const blas::vector<double>& end_location) {{std::lock_guard<std::mutex> lock(end_location_lock); this->end_location = end_location;} message() << "Line: End location set to " << end_location;}
 	/// get the end_location
-	blas::vector<double> get_end_location() const {boost::mutex::scoped_lock(end_location_lock); return end_location;}
+	blas::vector<double> get_end_location() const {std::lock_guard<std::mutex> lock(end_location_lock); return end_location;}
 
 	/// distance to travel in body x direction in m
 	double x_travel;
 	/// serialize access to x_travel
-	mutable boost::mutex x_travel_lock;
+	mutable std::mutex x_travel_lock;
 
 	/// distance to travel in body y direction in m
 	double y_travel;
 	/// serialize access to y_travel
-	mutable boost::mutex y_travel_lock;
+	mutable std::mutex y_travel_lock;
 
 	/// average speed to fly trajectory in m/s
 	double speed;
 	/// serialize access to speed
-	mutable boost::mutex speed_lock;
+	mutable std::mutex speed_lock;
 
 	/// time to hover before manouever in seconds
 	double hover_time;
 	/// serialize access to hover_time
-	mutable boost::mutex hover_time_lock;
+	mutable std::mutex hover_time_lock;
 
 	/// time the trajectory started
 	boost::posix_time::ptime start_time;
 	/// serialize access to start_time
-	mutable boost::mutex start_time_lock;
+	mutable std::mutex start_time_lock;
 	/// set the start_time to the current time
-	void set_start_time() {{boost::mutex::scoped_lock lock(start_time_lock); start_time = boost::posix_time::microsec_clock::local_time();} message() << "Line trajectory started";}
+	void set_start_time() {{std::lock_guard<std::mutex> lock(start_time_lock); start_time = boost::posix_time::microsec_clock::local_time();} message() << "Line trajectory started";}
 	/// get the start_Time
-	boost::posix_time::ptime get_start_time() const {boost::mutex::scoped_lock lock(start_time_lock); return start_time;}
+	boost::posix_time::ptime get_start_time() const {std::lock_guard<std::mutex> lock(start_time_lock); return start_time;}
 
 	/// return trajectory length
 	double get_distance() const;

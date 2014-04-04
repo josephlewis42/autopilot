@@ -24,6 +24,7 @@
 /* STL Headers */
 #include <vector>
 #include <string>
+#include <mutex>
 
 /* Project Headers */
 #include "Parameter.h"
@@ -87,7 +88,7 @@ public:
 	 */
 	void operator()(const blas::vector<double>& reference) throw(bad_control);
 	/// @returns the roll pitch reference in radians (threadsafe)
-	inline blas::vector<double> get_control_effort() const {boost::mutex::scoped_lock lock(control_effort_lock); return control_effort;}
+	inline blas::vector<double> get_control_effort() const {std::lock_guard<std::mutex> lock(control_effort_lock); return control_effort;}
 
 	/// @returns the list of parameters for the translational pid outer loop
 	std::vector<Parameter> getParameters();
@@ -114,8 +115,8 @@ public:
 	/// test is controller is runnable
 	bool runnable() const;
 
-	inline double scaled_travel_degrees() {boost::mutex::scoped_lock lock(scaled_travel_lock); return scaled_travel;}
-	inline double scaled_travel_radians() {boost::mutex::scoped_lock lock(scaled_travel_lock); return scaled_travel*boost::math::constants::pi<double>()/180;}
+	inline double scaled_travel_degrees() {std::lock_guard<std::mutex> lock(scaled_travel_lock); return scaled_travel;}
+	inline double scaled_travel_radians() {std::lock_guard<std::mutex> lock(scaled_travel_lock); return scaled_travel*boost::math::constants::pi<double>()/180;}
 	inline void set_scaled_travel_degrees(double travel) {set_scaled_travel(travel);}
 	inline void set_scaled_travel_radians(double travel) {set_scaled_travel(travel*boost::math::constants::pi<double>()/180);}
 
@@ -139,16 +140,16 @@ private:
 	static std::string XML_TRAVEL;
 
 	pid_channel x;
-	mutable boost::mutex x_lock;
+	mutable std::mutex x_lock;
 	pid_channel y;
-	mutable boost::mutex y_lock;
+	mutable std::mutex y_lock;
 
 	/// store the current control effort
 	blas::vector<double> control_effort;
 	/// serialize access to control_effort
-	mutable boost::mutex control_effort_lock;
+	mutable std::mutex control_effort_lock;
 	/// threadsafe set control_effort
-	inline void set_control_effort(const blas::vector<double>& control_effort) {boost::mutex::scoped_lock lock(control_effort_lock); this->control_effort = control_effort;}
+	inline void set_control_effort(const blas::vector<double>& control_effort) {std::lock_guard<std::mutex> lock(control_effort_lock); this->control_effort = control_effort;}
 
 	/**
 	 * Stores the rotational travel which is used to map the output of the
@@ -157,7 +158,7 @@ private:
 	 */
 	double scaled_travel;
 	/// serializes access to scaled_travel
-	mutable boost::mutex scaled_travel_lock;
+	mutable std::mutex scaled_travel_lock;
 	/**
 	 * Set the scaled travel used to represent the pilot stick position
 	 * @param travel new travel value in degrees

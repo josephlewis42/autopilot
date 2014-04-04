@@ -56,11 +56,11 @@ Control::Control()
 }
 
 Control* Control::_instance = NULL;
-boost::mutex Control::_instance_lock;
+std::mutex Control::_instance_lock;
 
 Control* Control::getInstance()
 {
-	boost::mutex::scoped_lock lock(_instance_lock);
+	std::lock_guard<std::mutex> lock(_instance_lock);
 	if (!_instance)
 		_instance = new Control();
 	return _instance;
@@ -223,7 +223,7 @@ void Control::set_roll_mix(double roll_mix)
 	if (roll_mix <= 1 && roll_mix >= 0)
 	{
 		{
-			boost::mutex::scoped_lock lock(pilot_mix_lock);
+			std::lock_guard<std::mutex> lock(pilot_mix_lock);
 			pilot_mix[ROLL] = roll_mix;
 		}
 		message() << "Changed roll pilot mix to: " << roll_mix;
@@ -238,7 +238,7 @@ void Control::set_pitch_mix(double pitch_mix)
 	if (pitch_mix <= 1 && pitch_mix >= 0)
 	{
 		{
-			boost::mutex::scoped_lock lock(pilot_mix_lock);
+			std::lock_guard<std::mutex> lock(pilot_mix_lock);
 			pilot_mix[PITCH] = pitch_mix;
 		}
 		message() << "Changed pitch pilot mix to: " << pitch_mix;
@@ -250,13 +250,13 @@ void Control::set_pitch_mix(double pitch_mix)
 
 double Control::get_roll_mix() const
 {
-	boost::mutex::scoped_lock lock(pilot_mix_lock);
+	std::lock_guard<std::mutex> lock(pilot_mix_lock);
 	return pilot_mix[ROLL];
 }
 
 double Control::get_pitch_mix() const
 {
-	boost::mutex::scoped_lock lock(pilot_mix_lock);
+	std::lock_guard<std::mutex> lock(pilot_mix_lock);
 	return pilot_mix[PITCH];
 }
 
@@ -419,7 +419,7 @@ void Control::set_controller_mode(heli::Controller_Mode mode)
 	bool mode_changed = false;
 	if (mode < heli::Num_Controller_Modes)
 	{
-		boost::mutex::scoped_lock lock(controller_mode_lock);
+		std::lock_guard<std::mutex> lock(controller_mode_lock);
 		if (controller_mode != mode)
 			mode_changed = true;
 		controller_mode = mode;
@@ -459,7 +459,7 @@ blas::vector<double> Control::get_reference_position() const
 	}
 	else //(get_trajectory_type() == heli::Point_Trajectory)
 	{
-		boost::mutex::scoped_lock lock(reference_position_lock);
+		std::lock_guard<std::mutex> lock(reference_position_lock);
 		return reference_position;
 	}
 }
@@ -469,7 +469,7 @@ void Control::set_trajectory_type(const heli::Trajectory_Type trajectory_type)
 	bool type_changed = false;
 	if (trajectory_type < heli::Num_Trajectories)
 	{
-		boost::mutex::scoped_lock(trajectory_type_lock);
+		std::lock_guard<std::mutex> lock(trajectory_type_lock);
 		if (this->trajectory_type != trajectory_type)
 		{
 			type_changed = true;
