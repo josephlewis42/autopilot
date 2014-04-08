@@ -21,11 +21,10 @@ Driver::Driver(std::string name, std::string config_prefix)
   _config_prefix(config_prefix),
   _name(name)
 {
-	debug() << "Driver: Setting up " << name;
-
-	std::lock_guard<std::mutex> lock(_all_drivers_lock);
-	all_drivers.push_front(this);
-
+	{
+		std::lock_guard<std::mutex> lock(_all_drivers_lock);
+		all_drivers.push_front(this);
+	}
 
 	Configuration* config = Configuration::getInstance();
 	_debug = config->getb(config_prefix + ".debug", false);

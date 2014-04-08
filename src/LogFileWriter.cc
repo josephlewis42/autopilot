@@ -27,33 +27,39 @@
 
 // static members
 std::map<std::string, LogfileWriter*> LogfileWriter::_ALL_LOGGERS;
-std::mutex LogfileWriter::_ALL_LOGGERS_MUTEX;
+std::recursive_mutex LogfileWriter::_ALL_LOGGERS_MUTEX;
 
 
 LogfileWriter* LogfileWriter::getLogger(const std::string& path)
 {
-	std::lock_guard<std::mutex> lock(_ALL_LOGGERS_MUTEX);
+	LogfileWriter* logger;
+
+
+	_ALL_LOGGERS_MUTEX.lock();
 	if(_ALL_LOGGERS.count(path) > 0)
 	{
-		return _ALL_LOGGERS[path];
+		logger = _ALL_LOGGERS[path];
+	}
+	else
+	{
+		logger = new LogfileWriter(path);
+		_ALL_LOGGERS[path] = logger;
 	}
 
-	LogfileWriter* newLogger = new LogfileWriter(path);
+	_ALL_LOGGERS_MUTEX.unlock();
 
-	_ALL_LOGGERS[path] = newLogger;
-
-	return newLogger;
+	return logger;
 }
 
 
 
 LogfileWriter::LogfileWriter(std::string path)
-:Driver("Logger", "log")
+:Driver("LogFile", "log")
 {
 	_logName = path;
 	_currentBuffer = &_firstBuffer;
 
-	debug() << "Created for " << path;
+	//debug() << "Created for " << path;
 
 	// all logging write threads will die when the software shuts down.
 	new boost::thread(boost::bind(&LogfileWriter::writeThread, this));
@@ -61,8 +67,9 @@ LogfileWriter::LogfileWriter(std::string path)
 
 LogfileWriter::~LogfileWriter()
 {
-	std::lock_guard<std::mutex> lock(_ALL_LOGGERS_MUTEX);
+	_ALL_LOGGERS_MUTEX.lock();
 	_ALL_LOGGERS.erase(_logName);
+	_ALL_LOGGERS_MUTEX.unlock();
 }
 
 boost::filesystem::path LogfileWriter::getLogPath()

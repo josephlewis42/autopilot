@@ -44,19 +44,27 @@
 #include <boost/thread.hpp>
 #include <string>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /* Project Headers */
 #include "MainApp.h"
 #include "Configuration.h"
 #include "SystemInformation.h"
 #include "Debug.h"
+#include "LogFile.h"
 
 int main(int argc, char* argv[])
 {
 	printf("Usage: autopilot [-override_param=value ...]\n");
+	printf("PID is: %d\n", getpid());
+	printf("Autopilot Version: %s %s\n", __DATE__, __TIME__);
+
+	LogFile::getInstance();
 
 	// Set configuration params from CLI if applicable
 	Configuration::getInstance()->overrideWith(argc, argv);
+
 
 	// Show system information.
 	message() << "Running on: " <<  SystemInformation::uname_like();

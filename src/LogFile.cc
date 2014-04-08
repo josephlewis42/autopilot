@@ -68,12 +68,14 @@ LogFile::LogFile()
 		try
 		{
 			boost::filesystem::create_directory(log_folder);
+			std::cout << "Logging in: " << log_folder.c_str();
 		}
 		catch (boost::filesystem::filesystem_error& fserr)
 		{
-			critical() << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
+			std::cout << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
 		}
 	}
+
 }
 
 LogFile::~LogFile()
@@ -86,6 +88,7 @@ std::mutex LogFile::_instance_lock;
 LogFile* LogFile::getInstance()
 {
 	std::lock_guard<std::mutex> lock(_instance_lock);
+
 	if (NULL == _instance)
 	{
 		_instance = new LogFile;

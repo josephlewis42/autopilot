@@ -34,38 +34,26 @@ std::mutex Configuration::_propertiesLock;
 // Variables
 std::string ROOT_ELEMENT = "configuration.";
 std::string DEFAULT_XML_FILE_PATH = "config.xml";
-std::string DEFAULT_PROPERTIES_FILE_PATH = "config.properties";
 const char NEWLINE_CHARACTER = '\n';
 
 const Logger LOG("Configuration: ");
 
 Configuration::Configuration()
 {
+    _instance = this;
+
 	try
 	{
 		read_xml(DEFAULT_XML_FILE_PATH, _properties, boost::property_tree::xml_parser::trim_whitespace);
 	}
 	catch(boost::exception const& e)
 	{
-		LOG.warning() << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH;
+		std::cout << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH << std::endl;
 	}
-	loadProperties(DEFAULT_PROPERTIES_FILE_PATH);
-
-    _instance = this;
 }
 
 Configuration::~Configuration()
 {
-}
-
-void Configuration::loadProperties(std::string path)
-{
-	std::string contents = File::readFile(path);
-
-	std::vector<std::string> strs;
-	boost::split(strs,contents,boost::is_any_of("\n\r"));
-
-	overrideWith(strs);
 }
 
 void Configuration::overrideWith(const std::vector<std::string>& args)

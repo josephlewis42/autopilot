@@ -39,7 +39,7 @@
 class LogfileWriter : public Driver
 {
 private:
-	static std::mutex _ALL_LOGGERS_MUTEX;
+	static std::recursive_mutex _ALL_LOGGERS_MUTEX;
 	static std::map<std::string, LogfileWriter* > _ALL_LOGGERS;
 
 	std::string _logName;

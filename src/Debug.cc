@@ -25,7 +25,6 @@
 #include "Debug.h"
 #include "LogFile.h"
 
-
 // Variables
 std::mutex Debug::cerr_lock;
 boost::signals2::signal<void (std::string)> Debug::warningSignal;
@@ -101,6 +100,7 @@ Debug::~Debug()
 	}
 #endif
 
+
 	switch(debug_level)
 	{
 	case WARNING:
@@ -122,6 +122,7 @@ Debug::~Debug()
 		// do nothing for debug/ignore messages.
 		break;
 	}
+
 }
 
 
