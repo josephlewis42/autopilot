@@ -120,7 +120,7 @@ bool servo_switch::init_port()
 	std::lock_guard<std::mutex> lock(fd_ser1_lock);
 	debug() << "Servo switch: got lock ";
 
-	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY );//| O_NDELAY);
 
 	if(fd_ser1 == -1)
 	{
@@ -214,11 +214,58 @@ std::vector<uint8_t> servo_switch::compute_checksum(uint8_t id, uint8_t count, c
 
 int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 {
+	servo_switch* servo = servo_switch::getInstance();
+
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	return read(fd, buf, n);
+	//return read(fd, buf, n);
 	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+	//return QNX2Linux::readUntilMin(fd, buf, n, n);
+	servo->debug() << "Reading " << n << "bytes from "<< fd;
+	uint8_t buffer[n];
+	int totalBytesRead = 0;
+
+	while(totalBytesRead < n)
+	{
+		int bytesRead = read(fd, &buffer[totalBytesRead], n - totalBytesRead);
+
+		if(bytesRead < 0)
+		{
+			bytesRead = 0;
+			if(errno == EAGAIN || errno == EWOULDBLOCK)
+				servo->warning() << "Tried to do a blocking read from a nonblocking socket";
+			if(errno == EBADF)
+				servo->warning() << "Bad fd";
+			if(errno == EFAULT)
+				servo->warning() << "buf is outside your address space";
+			if(errno == EINTR)
+				servo->warning() << "Call interrupted before data read";
+			if(errno == EINVAL)
+				servo->warning() << "object is not suitable for reading";
+			if(errno == EIO)
+				servo->warning() << "I/O error";
+			if(errno == EISDIR)
+				servo->warning() << "fd is a directory";
+			continue;
+		}
+
+		totalBytesRead += bytesRead;
+
+		assert(totalBytesRead <= n);
+
+		// if we've read enough, stop
+		if(totalBytesRead >= n)
+		{
+			memcpy(buf, buffer, totalBytesRead);
+			return totalBytesRead;
+		}
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+	}
+
+	return -1;
+
 #endif
 }
 
@@ -237,29 +284,43 @@ void servo_switch::read_serial::read_data()
 		find_next_header();
 
 		// get message id
-		uint8_t id;
-		readSerialBytes(fd_ser, &id, 1);
+		uint8_t id = 0;
+		int idb = readSerialBytes(fd_ser, &id, 1);
 
 		// get message count
-		uint8_t count;
-		readSerialBytes(fd_ser, &count, 1);
+		uint8_t count = 0;
+		int ctb = readSerialBytes(fd_ser, &count, 1);
 
 		// allocate space for message
 		payload.resize(count);
 		// get message payload
-		readSerialBytes(fd_ser, &payload[0], count);
+		int pldb = readSerialBytes(fd_ser, &payload[0], count);
 
 		// zero checksum
 		checksum.assign(checksum.size(), 0);
 		// get checksum
 		readSerialBytes(fd_ser, &checksum[0], 2);
 
-		servo->trace() << "ID: " << id << " Count: " << count;
+		servo->trace() << "ID ("<< idb <<"): " << id << " Count("<< ctb <<"): " << count << " payload("<< pldb<< "): " << count;
 
 		if (checksum == compute_checksum(id, count, payload))
 		{
 			servo->trace() << "parsing message";
 			parse_message(id, payload);
+		}
+		else
+		{
+			// sometimes on the commel motherboard the 13s are
+			// misread as 10s
+			if(checksum == compute_checksum(13, count, payload))
+			{
+				servo->trace() << "parsing incorrectly labeled message";
+				parse_message(13, payload);
+			}
+			else
+			{
+				servo->trace() << "bad checksum";
+			}
 		}
 	}
 }
@@ -300,12 +361,14 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 		break;
 	}
 	default:
-		servo->debug("Received unknown message from servo switch");
+		servo->debug() << "Received unknown message from servo switch id: " << id;
 	}
 }
 
 void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& payload)
 {
+	servo_switch* servo = getInstance();
+	servo->debug("Parsing pulse inputs");
 	const uint16_t upper_limit = 2200;
 	const uint16_t lower_limit = 800;
 	std::vector<uint16_t> pulse_inputs(getInstance()->get_raw_inputs());  // no need for more than 9 channels
@@ -313,6 +376,8 @@ void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& p
 	for (uint32_t i=1; i<payload.size()/2 && i < pulse_inputs.size(); i++)
 	{
 		pulse_width = (static_cast<uint16_t>(payload[i*2]) << 8) + payload[i*2+1];
+		servo->debug("Got pulse input: ");
+		servo->debug() << "Input " << i << "Payload: " << pulse_width;
 		if (pulse_width > lower_limit && pulse_width < upper_limit)
 		{
 			pulse_inputs[i-1] = pulse_width;

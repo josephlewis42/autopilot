@@ -26,7 +26,7 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 	assert(fd >= 0);
 
 
-	debug() << "readcond " << n << std::hex << buf;
+	//debug() << "readcond " << n << std::hex << buf;
 	struct termios orig;
 	struct termios modified;
 
@@ -73,7 +73,7 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 			}
 			totalBytesRead += bytesRead;
 
-			debug() << "bytes read" <<  totalBytesRead;
+			//debug() << "bytes read" <<  totalBytesRead;
 			assert(totalBytesRead <= n);
 
 			// if we've read enough, stop

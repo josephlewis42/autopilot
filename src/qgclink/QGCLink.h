@@ -37,6 +37,7 @@ using boost::asio::ip::address;
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <atomic>
 
 /**
  *  @brief Sends and receives data to QGroundControl via UDP.
@@ -80,6 +81,12 @@ private:
 
 	/// Construct QGCLink class
 	QGCLink();
+
+
+	// delete the copy and equality constructors.
+	QGCLink(const QGCLink &) = delete;
+	QGCLink& operator = (const QGCLink &) = delete;
+
 	/// Pointer to instance of QGCLink
 	static QGCLink* _instance;
 	/// Mutex to make class instantiation threadsafe
@@ -100,49 +107,29 @@ private:
 	boost::thread send_thread;
 
 	/// frequency to send heartbeat messages.  also used for system status messages
-	int heartbeat_rate;
-	/// serialized access to heartbeat_rate
-	mutable std::mutex heartbeat_rate_lock;
-	/// threadsafe get heartbeat_rate
-	inline int get_heartbeat_rate() {std::lock_guard<std::mutex> lock(heartbeat_rate_lock); return heartbeat_rate;}
-	///threadsafe set heartbeat_rate
-	inline void set_heartbeat_reate(int rate) {std::lock_guard<std::mutex> lock(heartbeat_rate_lock); heartbeat_rate = rate;}
+	std::atomic_int heartbeat_rate;
+	inline int get_heartbeat_rate() const {return heartbeat_rate;}
+	inline void set_heartbeat_reate(int rate) {heartbeat_rate = rate;}
 
 	/// frequency to send rc channel measurements
-	int rc_channel_rate;
-	/// serialize access to rc_channel_rate
-	mutable std::mutex rc_channel_rate_lock;
-	/// threadsafe get rc_channel_rate
-	inline int get_rc_channel_rate() {std::lock_guard<std::mutex> lock(rc_channel_rate_lock); return rc_channel_rate;}
-	/// threadsafe set rc_channel_rate
-	inline void set_rc_channel_rate(int rate) {std::lock_guard<std::mutex> lock(rc_channel_rate_lock); rc_channel_rate = rate;}
+	std::atomic_int rc_channel_rate;
+	inline int get_rc_channel_rate() const {return rc_channel_rate;}
+	inline void set_rc_channel_rate(int rate) {rc_channel_rate = rate;}
 
-	/// frequency to send control output
-	int control_output_rate;
-	/// serialize access to control_output_rate
-	mutable std::mutex control_output_rate_lock;
-	/// threadsafe get control_output_rate
-	inline int get_control_output_rate() const {std::lock_guard<std::mutex> lock(control_output_rate_lock); return control_output_rate;}
-	/// threadsafe set control output rate
-	inline void set_control_output_rate(int rate) {std::lock_guard<std::mutex> lock(control_output_rate_lock); control_output_rate = rate;}
+	/// frequency to send control output -- threadsafe
+	std::atomic_int control_output_rate;
+	inline int get_control_output_rate() const {return control_output_rate;}
+	inline void set_control_output_rate(int rate) {control_output_rate = rate;}
 
 	/// store frequency to send position measurement rate
-	int position_rate;
-	/// serialize access to position_rate
-	mutable std::mutex position_rate_lock;
-	/// threadsafe get position rate
-	inline int get_position_rate() const {std::lock_guard<std::mutex> lock(position_rate_lock); return position_rate;}
-	/// threadsafe set position rate
-	inline void set_position_rate(int rate) {std::lock_guard<std::mutex> lock(position_rate_lock); position_rate = rate;}
+	std::atomic_int position_rate;
+	inline int get_position_rate() const {return position_rate;}
+	inline void set_position_rate(int rate) {position_rate = rate;}
 
 	/// Store desired transmission rate for attitude state estimate
-	int attitude_rate;
-	/// Mutex to protect QGCLink::ahrs_attitude_rate
-	mutable std::mutex attitude_rate_lock;
-	/// treadsafe attitude rate set
-	inline void set_attitude_rate(int rate) {std::lock_guard<std::mutex> lock(attitude_rate_lock); attitude_rate = rate;}
-	/// threadsafe get attitude rate
-	inline int get_attitude_rate() const {std::lock_guard<std::mutex> lock(attitude_rate_lock); return attitude_rate;}
+	std::atomic<int> attitude_rate;
+	inline void set_attitude_rate(int rate) {attitude_rate = rate;}
+	inline int get_attitude_rate() const {return attitude_rate;}
 
 	mutable std::mutex param_recv_lock;
 	bool param_recv;
@@ -151,15 +138,13 @@ private:
 	std::queue<Parameter> requested_params;
 
 	/// store whether rc_calibration packet has been requested
-	bool requested_rc_calibration;
-	/// serialize access to requested_rc_calibration
-	mutable std::mutex requested_rc_calibration_lock;
+	std::atomic_bool requested_rc_calibration;
 	/// threadsafe set requested rc calibration (could be used as slot)
-	inline void set_requested_rc_calibration() {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); requested_rc_calibration = true;}
+	inline void set_requested_rc_calibration() {requested_rc_calibration = true;}
 	/// threadsafe clear requested rc calibration
-	inline void clear_requested_rc_calibration() {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); requested_rc_calibration = false;}
+	inline void clear_requested_rc_calibration() {requested_rc_calibration = false;}
 	/// threadsafe get requested rc calibration
-	inline bool get_requested_rc_calibration() const {std::lock_guard<std::mutex> lock(requested_rc_calibration_lock); return requested_rc_calibration;}
+	inline bool get_requested_rc_calibration() const {return requested_rc_calibration;}
 
 	int uasId;
 };

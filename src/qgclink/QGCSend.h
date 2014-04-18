@@ -108,51 +108,33 @@ private:
 	bool should_run(int stream_rate, int send_rate, int count);
 
 	/// store the current servo source
-	heli::AUTOPILOT_MODE servo_source;
-	/// serialize access to servo_source
-	mutable std::mutex servo_source_lock;
-	/// threadsafe get servo source
-	inline heli::AUTOPILOT_MODE get_servo_source() {std::lock_guard<std::mutex> lock(servo_source_lock); return servo_source;}
-	/// threadsafe set servo source
-	inline void set_servo_source(heli::AUTOPILOT_MODE servo_source) {std::lock_guard<std::mutex> lock(servo_source_lock); this->servo_source = servo_source;}
+	std::atomic<heli::AUTOPILOT_MODE> servo_source;
+	inline heli::AUTOPILOT_MODE get_servo_source() const {return servo_source;}
+	inline void set_servo_source(heli::AUTOPILOT_MODE servo_source) {this->servo_source = servo_source;}
 
-	/// store the current pilot mode
-	heli::PILOT_MODE pilot_mode;
-	/// serialize access to pilot_mode
-	mutable std::mutex pilot_mode_lock;
-	/// thread safe get pilot_mode
-	inline heli::PILOT_MODE get_pilot_mode() {std::lock_guard<std::mutex> lock(pilot_mode_lock); return pilot_mode;}
-	/// thread safe set pilot_mode
-	inline void set_pilot_mode(heli::PILOT_MODE pilot_mode) {std::lock_guard<std::mutex> lock(pilot_mode_lock); this->pilot_mode = pilot_mode;}
+	/// store the current pilot mode (threadsafe)
+	std::atomic<heli::PILOT_MODE> pilot_mode;
+	inline heli::PILOT_MODE get_pilot_mode() const {return pilot_mode;}
+	inline void set_pilot_mode(heli::PILOT_MODE pilot_mode) {this->pilot_mode = pilot_mode;}
 
 	/// store the current gx3 filter state
-	IMU::GX3_MODE filter_state;
-	/// serialize access to filter_state;
-	mutable std::mutex filter_state_lock;
-	/// threadsafe get_filter_state
-	inline IMU::GX3_MODE get_filter_state() const {std::lock_guard<std::mutex> lock(filter_state_lock); return filter_state;}
-	/// threadsafe set filter_state
-	inline void set_filter_state(IMU::GX3_MODE filter_state) {std::lock_guard<std::mutex> lock(filter_state_lock); this->filter_state = filter_state;}
+	std::atomic<IMU::GX3_MODE> filter_state;
+	inline IMU::GX3_MODE get_filter_state() const {return filter_state;}
+	inline void set_filter_state(IMU::GX3_MODE filter_state) {this->filter_state = filter_state;}
 
 	/// store the current controller mode
-	heli::Controller_Mode control_mode;
-	/// serialize access to contorl_mode
-	mutable std::mutex control_mode_lock;
-	/// threadsafe get control_mode
-	inline heli::Controller_Mode get_control_mode() const {std::lock_guard<std::mutex> lock(control_mode_lock); return control_mode;}
-	/// threadsafe set control_mode
-	inline void set_control_mode(heli::Controller_Mode control_mode) {std::lock_guard<std::mutex> lock(control_mode_lock); this->control_mode = control_mode;}
+	std::atomic<heli::Controller_Mode> control_mode;
+	inline heli::Controller_Mode get_control_mode() const {return control_mode;}
+	inline void set_control_mode(heli::Controller_Mode control_mode) {this->control_mode = control_mode;}
 
 	/// true if there is a new message from the gx3
-	bool gx3_new_message;
-	/// serialize access to gx3_new_message
-	mutable std::mutex gx3_new_message_lock;
+	std::atomic_bool gx3_new_message;
 	/// threadsafe clear gx3_new_message
-	inline void clear_gx3_new_message() {std::lock_guard<std::mutex> lock(gx3_new_message_lock); gx3_new_message = false;}
+	inline void clear_gx3_new_message() {gx3_new_message = false;}
 	/// threadsafe set gx3_new_message
-	inline void set_gx3_new_message() {std::lock_guard<std::mutex> lock(gx3_new_message_lock); gx3_new_message = true;}
+	inline void set_gx3_new_message() {gx3_new_message = true;}
 	/// threadsafe get gx3_new_message
-	inline bool get_gx3_new_message() const {std::lock_guard<std::mutex> lock(gx3_new_message_lock); return gx3_new_message;}
+	inline bool get_gx3_new_message() const {return gx3_new_message;}
 
 	/// string to store message from gx3
 	std::string gx3_message;
@@ -165,14 +147,10 @@ private:
 	/// function to send the gx3_message to qgc
 	void send_gx3_message(std::queue<std::vector<uint8_t> > *sendq);
 
-	/// store the current attitude source
-	bool attitude_source;
-	/// serialize access to attitude_source
-	mutable std::mutex attitude_source_lock;
-	/// threadsafe get attitude source
-	inline bool get_attitude_source() const {std::lock_guard<std::mutex> lock(attitude_source_lock); return attitude_source;}
-	/// threadsafe set attitude source
-	inline void set_attitude_source(bool source) {std::lock_guard<std::mutex> lock(attitude_source_lock); attitude_source = source;}
+	/// store the current attitude source (threadsafe)
+	std::atomic_bool attitude_source;
+	inline bool get_attitude_source() const {return attitude_source;}
+	inline void set_attitude_source(bool source) {attitude_source = source;}
 	/// connection for attitude source
 	boost::signals2::scoped_connection attitude_source_connection;
 

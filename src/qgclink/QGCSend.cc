@@ -56,30 +56,16 @@ QGCLink::QGCSend::QGCSend(QGCLink* parent)
 {
 	send_queue = new std::queue<std::vector<uint8_t> >();
 }
+
 QGCLink::QGCSend::QGCSend(const QGCSend& other)
 :qgc(other.qgc),
  startTime(other.startTime)
 {
-	{
-		std::lock_guard<std::mutex> scoped_lock(other.servo_source_lock);
-		servo_source = other.servo_source;
-	}
-	{
-		std::lock_guard<std::mutex> lock(other.pilot_mode_lock);
-		pilot_mode = other.pilot_mode;
-	}
-	{
-		std::lock_guard<std::mutex> lock(other.filter_state_lock);
-		filter_state = other.filter_state;
-	}
-	{
-		std::lock_guard<std::mutex> lock(other.control_mode_lock);
-		control_mode = other.control_mode;
-	}
-	{
-		std::lock_guard<std::mutex> lock(other.attitude_source_lock);
-		attitude_source = other.attitude_source;
-	}
+	servo_source = other.get_servo_source();
+	pilot_mode = other.get_pilot_mode();
+	filter_state = other.get_filter_state();
+	control_mode = other.get_control_mode();
+	attitude_source = other.get_attitude_source();
 
 	send_queue = new std::queue<std::vector<uint8_t> >(*other.send_queue);
 }
@@ -91,33 +77,15 @@ QGCLink::QGCSend::~QGCSend()
 QGCLink::QGCSend& QGCLink::QGCSend::operator=(const QGCLink::QGCSend& other)
 {
 	if (this == &other)
+	{
 		return *this;
+	}
 
-	{
-		std::lock_guard<std::mutex> lock1(&servo_source_lock < &other.servo_source_lock ? servo_source_lock: other.servo_source_lock);
-		std::lock_guard<std::mutex> lock2(&servo_source_lock > &other.servo_source_lock ? servo_source_lock : other.servo_source_lock);
-		servo_source = other.servo_source;
-	}
-	{
-		std::lock_guard<std::mutex> lock1(&pilot_mode_lock < &other.pilot_mode_lock ? pilot_mode_lock: other.pilot_mode_lock);
-		std::lock_guard<std::mutex> lock2(&pilot_mode_lock > &other.pilot_mode_lock ? pilot_mode_lock : other.pilot_mode_lock);
-		pilot_mode = other.pilot_mode;
-	}
-	{
-		std::lock_guard<std::mutex> lock1(&filter_state_lock < &other.filter_state_lock ? filter_state_lock: other.filter_state_lock);
-		std::lock_guard<std::mutex> lock2(&filter_state_lock > &other.filter_state_lock ? filter_state_lock : other.filter_state_lock);
-		filter_state = other.filter_state;
-	}
-	{
-		std::lock_guard<std::mutex> lock1(&control_mode_lock < &other.control_mode_lock ? control_mode_lock: other.control_mode_lock);
-		std::lock_guard<std::mutex> lock2(&control_mode_lock > &other.control_mode_lock ? control_mode_lock : other.control_mode_lock);
-		control_mode = other.control_mode;
-	}
-	{
-		std::lock_guard<std::mutex> lock1(&attitude_source_lock < &other.attitude_source_lock ? attitude_source_lock: other.attitude_source_lock);
-		std::lock_guard<std::mutex> lock2(&attitude_source_lock > &other.attitude_source_lock ? attitude_source_lock : other.attitude_source_lock);
-		attitude_source = other.attitude_source;
-	}
+	servo_source = other.get_servo_source();
+	pilot_mode = other.get_pilot_mode();
+	filter_state = other.get_filter_state();
+	control_mode = other.get_control_mode();
+	attitude_source = other.get_attitude_source();
 
 	return *this;
 }
@@ -157,7 +125,7 @@ void QGCLink::QGCSend::send()
   boost::signals2::scoped_connection critical_connection(Debug::criticalSignal.connect(
 		  boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
 
-  for (;;)
+  while(true)
   {
 	  rl.wait();
 
