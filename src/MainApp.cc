@@ -274,41 +274,12 @@ int MainApp::getMode()
 
 std::string MainApp::getModeString()
 {
-	autopilot_mode_lock.lock();
-	heli::AUTOPILOT_MODE mode = this->autopilot_mode;
-	autopilot_mode_lock.unlock();
-
-	return getModeString(mode);
+	return heli::AUTOPILOT_MODE_DESCRIPTOR[getMode()];
 }
 
 std::string MainApp::getModeString(heli::AUTOPILOT_MODE mode)
 {
 	return heli::AUTOPILOT_MODE_DESCRIPTOR[mode];
-	// TODO Check me to make sure everything still works after this change.. - Joseph
-	/**
-	switch(mode)
-	{
-	case heli::MODE_DIRECT_MANUAL:
-	{
-		return "Direct Manual Mode";
-		break;
-	}
-	case heli::MODE_SCALED_MANUAL:
-	{
-		return "Scaled Manual Mode";
-		break;
-	}
-	case heli::MODE_AUTOMATIC_CONTROL:
-	{
-		return "Automatic Control Mode";
-		break;
-	}
-	default:
-	{
-		return "Unknown Mode";
-	}
-	}
-	**/
 }
 
 void MainApp::change_pilot_mode(heli::PILOT_MODE mode)
