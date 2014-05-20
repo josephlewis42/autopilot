@@ -33,6 +33,7 @@
 #include "IMU.h"
 #include "GPS.h"
 #include "Driver.h"
+#include "MdlAltimiter.h"
 
 #ifdef __QNX__
 #include <sched.h>      // for setting thread priorities.
@@ -101,6 +102,9 @@ void MainApp::run()
 
 	message() << "Setting up IMU";
 	IMU::getInstance();
+
+	message() << "Setting up altimiter";
+	new MdlAltimiter();
 
 	message() << "Setting up QGCLink";
 	QGCLink* qgc = QGCLink::getInstance();
