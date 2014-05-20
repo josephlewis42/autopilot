@@ -123,46 +123,7 @@ bool IMU::init_serial()
 		return false;
 	}
 
-	// Set up the terminal configuration for the given port.
-	struct termios port_config;
-
-	tcgetattr(fd_ser, &port_config);                  // get the current port settings
-
-	//set the baud rate
-	cfsetospeed(&port_config, B115200);
-	cfsetispeed(&port_config, B115200);
-
-	//set the number of data bits.
-	port_config.c_cflag &= ~CSIZE; // Mask the character size bits
-	port_config.c_cflag |= CS8;
-
-	//set the number of stop bits to 1
-	port_config.c_cflag &= ~CSTOPB;
-
-	//Set parity to None
-	port_config.c_cflag &=~PARENB;
-
-	//set for non-canonical (raw processing, no echo, etc.)
-	port_config.c_iflag = IGNPAR; // ignore parity
-	port_config.c_oflag = 0; // raw output
-	port_config.c_lflag = 0; // raw input
-
-	//Set local mode and enable the receiver
-	port_config.c_cflag |= (CLOCAL | CREAD);          // Enable the receiver and set local mode...
-
-	if (tcsetattr(fd_ser, TCSADRAIN, &port_config) != 0)
-	{
-		critical() << "IMU could not set serial port attributes";
-		return false;
-
-	}
-
-	if(tcflush(fd_ser, TCIOFLUSH) == -1)
-	{
-		critical() << "could not purge the IMU serial port";
-		return false;
-	}
-
+	namedTerminalSettings("IMU1", fd_ser, 115200, "8N1", false, true);
 	trace() << "started";
 
 	set_last_data(); // start the timer for the data timeout.
