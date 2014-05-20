@@ -18,7 +18,7 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 #CFLAGS:=  -m32 -static ${INCLUDE} -c -g -Wall -fstack-protector-all
 #LDFLAGS:= -m32 -static -g -L/usr/lib -L$(PROJECT_ROOT)/lib/Linux32 -fstack-protector-all -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
 CFLAGS:=  -std=c++11 -static ${INCLUDE} -c -g -Wall
-LDFLAGS:=  -std=c++11 -static -g  -L/usr/lib -L/usr/include/boost -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
+LDFLAGS:=  -std=c++11 -static -g -L/usr/lib -L/usr/include/boost -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
 # -L$(PROJECT_ROOT)/lib/Linux64
 
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )
