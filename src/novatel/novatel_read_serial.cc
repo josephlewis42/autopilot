@@ -663,9 +663,9 @@ std::vector<uint8_t> GPS::ReadSerial::generate_header(uint16_t message_id, uint1
 void GPS::ReadSerial::setupLogging()
 {
 	GPS::getInstance()->trace() << "Setting up logging";
-	//_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_RTKXYZ, ONTIME, OEM6_LOG_4_HZ);
+	_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_RTKXYZ, ONTIME, OEM6_LOG_4_HZ);
 	//_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_REFSTATION, ONNEW, OEM6_LOG_4_HZ);
-	//_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_BESTPOS, ONTIME, OEM6_LOG_4_HZ);
+	_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_BESTPOS, ONTIME, OEM6_LOG_4_HZ);
 	_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_BESTXYZ, ONTIME, OEM6_LOG_4_HZ);
 
 }
