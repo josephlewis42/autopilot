@@ -120,7 +120,7 @@ bool servo_switch::init_port()
 	std::lock_guard<std::mutex> lock(fd_ser1_lock);
 	debug() << "Servo switch: got lock ";
 
-	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY );//| O_NDELAY);
+	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY);// | O_NDELAY);
 
 	if(fd_ser1 == -1)
 	{
@@ -149,7 +149,7 @@ bool servo_switch::init_port()
 	port_config.c_cflag &= ~(CSTOPB);                 // clear for one stop bit
 
 
-	port_config.c_cflag &= ~(PARENB); //| PARODD);        // Set terminal parity.
+	port_config.c_cflag &= ~(PARENB| PARODD);        // Set terminal parity.
 	// Clear terminal output flow control.
 	port_config.c_iflag &= ~(IXON | IXOFF);           // set -isflow  & -osflow
 
@@ -221,51 +221,7 @@ int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 #else
 	//return read(fd, buf, n);
 	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
-	//return QNX2Linux::readUntilMin(fd, buf, n, n);
-	servo->debug() << "Reading " << n << "bytes from "<< fd;
-	uint8_t buffer[n];
-	int totalBytesRead = 0;
-
-	while(totalBytesRead < n)
-	{
-		int bytesRead = read(fd, &buffer[totalBytesRead], n - totalBytesRead);
-
-		if(bytesRead < 0)
-		{
-			bytesRead = 0;
-			if(errno == EAGAIN || errno == EWOULDBLOCK)
-				servo->warning() << "Tried to do a blocking read from a nonblocking socket";
-			if(errno == EBADF)
-				servo->warning() << "Bad fd";
-			if(errno == EFAULT)
-				servo->warning() << "buf is outside your address space";
-			if(errno == EINTR)
-				servo->warning() << "Call interrupted before data read";
-			if(errno == EINVAL)
-				servo->warning() << "object is not suitable for reading";
-			if(errno == EIO)
-				servo->warning() << "I/O error";
-			if(errno == EISDIR)
-				servo->warning() << "fd is a directory";
-			continue;
-		}
-
-		totalBytesRead += bytesRead;
-
-		assert(totalBytesRead <= n);
-
-		// if we've read enough, stop
-		if(totalBytesRead >= n)
-		{
-			memcpy(buf, buffer, totalBytesRead);
-			return totalBytesRead;
-		}
-
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	}
-
-	return -1;
-
+	return QNX2Linux::readUntilMin(fd, buf, n, n);
 #endif
 }
 
