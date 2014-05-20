@@ -334,18 +334,27 @@ void IMU::send_serial::external_gps_update()
 {
 	IMU* imu = IMU::getInstance();
 
+
+
 //	if (IMU::getInstance()->get_gx3_mode() == IMU::RUNNING)
+	try
 	{
 		// get gps data
 		GPS* gps = GPS::getInstance();
 		blas::vector<double> llh(gps->get_llh_position());
-		llh[0]*=180.0/boost::math::constants::pi<double>();
-		llh[1]*=180.0/boost::math::constants::pi<double>();
 		blas::vector<float> vel(gps->get_ned_velocity());
 		blas::vector<float> pos_error(gps->get_pos_sigma());
 		blas::vector<float> vel_error(gps->get_vel_sigma());
 		gps_time time(gps->get_gps_time());
 
+		imu->trace() << "[External GPS update, llh: " << llh << std::endl <<
+						"\t vel: " << vel << std::endl <<
+						"\t pos_error: " << pos_error << std::endl <<
+						"\t vel_error: " << vel_error << std::endl <<
+						"\t time: " << time << "]" << std::endl;
+
+		llh[0]*=180.0/boost::math::constants::pi<double>();
+		llh[1]*=180.0/boost::math::constants::pi<double>();
 
 		// create message
 		std::vector<uint8_t> gps_update;
@@ -366,10 +375,12 @@ void IMU::send_serial::external_gps_update()
 		for (int i=0; i<3; i++)
 			pack_float(vel_error[i], gps_update);
 
-
 		uint8_t error_code = finish_packet(gps_update, 0x16);
 
 		if (error_code != 0x00)
 			imu->warning() << "Error sending External GPS Update with code: " << static_cast<int>(error_code);
+	}catch(...)
+	{
+		imu->warning() << "Error with send_serial::external_gps_update";
 	}
 }
