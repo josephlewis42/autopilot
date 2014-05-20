@@ -51,7 +51,7 @@ private:
 	// Keeps a list of all drivers so we can terminate them later.
 	static std::mutex _all_drivers_lock;
 	static std::list<Driver*> all_drivers;
-
+	int _readDeviceType;
 
 
 public:
@@ -67,6 +67,36 @@ public:
 
 	/// Traces an item to the debugging output of the software if debugging has been set up in the config file.
 	Debug trace();
+
+	// Reads a fd in to the given buffer with a minimum of n bytes
+	int readDevice(int fd, void * buf, int n);
+
+	/**
+	 * Sets the given terminal configuration on the given fd and saves them
+	 * with name. If name already exists in the configuration file, those
+	 * settings will overwrite these.
+	 */
+	bool namedTerminalSettings(std::string name,
+									int fd,
+									int baudrate,
+									std::string parity,
+									bool enableHwFlow,
+									bool enableRawMode);
+
+
+	/**
+	 * Sets up the terminal at the given fd with the given baudrate,
+	 * parity (one of: [8N1, 7E1, 701, 7M1, 7S1])
+	 * hw flow control
+	 * and raw mode
+	 */
+	bool terminalSettings(int fd,
+									int baudrate,
+									std::string parity,
+									bool enableHwFlow,
+									bool enableRawMode);
+
+
 };
 
 #endif /* DRIVER_H_ */
