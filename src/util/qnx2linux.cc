@@ -56,7 +56,7 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 			{
 				bytesRead = 0;
 				if(errno == EAGAIN || errno == EWOULDBLOCK)
-					warning() << "Tried to do a blocking read from a nonblocking socket";
+					//debug() << "Tried to do a blocking read from a nonblocking socket";
 				if(errno == EBADF)
 					warning() << "Bad fd";
 				if(errno == EFAULT)
