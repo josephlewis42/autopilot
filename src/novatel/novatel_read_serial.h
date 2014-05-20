@@ -63,6 +63,44 @@ public:
 	 */
 	void readPort();
 
+	std::string solStatusToString(uint32_t status);
+	std::string posVelTypeToString(uint32_t type);
+	enum OEM6_SOL_STATUS
+	{
+		SOL_COMPUTED = 0,
+		INSUFFICIENT_OBS = 1,
+		NO_CONVERGENCE = 2,
+		SINGULARITY = 3,
+		COV_TRACE = 4,
+		COLD_START = 5,
+		V_H_LIMIT = 6,
+		VARIANCE = 7,
+		INTEGRITY_WARNING = 8,
+		PENDING = 9,
+		INVALID_FIX = 10,
+		UNAUTHORIZED = 11
+	};
+
+	enum OEM6_POS_VEL_TYPE
+	{
+		NONE = 0,
+		FIXEDPOS=1,
+		FIXEDHEIGHT=2,
+		DOPPLER_VELOCITY=8,
+		SINGLE=16,
+		PSRDIFF=17,
+		WAAS=18,
+		PROPAGATED=19,
+		OMNISTAR=20,
+		L1_FLOAT=32,
+		IONOFREE_FLOAT = 33,
+		NARROW_FLOAT = 34,
+		L1_INT=48,
+		NARROW_INT=50,
+		OMNISTART_HP =64,
+		OMNISTAR_XP=65
+	};
+
 
 	// The possible errors that could be recieved when using the OEM6 devices.
 	// p349 of the NovAtel OEM 6 Communication Manual
@@ -549,6 +587,10 @@ private:
 	/// parse the message and append the relevant fields to the log
 	void parse_log(const std::vector<uint8_t>& data, std::vector<double>& log);
 
+	/// Parses rtkxyz commands to display them
+	void parse_rtkxyz(const std::vector<uint8_t>& data);
+
+
 	///Used by compute_checksum function
 	static unsigned long CRC32Value(int i);
 
@@ -575,17 +617,6 @@ private:
 
 	/// stores the last time data was successfully received (for error handling)
 	boost::posix_time::ptime last_data;
-
-	/**
-	 * A wrapper for readcond so we can cross compile if necessary.
-	 * Reads n bytes from fd in to buffer
-	 *
-	 * @param fd - the file descriptor to read from
-	 * @param buf - the buffer to read in to
-	 * @param n - the number of bytes to try and read.
-	 * @return the number of bytes actually read during the read operation
-	 */
-	int readSerialBytes(int fd, void * buf, int n);
 
 	/**
 	 * Creates and sends a generic log signal to the NovAtel
