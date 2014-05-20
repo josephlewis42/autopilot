@@ -38,6 +38,7 @@ std::mutex GPS::_instance_lock;
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT = "/dev/ser1";
 std::string GPS::GPS_ENABLED = "novatel.enabled";
+
 bool GPS::GPS_ENABLED_DEFAULT = true;
 
 const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
@@ -62,7 +63,11 @@ GPS* GPS::getInstance()
 
 GPS::GPS()
 :Driver("NovAtel GPS","novatel"),
- read_serial_thread(ReadSerial())
+ read_serial_thread(ReadSerial()),
+ llh_position(blas::vector<double>(0,3)),
+ ned_velocity(blas::vector<double>(0,3)),
+ pos_sigma(blas::vector<double>(0,3)),
+ vel_sigma(blas::vector<double>(0,3))
 {
 	trace() << "Generating log headers";
 	LogFile::getInstance()->logHeader(heli::LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);

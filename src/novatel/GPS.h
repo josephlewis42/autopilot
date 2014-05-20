@@ -112,6 +112,7 @@ private:
 	/// threadsafe set llh_position
 	inline void set_llh_position(const blas::vector<double>& llh) {std::lock_guard<std::mutex> lock(llh_position_lock); llh_position = llh;}
 
+
 	/// container for ned_velocity
 	blas::vector<double> ned_velocity;
 	/// serialize access to ned_velocity
