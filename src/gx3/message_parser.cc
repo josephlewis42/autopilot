@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2014 Joseph Lewis <josephlewis42@gmail.com>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -250,8 +251,11 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			LogFile::getInstance()->logData(heli::LOG_LLH_POS, log);
 
 			if (valid)
+			{
 				// update current position measurement
 				IMU::getInstance()->set_position(llh);
+			}
+
 
 			break;
 		}
@@ -268,7 +272,9 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			log.push_back(static_cast<double>(valid));
 			LogFile::getInstance()->logData(heli::LOG_NED_VEL, log);
 			if (valid)
+			{
 				IMU::getInstance()->set_velocity(velocity);
+			}
 			break;
 		}
 		case 0x04:  // rotation matrix
@@ -288,15 +294,23 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 //			debug() << "Orientation Matrix: " << rotation;
 			std::vector<double> orientation(9, 0);
 			for (int i=0; i<3; i++)
+			{
 				for (int j=0; j<3; j++)
+				{
 					orientation[i*3+j] = rotation(i,j);
+				}
+			}
+
 			orientation.push_back(static_cast<double>(valid));
 			LogFile::getInstance()->logData(heli::LOG_ORIENTATION, orientation);
 			if (valid)
+			{
 				IMU::getInstance()->set_nav_rotation(rotation);
 				// also log euler if rotation valid
 				blas::vector<double> euler(IMU::getInstance()->get_euler());
 				LogFile::getInstance()->logData("Euler Angles (converted)", euler);
+			}
+
 			break;
 		}
 		case 0x05: //euler angles
@@ -313,7 +327,9 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			LogFile::getInstance()->logData(heli::LOG_EULER, log);
 
 			if (valid)
+			{
 				IMU::getInstance()->set_nav_euler(euler);
+			}
 		}
 		case 0x0E:
 		{
@@ -331,8 +347,10 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			if (valid)
 			{
 				for (int i=0; i<3; ++i)
+				{
 					angular_rate[i] = nav_filters[i](angular_rate[i]);
-			LogFile::getInstance()->logData(heli::LOG_ANG_RATE_FILTERED, angular_rate);
+				}
+				LogFile::getInstance()->logData(heli::LOG_ANG_RATE_FILTERED, angular_rate);
 				IMU::getInstance()->set_nav_angular_rate(angular_rate);
 			}
 			break;

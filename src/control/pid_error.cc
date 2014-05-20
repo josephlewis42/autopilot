@@ -26,7 +26,7 @@
 pid_error::pid_error(double integral_error_limit)
 :_integral_error_limit(integral_error_limit)
 {
-	error.assign(0);
+	error.fill(0);
 }
 
 double& pid_error::operator++()
@@ -41,14 +41,14 @@ double& pid_error::operator++()
 /* Global functions */
 std::ostream& operator<<(std::ostream& os, const pid_error& error)
 {
-	for (boost::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
+	for (std::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
 		os << *it << ", ";
 	return os << error.error.back();
 }
 
 Debug& operator<<(Debug& dbg, const pid_error& error)
 {
-	for (boost::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
+	for (std::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
 		dbg << *it << ", ";
 	return dbg << error.error.back();
 }

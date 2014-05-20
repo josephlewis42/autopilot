@@ -42,6 +42,7 @@
 #include "RateLimiter.h"
 
 MainApp::MainApp()
+:autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
 {
 	this->_terminate = false;
 }

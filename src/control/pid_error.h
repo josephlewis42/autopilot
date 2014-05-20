@@ -22,7 +22,7 @@
 #define PID_ERROR_H_
 
 /* Boost Headers */
-#include <boost/array.hpp>
+#include <array>
 
 /* STL Headers */
 #include <iostream>
@@ -47,11 +47,11 @@ public:
 	 * @returns proportional error as lvalue
 	 */
 	double& proportional() {return error[0];}
-	const double& proportional() const {return error[0];}
+	//const double& proportional() const {return error[0];}
 	double& derivative() {return error[1];}
-	const double& derivative() const {return error[1];}
+	//const double& derivative() const {return error[1];}
 	double& integral() {return error[2];}
-	const double& integral() const {return error[2];}
+	//const double& integral() const {return error[2];}
 	/**
 	 * Easy way to increment integral error
 	 * When the integral is computed, if it's absolute value is greater than GPS::Error::_integral_error_limit
@@ -69,9 +69,9 @@ public:
 	 */
 	friend Debug& operator<<(Debug& dbg, const pid_error& error);
 	/// zero all the errors
-	void reset() {error.assign(0);}
+	void reset() {error.fill(0);}
 private:
-	boost::array<double, 3> error;
+	std::array<double, 3> error;
 	double _integral_error_limit;
 };
 
