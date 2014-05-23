@@ -200,8 +200,9 @@ std::vector<uint8_t> servo_switch::compute_checksum(uint8_t id, uint8_t count, c
 
 int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 {
-	servo_switch* servo = servo_switch::getInstance();
-
+	// TODO enable this to see if it works for servo.
+	//servo_switch* servo = servo_switch::getInstance();
+	//servo->readDevice(fd, buf, n);
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
