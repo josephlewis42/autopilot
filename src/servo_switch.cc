@@ -28,6 +28,7 @@
 #include <time.h>
 #include <signal.h>
 #include <bitset>
+#include <mutex>
 
 // stl headers
 #include "Debug.h"
@@ -86,7 +87,7 @@ servo_switch* servo_switch::getInstance()
 servo_switch::servo_switch()
 : Driver("Servo Switch","servo"),
   raw_inputs(9, 0),
-  raw_outputs(9,0),
+  raw_outputs(9, 0),
   pilot_mode(heli::PILOT_UNKNOWN)
 {
 	if(!Configuration::getInstance()->getb(SERVO_SWITCH_ENABLED, SERVO_SWITCH_ENABLED_DEFAULT))
@@ -152,15 +153,6 @@ bool servo_switch::init_port()
 	port_config.c_cflag &= ~(PARENB| PARODD);        // Set terminal parity.
 	// Clear terminal output flow control.
 	port_config.c_iflag &= ~(IXON | IXOFF);           // set -isflow  & -osflow
-
-	// TODO check if these are even needed in QNX - Joseph
-#ifdef __QNX__
-	port_config.c_cflag &= ~(IHFLOW | OHFLOW);        // set -ihflow  & -ohflow
-	tcflow (fd_ser1, TCION);                           // set -ispaged
-	tcflow (fd_ser1, TCOON);                           // set -ospaged
-	tcflow (fd_ser1, TCIONHW);                         // set -ihpaged
-	tcflow (fd_ser1, TCOONHW);                         // set -ohpaged
-#endif
 
 	if (tcsetattr(fd_ser1, TCSADRAIN, &port_config) != 0)
 	{
