@@ -9,7 +9,6 @@
 
 
 #include "Configuration.h"
-#include "File.h"
 #include "Debug.h"
 
 #include <boost/property_tree/ptree.hpp>
