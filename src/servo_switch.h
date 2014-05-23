@@ -91,7 +91,7 @@ public:
 
 	/// signal with new mode as argument
 	boost::signals2::signal<void (heli::PILOT_MODE)> pilot_mode_changed;
-	inline heli::PILOT_MODE get_pilot_mode() {std::lock_guard<std::mutex> lock(pilot_mode_lock); return pilot_mode;}
+	inline heli::PILOT_MODE get_pilot_mode() {return pilot_mode;}
 
 	inline double get_engine_speed() {return engine_speed;}
 	inline double get_engine_rpm() {return engine_speed * 60;}
@@ -106,10 +106,7 @@ private:
 	/// @returns true if the port was successfully set up, false otherwise
 	bool init_port();
 
-	/// @returns the file descriptor of the serial port (threadsafe)
-	inline int get_serial_descriptor() {std::lock_guard<std::mutex> lock(fd_ser1_lock); return fd_ser1;}
-	int fd_ser1;
-	std::mutex fd_ser1_lock;
+	std::atomic<int> fd_ser1;
 
 	boost::thread receive;
 	boost::thread send;
@@ -126,8 +123,7 @@ private:
 	inline std::vector<uint16_t> get_raw_outputs() {std::lock_guard<std::mutex> lock(raw_outputs_lock); return raw_outputs;}
 	inline void set_raw_outputs(const std::vector<uint16_t>& raw_outputs) {std::lock_guard<std::mutex> lock(raw_outputs_lock); this->raw_outputs = raw_outputs;}
 
-	heli::PILOT_MODE pilot_mode;
-	std::mutex pilot_mode_lock;
+	std::atomic<heli::PILOT_MODE> pilot_mode;
 	void set_pilot_mode(heli::PILOT_MODE mode);
 	static std::string pilot_mode_string(heli::PILOT_MODE mode);
 

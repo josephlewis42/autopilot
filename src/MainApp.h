@@ -25,12 +25,12 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 /* Project Headers */
 #include "heli.h"
 
 /* Boost Headers */
-#include <boost/foreach.hpp>
 #include <boost/date_time.hpp>
 #include <boost/thread.hpp>
 #include <boost/signals2.hpp>
@@ -94,10 +94,7 @@ private:
 	static std::vector<ThreadName> threads;
 
 	/// controls whether the main loop continues to execute
-	bool _terminate;
-
-	/// synchronizes thread access to MainApp::_terminate
-	mutable std::mutex terminate_lock;
+	std::atomic_bool _terminate;
 
 	/// returns the value of _terminate using MainApp::terminate_lock for synchronization
 	bool check_terminate();
@@ -122,10 +119,7 @@ private:
 
 
 	/// stores the current operating mode of the autopilot
-	heli::AUTOPILOT_MODE autopilot_mode;
-
-	/// synchronizes thread access to MainApp::autopilot_mode
-	mutable std::mutex autopilot_mode_lock;
+	std::atomic<heli::AUTOPILOT_MODE> autopilot_mode;
 
 	/// @returns the value of MainApp::autopilot_mode using MainApp::autopilot_mode_lock
 	int getMode();

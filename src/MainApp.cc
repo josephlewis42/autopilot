@@ -34,11 +34,6 @@
 #include "GPS.h"
 #include "Driver.h"
 #include "MdlAltimiter.h"
-
-#ifdef __QNX__
-#include <sched.h>      // for setting thread priorities.
-
-#endif
 #include "RateLimiter.h"
 
 MainApp::MainApp()
@@ -49,37 +44,21 @@ MainApp::MainApp()
 
 MainApp::MainApp(const MainApp& other)
 {
-	{
-		std::lock_guard<std::mutex> scoped_lock(other.terminate_lock);
-		_terminate = other._terminate;
-	}
-	{
-		std::lock_guard<std::mutex> scoped_lock(other.autopilot_mode_lock);
-		autopilot_mode = other.autopilot_mode;
-	}
+	_terminate = other._terminate.load();
+	autopilot_mode = other.autopilot_mode.load();
 }
 
 const MainApp& MainApp::operator=(const MainApp& other)
 {
-	if (this == &other)
+	if (this == &other){
 		return *this;
+	}
 
-	// use addresses to ensure mutexes are always locked in same order
-	std::lock_guard<std::mutex> lock1(&terminate_lock < &other.terminate_lock? terminate_lock : other.terminate_lock);
-	std::lock_guard<std::mutex> lock2(&terminate_lock > &other.terminate_lock? terminate_lock : other.terminate_lock);
-	_terminate = other._terminate;
+	_terminate = other._terminate.load();
 
 	return *this;
 }
 
-
-#if defined(LOGFILE_TEST)
-#include "tests/logfile_test.cc"
-#elif defined(QGCLINK_TEST)
-#include "tests/qgclink_test.cc"
-#elif defined(GX3_TEST)
-#include "tests/gx3_test.cc"
-#else
 
 void MainApp::run()
 {
@@ -128,10 +107,8 @@ void MainApp::run()
 	vector<double> inputScaled(6);
 
 	// Set default autopilot mode
-	autopilot_mode_lock.lock();
 	autopilot_mode = heli::MODE_AUTOMATIC_CONTROL;
 	mode_changed(autopilot_mode);
-	autopilot_mode_lock.unlock();
 
 	uint16_t ch7PulseWidthLast = 1000;
 	uint16_t ch7PulseWidth = 1000;
@@ -208,8 +185,6 @@ void MainApp::run()
 	}
 }
 
-#endif
-
 std::vector<MainApp::ThreadName> MainApp::threads;
 
 void MainApp::add_thread(boost::thread *thread, std::string name)
@@ -225,10 +200,7 @@ MainApp::ThreadName::ThreadName(boost::thread *thread, std::string name)
 
 bool MainApp::check_terminate()
 {
-	terminate_lock.lock();
-	bool terminate = this->_terminate;
-	terminate_lock.unlock();
-	return !terminate;
+	return ! _terminate;
 }
 
 boost::signals2::signal<void ()> MainApp::terminate;
@@ -242,7 +214,7 @@ void MainApp::cleanup::operator()()
     int n = (int)boost::posix_time::time_duration::ticks_per_second() * 1;
     boost::posix_time::time_duration delay(0,0,0,n);
 
-	BOOST_FOREACH(ThreadName t, MainApp::threads)
+    for(ThreadName t : MainApp::threads)
 	{
 		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
 		t.thread->timed_join(delay);
@@ -253,18 +225,15 @@ void MainApp::cleanup::operator()()
 void MainApp::do_terminate::operator()()
 {
 
-	parent->terminate_lock.lock();
 	if (!parent->_terminate)
 	{
 		parent->_terminate = true;
 		message() << "MainApp: Received terminate signal.  Shutting down.";
 	}
-	parent->terminate_lock.unlock();
 }
 
 void MainApp::change_mode::operator()(heli::AUTOPILOT_MODE mode)
 {
-	std::lock_guard<std::mutex> lock(parent->autopilot_mode_lock);
 	debug() << "Switching autopilot mode out of " << MainApp::getModeString(parent->autopilot_mode);
 	parent->autopilot_mode = mode;
 	message() << "Switched autopilot mode into " << MainApp::getModeString(parent->autopilot_mode);
@@ -273,7 +242,6 @@ void MainApp::change_mode::operator()(heli::AUTOPILOT_MODE mode)
 
 int MainApp::getMode()
 {
-	std::lock_guard<std::mutex> lock(autopilot_mode_lock);
 	return autopilot_mode;
 }
 

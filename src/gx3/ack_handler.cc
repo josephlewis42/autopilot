@@ -37,19 +37,18 @@ IMU::ack_handler::ack_handler(const ack_handler& other)
 :command(other.command)
 {
 	IMU::getInstance()->debug("called ack_handler() copy");
-	std::lock_guard<std::mutex> lock(other.ack_received_lock);
-	ack_received = other.ack_received;
+	ack_received = other.ack_received.load();
 }
 
 const IMU::ack_handler& IMU::ack_handler::operator=(const ack_handler& other)
 {
 	IMU::getInstance()->debug("called ack_handler::operator=");
-	if (this == &other)
+	if (this == &other){
 		return *this;
+	}
 
-	std::lock_guard<std::mutex> lock1(&ack_received_lock < &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
-	std::lock_guard<std::mutex> lock2(&ack_received_lock > &other.ack_received_lock ? ack_received_lock : other.ack_received_lock);
-	ack_received = other.ack_received;
+
+	ack_received = other.ack_received.load();
 
 	return *this;
 }
@@ -57,17 +56,17 @@ const IMU::ack_handler& IMU::ack_handler::operator=(const ack_handler& other)
 void IMU::ack_handler::wait_for_ack(int timeout)
 {
 	boost::thread wait_thread(spin(this));
-	if (timeout == 0)
+	if (timeout == 0){
 		wait_thread.join();
-	else
+	} else {
 		wait_thread.timed_join(boost::posix_time::milliseconds(timeout));
+	}
 }
 
 void IMU::ack_handler::operator()(std::vector<uint8_t> message)
 {
 	if (message[0] == command)
 	{
-//		debug() << "got ack for command: " << static_cast<int>(command);
 		this->message.clear();
 		this->message.insert(this->message.begin(), message.begin(), message.end());
 		set_ack_received();
@@ -76,10 +75,11 @@ void IMU::ack_handler::operator()(std::vector<uint8_t> message)
 
 uint8_t IMU::ack_handler::get_error_code()
 {
-	if (get_ack_received())
+	if (get_ack_received()) {
 		return message[1];
-	else
-		return 255;
+	}
+
+	return 255;
 }
 
 IMU::ack_handler::spin::spin(ack_handler* parent)
@@ -90,6 +90,7 @@ IMU::ack_handler::spin::spin(ack_handler* parent)
 
 void IMU::ack_handler::spin::operator()()
 {
-	while (!parent->get_ack_received())
+	while (!parent->get_ack_received()) {
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 }

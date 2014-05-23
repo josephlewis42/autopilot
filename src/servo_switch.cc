@@ -118,9 +118,6 @@ bool servo_switch::init_port()
 
 	debug() << "Servo switch: port is " << port;
 
-	std::lock_guard<std::mutex> lock(fd_ser1_lock);
-	debug() << "Servo switch: got lock ";
-
 	fd_ser1 = open(port.c_str(), O_RDWR | O_NOCTTY);// | O_NDELAY);
 
 	if(fd_ser1 == -1)
@@ -166,15 +163,12 @@ bool servo_switch::init_port()
 
 void servo_switch::set_pilot_mode(heli::PILOT_MODE mode)
 {
-	std::lock_guard<std::mutex> lock(pilot_mode_lock);
-	if (pilot_mode == mode)
+	if (pilot_mode != mode)
 	{
-		return;
+		pilot_mode = mode;
+		message() << "Pilot mode changed to: " << pilot_mode_string(mode);
+		pilot_mode_changed(mode);
 	}
-
-	pilot_mode = mode;
-	message() << "Pilot mode changed to: " << pilot_mode_string(mode);
-	pilot_mode_changed(mode);
 }
 
 std::string servo_switch::pilot_mode_string(heli::PILOT_MODE mode)
@@ -211,8 +205,6 @@ int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 #ifdef __QNX__
 	return readcond(fd, buf, n, n, 10, 10);
 #else
-	//return read(fd, buf, n);
-	//return QNX2Linux::readcond(fd, buf, n, n, 10,10);
 	return QNX2Linux::readUntilMin(fd, buf, n, n);
 #endif
 }
@@ -223,7 +215,7 @@ void servo_switch::read_serial::read_data()
 {
 	servo_switch* servo = servo_switch::getInstance();
 
-	int fd_ser = servo->get_serial_descriptor();
+	int fd_ser = servo->fd_ser1;
 	std::vector<uint8_t> payload;
 	std::vector<uint8_t> checksum(2);
 	while(! servo->terminateRequested())
@@ -377,7 +369,7 @@ void servo_switch::read_serial::find_next_header()
 	servo_switch* servo = servo_switch::getInstance();
 	servo->trace() << "Finding next header";
 	bool synchronized = false;
-	int fd_ser = servo->get_serial_descriptor();
+	int fd_ser = servo->fd_ser1;
 
 	bool found_first_byte = false;
 	uint8_t buf;
@@ -406,7 +398,7 @@ void servo_switch::send_serial::send_data()
 
 		std::vector<uint8_t> pulse_message = get_pulse_message();
 		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, servo->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
-		while (write(servo->get_serial_descriptor(), &pulse_message[0], pulse_message.size()) < 0)
+		while (write(servo->fd_ser1, &pulse_message[0], pulse_message.size()) < 0)
 		{
 			servo->debug("Error sending pulse output message to servo switch");
 		}

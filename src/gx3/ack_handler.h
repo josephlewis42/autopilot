@@ -78,13 +78,11 @@ private:
 		ack_handler* parent;
 	};
 	/// flag to tell when ack is received
-	bool ack_received;
-	/// serialize access to IMU::ack_handler::ack_received
-	mutable std::mutex ack_received_lock;
+	std::atomic_bool ack_received;
 	/// threadsafe set ack_received
-	void set_ack_received() {std::lock_guard<std::mutex> lock(ack_received_lock); ack_received = true;}
+	void set_ack_received() {ack_received = true;}
 	/// threadsafe get ack_received
-	bool get_ack_received() {std::lock_guard<std::mutex> lock(ack_received_lock); return ack_received;}
+	bool get_ack_received() {return ack_received;}
 	/// store the command code to wait for
 	uint8_t command;
 	/// store the ack/nack message
