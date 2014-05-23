@@ -132,16 +132,16 @@ std::vector<Parameter> tail_sbf::getParameters() const
 
 	{
 		std::lock_guard<std::mutex> lock(ned_x_lock);
-		plist.push_back(Parameter(PARAM_X_KP, ned_x.gains().proportional(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_X_KD, ned_x.gains().derivative(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_X_KI, ned_x.gains().integral(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KP, ned_x.gains().getProportional(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KD, ned_x.gains().getDerivative(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KI, ned_x.gains().getIntegral(), heli::CONTROLLER_ID));
 	}
 
 	{
 		std::lock_guard<std::mutex> lock(ned_y_lock);
-		plist.push_back(Parameter(PARAM_Y_KP, ned_y.gains().proportional(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_Y_KD, ned_y.gains().derivative(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_Y_KI, ned_y.gains().integral(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KP, ned_y.gains().getProportional(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KD, ned_y.gains().getDerivative(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KI, ned_y.gains().getIntegral(), heli::CONTROLLER_ID));
 	}
 
 	plist.push_back(Parameter(PARAM_TRAVEL, scaled_travel_degrees(), heli::CONTROLLER_ID));
@@ -153,7 +153,7 @@ void tail_sbf::set_x_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_x_lock);
-		ned_x.gains().proportional() = kp;
+		ned_x.gains().setProportional(kp);
 	}
 	message() << "Set SBF x proportional gain to: " << kp;
 }
@@ -162,7 +162,7 @@ void tail_sbf::set_x_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_x_lock);
-		ned_x.gains().derivative() = kd;
+		ned_x.gains().setDerivative(kd);
 	}
 	message() << "Set SBF x derivative gain to: " << kd;
 }
@@ -171,7 +171,7 @@ void tail_sbf::set_x_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_x_lock);
-		ned_x.gains().integral() = ki;
+		ned_x.gains().setIntegral(ki);
 	}
 	message() << "Set SBF x integral gain to: " << ki;
 }
@@ -180,7 +180,7 @@ void tail_sbf::set_y_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_y_lock);
-		ned_y.gains().proportional() = kp;
+		ned_y.gains().setProportional(kp);
 	}
 	message() << "Set SBF y proportional gain to: " << kp;
 }
@@ -189,7 +189,7 @@ void tail_sbf::set_y_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_y_lock);
-		ned_y.gains().derivative() = kd;
+		ned_y.gains().setDerivative(kd);
 	}
 	message() << "Set SBF y derivative gain to: " << kd;
 }
@@ -198,7 +198,7 @@ void tail_sbf::set_y_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(ned_y_lock);
-		ned_y.gains().integral() = ki;
+		ned_y.gains().setIntegral(ki);
 	}
 	message() << "Set SBF y integral gain to: " << ki;
 }
@@ -215,37 +215,37 @@ void tail_sbf::set_scaled_travel(double travel)
 double tail_sbf::get_x_proportional() const
 {
 	std::lock_guard<std::mutex> lock(ned_x_lock);
-	return ned_x.gains().proportional();
+	return ned_x.gains().getProportional();
 }
 
 double tail_sbf::get_y_proportional() const
 {
 	std::lock_guard<std::mutex> lock(ned_y_lock);
-	return ned_y.gains().proportional();
+	return ned_y.gains().getProportional();
 }
 
 double tail_sbf::get_x_derivative() const
 {
 	std::lock_guard<std::mutex> lock(ned_x_lock);
-	return ned_x.gains().derivative();
+	return ned_x.gains().getDerivative();
 }
 
 double tail_sbf::get_y_derivative() const
 {
 	std::lock_guard<std::mutex> lock(ned_y_lock);
-	return ned_y.gains().derivative();
+	return ned_y.gains().getDerivative();
 }
 
 double tail_sbf::get_x_integral() const
 {
 	std::lock_guard<std::mutex> lock(ned_x_lock);
-	return ned_x.gains().integral();
+	return ned_x.gains().getIntegral();
 }
 
 double tail_sbf::get_y_integral() const
 {
 	std::lock_guard<std::mutex> lock(ned_y_lock);
-	return ned_y.gains().integral();
+	return ned_y.gains().getIntegral();
 }
 
 

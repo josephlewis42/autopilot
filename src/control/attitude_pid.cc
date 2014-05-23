@@ -159,15 +159,15 @@ std::vector<Parameter> attitude_pid::getParameters()
 	std::vector<Parameter> plist;
 
 	roll_lock.lock();
-	plist.push_back(Parameter(PARAM_ROLL_KP, roll.gains().proportional(), heli::CONTROLLER_ID));
-	plist.push_back(Parameter(PARAM_ROLL_KD, roll.gains().derivative(), heli::CONTROLLER_ID));
-	plist.push_back(Parameter(PARAM_ROLL_KI, roll.gains().integral(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_ROLL_KP, roll.gains().getProportional(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_ROLL_KD, roll.gains().getDerivative(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_ROLL_KI, roll.gains().getIntegral(), heli::CONTROLLER_ID));
 	roll_lock.unlock();
 
 	pitch_lock.lock();
-	plist.push_back(Parameter(PARAM_PITCH_KP, pitch.gains().proportional(), heli::CONTROLLER_ID));
-	plist.push_back(Parameter(PARAM_PITCH_KD, pitch.gains().derivative(), heli::CONTROLLER_ID));
-	plist.push_back(Parameter(PARAM_PITCH_KI, pitch.gains().integral(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_PITCH_KP, pitch.gains().getProportional(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_PITCH_KD, pitch.gains().getDerivative(), heli::CONTROLLER_ID));
+	plist.push_back(Parameter(PARAM_PITCH_KI, pitch.gains().getIntegral(), heli::CONTROLLER_ID));
 	pitch_lock.unlock();
 
 	plist.push_back(Parameter(PARAM_ROLL_TRIM, get_roll_trim_degrees(), heli::CONTROLLER_ID));
@@ -180,7 +180,7 @@ void attitude_pid::set_roll_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(roll_lock);
-		roll.gains().proportional() = kp;
+		roll.gains().setProportional(kp);
 	}
 	message() << "Set roll proportional gain to: " << kp;
 }
@@ -188,45 +188,45 @@ void attitude_pid::set_roll_proportional(double kp)
 double attitude_pid::get_pitch_proportional()
 {
 	std::lock_guard<std::mutex> lock(pitch_lock);
-	return pitch.gains().proportional();
+	return pitch.gains().getProportional();
 }
 
 double attitude_pid::get_pitch_derivative()
 {
 	std::lock_guard<std::mutex> lock(pitch_lock);
-	return pitch.gains().derivative();
+	return pitch.gains().getDerivative();
 }
 
 double attitude_pid::get_pitch_integral()
 {
 	std::lock_guard<std::mutex> lock(pitch_lock);
-	return pitch.gains().integral();
+	return pitch.gains().getIntegral();
 }
 
 
 double attitude_pid::get_roll_proportional()
 {
 	std::lock_guard<std::mutex> lock(roll_lock);
-	return roll.gains().proportional();
+	return roll.gains().getProportional();
 }
 
 double attitude_pid::get_roll_derivative()
 {
 	std::lock_guard<std::mutex> lock(roll_lock);
-	return roll.gains().derivative();
+	return roll.gains().getDerivative();
 }
 
 double attitude_pid::get_roll_integral()
 {
 	std::lock_guard<std::mutex> lock(roll_lock);
-	return roll.gains().integral();
+	return roll.gains().getIntegral();
 }
 
 void attitude_pid::set_roll_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(roll_lock);
-		roll.gains().derivative() = kd;
+		roll.gains().setDerivative(kd);
 	}
 	message() << "Set roll derivative gain to: " << kd;
 }
@@ -235,7 +235,7 @@ void attitude_pid::set_roll_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(roll_lock);
-		roll.gains().integral() = ki;
+		roll.gains().setIntegral(ki);
 	}
 	message() << "Set roll integral gain to: " << ki;
 }
@@ -244,7 +244,7 @@ void attitude_pid::set_pitch_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(pitch_lock);
-		pitch.gains().proportional() = kp;
+		pitch.gains().setProportional(kp);
 	}
 	message() << "Set pitch proportional gain to: " << kp;
 }
@@ -253,7 +253,7 @@ void attitude_pid::set_pitch_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(pitch_lock);
-		pitch.gains().derivative() = kd;
+		pitch.gains().setDerivative(kd);
 	}
 	message() << "Set pitch derivative gain to: " << kd;
 }
@@ -262,7 +262,7 @@ void attitude_pid::set_pitch_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(pitch_lock);
-		pitch.gains().integral() = ki;
+		pitch.gains().setIntegral(ki);
 	}
 	message() << "Set pitch integral gain to: " << ki;
 }

@@ -37,6 +37,7 @@ class pid_channel
 {
 public:
 	pid_channel(double integrator_limit = 1);
+
 	/**
 	 * @returns gains as lvalue
 	 */

@@ -130,16 +130,16 @@ std::vector<Parameter> translation_outer_pid::getParameters()
 
 	{
 		std::lock_guard<std::mutex> lock(x_lock);
-		plist.push_back(Parameter(PARAM_X_KP, x.gains().proportional(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_X_KD, x.gains().derivative(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_X_KI, x.gains().integral(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KP, x.gains().getProportional(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KD, x.gains().getDerivative(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_X_KI, x.gains().getIntegral(), heli::CONTROLLER_ID));
 	}
 
 	{
 		std::lock_guard<std::mutex> lock(y_lock);
-		plist.push_back(Parameter(PARAM_Y_KP, y.gains().proportional(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_Y_KD, y.gains().derivative(), heli::CONTROLLER_ID));
-		plist.push_back(Parameter(PARAM_Y_KI, y.gains().integral(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KP, y.gains().getProportional(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KD, y.gains().getDerivative(), heli::CONTROLLER_ID));
+		plist.push_back(Parameter(PARAM_Y_KI, y.gains().getIntegral(), heli::CONTROLLER_ID));
 	}
 	scaled_travel_lock.lock();
 	plist.push_back(Parameter(PARAM_TRAVEL, scaled_travel, heli::CONTROLLER_ID));
@@ -151,7 +151,7 @@ void translation_outer_pid::set_x_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(x_lock);
-		x.gains().proportional() = kp;
+		x.gains().setProportional(kp);
 	}
 	message() << "Set PID x proportional gain to: " << kp;
 }
@@ -160,7 +160,7 @@ void translation_outer_pid::set_x_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(x_lock);
-		x.gains().derivative() = kd;
+		x.gains().setDerivative(kd);
 	}
 	message() << "Set PID x derivative gain to: " << kd;
 }
@@ -169,7 +169,7 @@ void translation_outer_pid::set_x_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(x_lock);
-		x.gains().integral() = ki;
+		x.gains().setIntegral(ki);
 	}
 	message() << "Set PID x integral gain to: " << ki;
 }
@@ -178,7 +178,7 @@ void translation_outer_pid::set_y_proportional(double kp)
 {
 	{
 		std::lock_guard<std::mutex> lock(y_lock);
-		y.gains().proportional() = kp;
+		y.gains().setProportional(kp);
 	}
 	message() << "Set PID y proportional gain to: " << kp;
 }
@@ -187,7 +187,7 @@ void translation_outer_pid::set_y_derivative(double kd)
 {
 	{
 		std::lock_guard<std::mutex> lock(y_lock);
-		y.gains().derivative() = kd;
+		y.gains().setDerivative(kd);
 	}
 	message() << "Set PID y derivative gain to: " << kd;
 }
@@ -196,7 +196,7 @@ void translation_outer_pid::set_y_integral(double ki)
 {
 	{
 		std::lock_guard<std::mutex> lock(y_lock);
-		y.gains().integral() = ki;
+		y.gains().setIntegral(ki);
 	}
 	message() << "Set PID y integral gain to: " << ki;
 }
@@ -213,37 +213,37 @@ void translation_outer_pid::set_scaled_travel(double travel)
 double translation_outer_pid::get_x_proportional() const
 {
 	std::lock_guard<std::mutex> lock(x_lock);
-	return x.gains().proportional();
+	return x.gains().getProportional();
 }
 
 double translation_outer_pid::get_x_derivative() const
 {
 	std::lock_guard<std::mutex> lock(x_lock);
-	return x.gains().derivative();
+	return x.gains().getDerivative();
 }
 
 double translation_outer_pid::get_x_integral() const
 {
 	std::lock_guard<std::mutex> lock(x_lock);
-	return x.gains().integral();
+	return x.gains().getIntegral();
 }
 
 double translation_outer_pid::get_y_proportional() const
 {
 	std::lock_guard<std::mutex> lock(y_lock);
-	return y.gains().proportional();
+	return y.gains().getProportional();
 }
 
 double translation_outer_pid::get_y_derivative() const
 {
 	std::lock_guard<std::mutex> lock(y_lock);
-	return y.gains().derivative();
+	return y.gains().getDerivative();
 }
 
 double translation_outer_pid::get_y_integral() const
 {
 	std::lock_guard<std::mutex> lock(y_lock);
-	return y.gains().integral();
+	return y.gains().getIntegral();
 }
 
 

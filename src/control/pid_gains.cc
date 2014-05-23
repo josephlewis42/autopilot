@@ -21,7 +21,6 @@
 
 Debug& operator<<(Debug& dbg, const pid_gains& gains)
 {
-	for (boost::array<double, 3>::const_iterator it=gains.gains.begin(); it != gains.gains.end()-1; ++it)
-		dbg << *it << ", ";
-	return dbg << gains.gains.back();
+	dbg << gains._proportional << ", " << gains._derivative << ", " << gains._integral;
+	return dbg;
 }

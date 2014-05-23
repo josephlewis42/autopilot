@@ -20,12 +20,10 @@
 #ifndef PID_GAINS_H_
 #define PID_GAINS_H_
 
-/* Boost Headers */
-#include <boost/array.hpp>
-
 /* Project Headers */
 #include "Debug.h"
 
+#include <atomic>
 /**
  * @brief Store the gains for PID control
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
@@ -38,23 +36,58 @@ public:
 	/**
 	 * Initializes the gains to 1
 	 */
-	pid_gains() {gains.assign(1);}
+	pid_gains() {
+		_proportional = 1;
+		_derivative = 1;
+		_integral = 1;
+	}
+
 	/** copy constructor */
-	pid_gains(const pid_gains& other) {gains = other.gains;}
+	pid_gains(const pid_gains& other) {
+		_proportional = other.getProportional();
+		_derivative = other.getDerivative();
+		_integral = other.getIntegral();
+	}
+
+	pid_gains& operator=(const pid_gains& other)
+	{
+		setProportional(other.getProportional());
+		setDerivative(other.getDerivative());
+		setIntegral(other.getIntegral());
+
+		return *this;
+	}
+
+
+	double getProportional() const { return _proportional;}
+	void setProportional(double value){_proportional = value;}
+
+
+	double getDerivative() const { return _derivative;}
+	void setDerivative(double value){_derivative = value;}
+
+	double getIntegral() const { return _integral; }
+	void setIntegral(double value) {_integral = value;}
+
+
 	/** proportional gain as lvalue */
-	double& proportional() {return gains[0];}
+	//double& proportional() {return gains[0];}
 	/** proportional gain as rvalue */
-	const double& proportional() const {return gains[0];}
-	double& derivative() {return gains[1];}
-	const double& derivative() const {return gains[1];}
-	double& integral() {return gains[2];}
-	const double& integral() const {return gains[2];}
+	//const double& proportional() const {return gains[0];}
+	//double& derivative() {return gains[1];}
+	//const double& derivative() const {return gains[1];}
+	//double& integral() {return gains[2];}
+	//const double& integral() const {return gains[2];}
 	/**
 	 * Stream insertion for Debug object
 	 */
 	friend Debug& operator<<(Debug& dbg, const pid_gains& gains);
 private:
-	boost::array<double, 3> gains;
+	//boost::array<double, 3> gains;
+
+	std::atomic<double> _proportional;
+	std::atomic<double> _derivative;
+	std::atomic<double> _integral;
 };
 
 Debug& operator<<(Debug& dbg, const pid_gains& gains);
