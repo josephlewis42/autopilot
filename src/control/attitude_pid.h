@@ -24,6 +24,7 @@
 /* STL Headers */
 #include <string>
 #include <mutex>
+#include <atomic>
 
 /* Boost Headers */
 #include <boost/thread.hpp>
@@ -123,11 +124,11 @@ public:
 	/** set the roll trim point.  threadsafe
 	 * @param trim roll trim in radians
 	 */
-	inline void set_roll_trim_radians(double trim) {std::lock_guard<std::mutex> lock(roll_trim_lock); roll_trim = trim;}
+	inline void set_roll_trim_radians(double trim) {roll_trim = trim;}
 	/** get the roll trim point.  threadsafe
 	 * @returns roll trim in radians
 	 */
-	inline double get_roll_trim_radians() {std::lock_guard<std::mutex> lock(roll_trim_lock); return roll_trim;}
+	inline double get_roll_trim_radians() {return roll_trim;}
 	/** set the roll trim point.  threadsafe
 	 * @param trim roll trim in degrees
 	 */
@@ -135,15 +136,15 @@ public:
 	/** get the roll trim point.  threadsafe
 	 * @returns roll trim in degress
 	 */
-	inline double get_roll_trim_degrees() {std::lock_guard<std::mutex> lock(roll_trim_lock); return roll_trim * 180 / boost::math::constants::pi<double>();}
+	inline double get_roll_trim_degrees() {return roll_trim.load() * 180 / boost::math::constants::pi<double>();}
 	/** set the pitch trim point.  threadsafe
 	 * @param trim pitch trim in radians
 	 */
-	inline void set_pitch_trim_radians(double trim) {std::lock_guard<std::mutex> lock(pitch_trim_lock); pitch_trim = trim;}
+	inline void set_pitch_trim_radians(double trim) {pitch_trim = trim;}
 	/** get the pitch trim point.  threadsafe
 	 * @returns pitch trim in radians
 	 */
-	inline double get_pitch_trim_radians() {std::lock_guard<std::mutex> lock(pitch_trim_lock); return pitch_trim;}
+	inline double get_pitch_trim_radians() {return pitch_trim;}
 	/** set the pitch trim point.  threadsafe
 	 * @param trim pitch trim in degrees
 	 */
@@ -151,7 +152,7 @@ public:
 	/** get the pitch trim point.  threadsafe
 	 * @returns pitch trim in degress
 	 */
-	inline double get_pitch_trim_degrees() {std::lock_guard<std::mutex> lock(pitch_trim_lock); return pitch_trim * 180 / boost::math::constants::pi<double>();}
+	inline double get_pitch_trim_degrees() {return pitch_trim * 180 / boost::math::constants::pi<double>();}
 	/// threadsafe get runnable
 	inline bool runnable() const {return _runnable;}
 
@@ -177,23 +178,12 @@ private:
 	inline void set_control_effort(const blas::vector<double>& control_effort) {std::lock_guard<std::mutex> lock(control_effort_lock); this->control_effort = control_effort;}
 
 	/// trim point regulated by the controller.  it is stored in radians
-	double roll_trim;
-	/// serialize access to roll_trim
-	mutable std::mutex roll_trim_lock;
+	std::atomic<double> roll_trim;
 	/// trim point regulated by the control.  stored in radians
-	double pitch_trim;
-	/// serialize access to pitch_trim
-	mutable std::mutex pitch_trim_lock;
+	std::atomic<double> pitch_trim;
 
 	/// is this controller runnable?
-	bool _runnable;
-	/// serialize access to runnable
-	mutable std::mutex runnable_lock;
-	/// threadsafe clear _runnable
-	inline void clear_runnable() {std::lock_guard<std::mutex> lock(runnable_lock); _runnable = false;}
-	/// threadsafe _runnable
-	inline void set_runnable() {std::lock_guard<std::mutex> lock(runnable_lock); _runnable = true;}
-
+	std::atomic_bool _runnable;
 
 };
 #endif

@@ -80,19 +80,10 @@ attitude_pid::attitude_pid(const attitude_pid& other)
 		std::lock_guard<std::mutex> lock(other.pitch_lock);
 		pitch = other.pitch;
 	}
-	{
-		std::lock_guard<std::mutex> lock(other.roll_trim_lock);
-		roll_trim = other.roll_trim;
-	}
 
-	{
-		std::lock_guard<std::mutex> lock(other.pitch_trim_lock);
-		pitch_trim = other.pitch_trim;
-	}
-	{
-		std::lock_guard<std::mutex> lock(other.runnable_lock);
-		_runnable = other._runnable;
-	}
+	roll_trim = other.roll_trim.load();
+	pitch_trim = other.pitch_trim.load();
+	_runnable = other._runnable.load();
 
 }
 
@@ -268,19 +259,13 @@ void attitude_pid::set_pitch_integral(double ki)
 }
 void attitude_pid::set_roll_trim_degrees(double trim_degrees)
 {
-	{
-		std::lock_guard<std::mutex> lock(roll_trim_lock);
-		roll_trim = trim_degrees * boost::math::constants::pi<double>()/180;
-	}
+	roll_trim = trim_degrees * boost::math::constants::pi<double>()/180;
 	message() << "Set roll trim to " << trim_degrees << " deg.";
 }
 
 void attitude_pid::set_pitch_trim_degrees(double trim_degrees)
 {
-	{
-		std::lock_guard<std::mutex> lock(pitch_trim_lock);
-		pitch_trim = trim_degrees * boost::math::constants::pi<double>()/180;
-	}
+	pitch_trim = trim_degrees * boost::math::constants::pi<double>()/180;
 	message() << "Set pitch trim to " << trim_degrees << " deg.";
 }
 
