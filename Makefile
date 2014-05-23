@@ -25,7 +25,7 @@ SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc'
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(SOURCES) $(EXECUTABLE) ser2net
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 
@@ -34,9 +34,18 @@ $(BUILD_DIR)/%.o:%.cc
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $< -o $@
 
+ser2net: utils/ser2net.cpp
+	mkdir -p $(dir $@)
+	$(CC) -std=c++11 -g -Wall $< -o ${BUILD_DIR}/$@
+
 clean:
 	rm -r $(BUILD_DIR)
 	rm -r $(DIST_DIR)
+
+install:
+	cp $(BUILD_DIR)/ser2net /usr/local/bin
+	cp $(BUILD_DIR)/$(EXECUTABLE) /usr/local/bin
+	
 
 dist: all
 	mkdir -p $(DIST_DIR)
