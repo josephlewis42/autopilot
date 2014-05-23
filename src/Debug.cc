@@ -68,6 +68,7 @@ void Debug::appendLevel()
 			break;
 		case IGNORE:
 			ss << "Ignore:   ";
+			break;
 		default:
 			ss << "UNKNOWN:  ";
 	}
