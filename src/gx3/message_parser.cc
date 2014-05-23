@@ -256,7 +256,6 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 				IMU::getInstance()->set_position(llh);
 			}
 
-
 			break;
 		}
 		case 0x02:
