@@ -35,6 +35,7 @@
 #include "Driver.h"
 #include "MdlAltimiter.h"
 #include "RateLimiter.h"
+#include "TCPSerial.h"
 
 MainApp::MainApp()
 :autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
@@ -85,6 +86,9 @@ void MainApp::run()
 
 	message() << "Setting up altimiter";
 	new MdlAltimiter();
+
+	message() << "Setting up TCP";
+	new TCPSerial();
 
 	message() << "Setting up QGCLink";
 	QGCLink* qgc = QGCLink::getInstance();

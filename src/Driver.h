@@ -96,7 +96,6 @@ public:
 									bool enableHwFlow,
 									bool enableRawMode);
 
-
 };
 
 #endif /* DRIVER_H_ */
