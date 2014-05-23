@@ -21,11 +21,9 @@
 #ifndef PID_ERROR_H_
 #define PID_ERROR_H_
 
-/* Boost Headers */
-#include <array>
-
 /* STL Headers */
 #include <iostream>
+#include <atomic>
 
 /* Project Headers */
 #include "Debug.h"
@@ -43,36 +41,66 @@ public:
 	 * Initializes error to all zeros
 	 */
 	pid_error(double integral_error_limit = 1);
+
+	/** copy constructor */
+	pid_error(const pid_error& other) {
+		_integral_error_limit = other._integral_error_limit;
+		_proportional = other.getProportional();
+		_derivative = other.getDerivative();
+		_integral = other.getIntegral();
+	};
+
+	pid_error& operator=(const pid_error& other)
+	{
+		_integral_error_limit = other._integral_error_limit;
+		setProportional(other.getProportional());
+		setDerivative(other.getDerivative());
+		setIntegral(other.getIntegral());
+
+		return *this;
+	}
+
+
 	/**
 	 * @returns proportional error as lvalue
 	 */
-	double& proportional() {return error[0];}
-	//const double& proportional() const {return error[0];}
-	double& derivative() {return error[1];}
-	//const double& derivative() const {return error[1];}
-	double& integral() {return error[2];}
-	//const double& integral() const {return error[2];}
+	double getProportional() const {return _proportional;}
+	double getDerivative() const {return _derivative;}
+	double getIntegral() const {return _integral;}
+	double setProportional(double np) {_proportional = np; return np;};
+	double setDerivative(double nd) {_derivative = nd; return nd;}
+	double setIntegral(double ni) {_integral = ni; return ni;}
+	//double& proportional() {return error[0];}
+	//double& derivative() {return error[1];}
+	//double& integral() {return error[2];}
+
 	/**
 	 * Easy way to increment integral error
 	 * When the integral is computed, if it's absolute value is greater than GPS::Error::_integral_error_limit
 	 * the integral state is reset.
 	 * @returns result integral error state state
 	 */
-	double& operator++();
+	double operator++();
 
 	/**
 	 * Stream insertion for std::ostream (cerr, cout)
 	 */
 	friend std::ostream& operator<<(std::ostream& os, const pid_error& error);
+
 	/**
 	 * Stream insertion operator for Debug object
 	 */
 	friend Debug& operator<<(Debug& dbg, const pid_error& error);
+
 	/// zero all the errors
-	void reset() {error.fill(0);}
+	void reset();
+
 private:
-	std::array<double, 3> error;
 	double _integral_error_limit;
+
+	std::atomic<double> _proportional;
+	std::atomic<double> _derivative;
+	std::atomic<double> _integral;
 };
 
 Debug& operator<<(Debug& dbg, const pid_error& error);

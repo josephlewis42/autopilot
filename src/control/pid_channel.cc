@@ -28,9 +28,9 @@ pid_channel::pid_channel(double integrator_limit)
 
 double pid_channel::compute_pid()
 {
-	return - gains().getProportional() * error().proportional() -
-			 gains().getDerivative() * error().derivative() -
-			 gains().getIntegral() * error().integral();
+	return - gains().getProportional() * error().getProportional() -
+			 gains().getDerivative() * error().getDerivative() -
+			 gains().getIntegral() * error().getIntegral();
 }
 
 /* global functions */

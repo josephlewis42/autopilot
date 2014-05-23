@@ -31,6 +31,7 @@ namespace blas = boost::numeric::ublas;
 #include <string>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 /* Project Headers */
 #include "Debug.h"
@@ -52,24 +53,40 @@ public:
 	void reset();
 
 	/// set the x_travel
-	void set_x_travel(const double x_travel) {{std::lock_guard<std::mutex> lock(x_travel_lock); this->x_travel = x_travel;} message() << "Line: x travel set to " << x_travel;}
+	void set_x_travel(const double newXTravel)
+	{
+		x_travel = newXTravel;
+		message() << "Line: x travel set to " << newXTravel;
+	}
 	/// get the x_travel
-	double get_x_travel() const {std::lock_guard<std::mutex> lock(x_travel_lock); return x_travel;}
+	double get_x_travel() const {return x_travel;}
 
 	/// set y_travel
-	void set_y_travel(const double y_travel) {{std::lock_guard<std::mutex> lock(y_travel_lock); this->y_travel = y_travel;} message() << "Line: y travel set to " << y_travel;}
+	void set_y_travel(const double newYTravel)
+	{
+		y_travel = newYTravel;
+		message() << "Line: y travel set to " << newYTravel;
+	}
+
 	/// get y_travel
-	double get_y_travel() const {std::lock_guard<std::mutex> lock(y_travel_lock); return y_travel;}
+	double get_y_travel() const {return y_travel;}
 
 	/// set the initial hover time before trajectory begins
-	void set_hover_time(const double hover_time) {{std::lock_guard<std::mutex> lock(hover_time_lock); this->hover_time = hover_time;} message() << "Line: hover time set to " << hover_time;}
+	void set_hover_time(const double newHoverTime) {
+		hover_time = newHoverTime;
+		message() << "Line: hover time set to " << newHoverTime;
+	}
+
 	/// get the hover time
-	double get_hover_time() const {std::lock_guard<std::mutex> lock(hover_time_lock); return hover_time;}
+	double get_hover_time() const {return hover_time;}
 
 	/// set the speed
-	void set_speed(const double speed) {{std::lock_guard<std::mutex> lock(speed_lock); this->speed = speed;} message() << "Line: speed set to " << speed;}
+	void set_speed(const double newSpeed) {
+		speed = newSpeed;
+		message() << "Line: speed set to " << newSpeed;
+	}
 	/// get the speed
-	double get_speed() const {std::lock_guard<std::mutex> lock(speed_lock); return speed;}
+	double get_speed() const {return speed;}
 
 	/// return the parameter list to send to qgc
 	std::vector<Parameter> getParameters() const;
@@ -103,25 +120,11 @@ protected:
 	/// get the end_location
 	blas::vector<double> get_end_location() const {std::lock_guard<std::mutex> lock(end_location_lock); return end_location;}
 
-	/// distance to travel in body x direction in m
-	double x_travel;
-	/// serialize access to x_travel
-	mutable std::mutex x_travel_lock;
 
-	/// distance to travel in body y direction in m
-	double y_travel;
-	/// serialize access to y_travel
-	mutable std::mutex y_travel_lock;
-
-	/// average speed to fly trajectory in m/s
-	double speed;
-	/// serialize access to speed
-	mutable std::mutex speed_lock;
-
-	/// time to hover before manouever in seconds
-	double hover_time;
-	/// serialize access to hover_time
-	mutable std::mutex hover_time_lock;
+	std::atomic<double> x_travel;  /// distance to travel in body x direction in m
+	std::atomic<double> y_travel;  /// distance to travel in body y direction in m
+	std::atomic<double> speed;     /// average speed to fly trajectory in m/s
+	std::atomic<double> hover_time;  // time to hover before manouever in seconds
 
 	/// time the trajectory started
 	boost::posix_time::ptime start_time;

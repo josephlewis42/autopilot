@@ -44,9 +44,9 @@ std::string tail_sbf::XML_TRAVEL = "controller_params.translation_outer_sbf.trav
 
 tail_sbf::tail_sbf()
 : ned_x(10),
-  ned_y(10),
-  scaled_travel(0)
+  ned_y(10)
 {
+	scaled_travel = 0;
 }
 
 void tail_sbf::reset()
@@ -72,15 +72,15 @@ void tail_sbf::operator()(const blas::vector<double>& reference) throw(bad_contr
 	std::vector<double> error_states;
 	{
 		std::lock_guard<std::mutex> lock(ned_x_lock);
-		error_states.push_back(ned_x.error().proportional() = ned_position_error(0));
-		error_states.push_back(ned_x.error().derivative() = ned_velocity_error(0));
+		error_states.push_back(ned_x.error().setProportional(ned_position_error(0)));
+		error_states.push_back(ned_x.error().setDerivative(ned_velocity_error(0)));
 		error_states.push_back(++(ned_x.error()));
 		ned_control(0) = ned_x.compute_pid();
 	}
 	{
 		std::lock_guard<std::mutex> lock(ned_y_lock);
-		error_states.push_back(ned_y.error().proportional() = ned_position_error(1));
-		error_states.push_back(ned_y.error().derivative() = ned_velocity_error(1));
+		error_states.push_back(ned_y.error().setProportional(ned_position_error(1)));
+		error_states.push_back(ned_y.error().setDerivative(ned_velocity_error(1)));
 		error_states.push_back(++(ned_y.error()));
 		ned_control(1) = ned_y.compute_pid();
 	}
@@ -205,10 +205,7 @@ void tail_sbf::set_y_integral(double ki)
 
 void tail_sbf::set_scaled_travel(double travel)
 {
-	{
-		std::lock_guard<std::mutex> lock(scaled_travel_lock);
-		scaled_travel = travel;
-	}
+	scaled_travel = travel;
 	message() << "Set travel to: " << travel;
 }
 

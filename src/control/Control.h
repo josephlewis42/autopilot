@@ -61,6 +61,7 @@ class Control : public ControllerInterface
 public:
 
 	static Control* getInstance();
+
 	/**
 	 * Creates a list of all control related parameters.  In other words the list will include
 	 * the parameters stored in the class (which are general to all controls e.g., pilot mix) as well
@@ -68,12 +69,14 @@ public:
 	 * @returns Parameter list to send to QGC
 	 */
 	std::vector<Parameter> getParameters();
+
 	/**
 	 * Sets the value of a parameter.  Usually called when a message is received from QGC.
 	 * @param p parameter to change
 	 * @note make sure that the param_id field has been trimmed to remove white space inserted by QGC
 	 */
 	void setParameter(Parameter p);
+
 	/**
 	 *
 	 * @returns the (normalized) values to be sent to the helicopter.  These values
@@ -81,6 +84,7 @@ public:
 	 * Control::pilot_mix.
 	 */
 	blas::vector<double> get_control_effort() const;
+
 	/**
 	 * This function computes the control effort for the autopilot.  How the control is computed
 	 * depends on which mode the controller is operating in.  If Control::controller_mode is
