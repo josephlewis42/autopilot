@@ -9,7 +9,7 @@
 	</servo>
 	<gx3>
 		<debug>true</debug>
-		<enabled>true</enabled>
+		<enabled>false</enabled>
 		<serial_port>/dev/ttyACM0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -132,7 +132,7 @@
 	</physical_params>
 	<novatel>
 		<debug>true</debug>
-		<enabled>true</enabled>
+		<enabled>false</enabled>
 		<serial_port>/dev/ttyS0</serial_port>
 		<read_style>1</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -145,11 +145,11 @@
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 	</log>
 	<mdl_altimiter>
-		<debug>false</debug>
+		<debug>true</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
-		<enabled>false</enabled>
-		<device>/dev/ttyUSB1</device>
+		<enabled>true</enabled>
+		<device>/dev/ttyUSB0</device>
 		<terminal>
 			<Altimiter1>
 				<baudrate>38400</baudrate>
