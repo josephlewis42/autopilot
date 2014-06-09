@@ -24,6 +24,8 @@
 #include <signal.h>
 #include <boost/thread.hpp>
 
+#define BUFFERSIZE 4096
+
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -166,22 +168,24 @@ void TCPSerial::tcpListen(TCPSerial* instance)
 		// loop this section until close
 		while(! instance->terminateRequested())
 		{
-			char buffer[1024];
+			char buffer[BUFFERSIZE];
 
-			int serin = read(instance->ser_fd, buffer, 1024);
+			int serin = read(instance->ser_fd, buffer, BUFFERSIZE);
 			if(serin > 0)
 			{
 				if(send(tcp_client_fd, buffer, serin, 0) == -1)
 				{
+					instance->warning() << "Error sendings: " + errno;
 					break; // problem sending
 				}
 			}
 
-			int tcpin = recv(tcp_client_fd, buffer, 1024, 0);
+			int tcpin = recv(tcp_client_fd, buffer, BUFFERSIZE, 0);
 			if(tcpin > 0)
 			{
 				if(write(instance->ser_fd, buffer, tcpin) == -1)
 				{
+					instance->warning() << "Error recvingr: " + errno;
 					break; // problem writing
 				}
 			}

@@ -120,80 +120,80 @@ void IMU::read_serial::operator()()
 
 	while (true)
 	{
-			// if a serious error has happened (can't sync), kill the thread.
-			if(sync() == false)
-			{
-				return;
-			}
+		// if a serious error has happened (can't sync), kill the thread.
+		if(sync() == false)
+		{
+			return;
+		}
 
-			// got both sync bytes - get message
-			uint8_t descriptor = 0, length = 0;
-			if (read_ser(fd_ser, &descriptor, 1) < 1)
-			{
-				continue;
-			}
+		// got both sync bytes - get message
+		uint8_t descriptor = 0, length = 0;
+		if (read_ser(fd_ser, &descriptor, 1) < 1)
+		{
+			continue;
+		}
 
-			if (read_ser(fd_ser, &length, 1) < 1)
-			{
-				continue;
-			}
+		if (read_ser(fd_ser, &length, 1) < 1)
+		{
+			continue;
+		}
 
-			buffer.resize(length);
-			if (read_ser(fd_ser, &buffer[0], length) < length)
-			{
-				imu->warning("Received valid message header from IMU but did not receive payload.");
-				continue;
-			}
+		buffer.resize(length);
+		if (read_ser(fd_ser, &buffer[0], length) < length)
+		{
+			imu->warning("Received valid message header from IMU but did not receive payload.");
+			continue;
+		}
 
-			if (read_ser(fd_ser, &checksum[0], CHECKSUM_LENGTH_BYTES) < CHECKSUM_LENGTH_BYTES)
-			{
-				continue;
-			}
+		if (read_ser(fd_ser, &checksum[0], CHECKSUM_LENGTH_BYTES) < CHECKSUM_LENGTH_BYTES)
+		{
+			continue;
+		}
 
-			// successfully received entire message - compare checksum
-			header[2] = descriptor;
-			header[3] = length;
-			buffer.insert(buffer.begin(), header.begin(), header.end());
-			if (checksum != IMU::compute_checksum(buffer))
-			{
-				imu->warning() << "IMU checksum failure.  message checksum: " << std::hex << checksum[0] << checksum[1] << "computed checksum: " << IMU::compute_checksum(buffer) ;
-				continue;
-			}
+		// successfully received entire message - compare checksum
+		header[2] = descriptor;
+		header[3] = length;
+		buffer.insert(buffer.begin(), header.begin(), header.end());
+		if (checksum != IMU::compute_checksum(buffer))
+		{
+			imu->warning() << "IMU checksum failure.  message checksum: " << std::hex << checksum[0] << checksum[1] << "computed checksum: " << IMU::compute_checksum(buffer) ;
+			continue;
+		}
 
-			// got message, checksum passed, queue it up
-			switch (descriptor)
-			{
-			case COMMAND_BASE:
-			case COMMAND_3DM:
-			case COMMAND_NAV_FILT:
-			case COMMAND_SYS:
-			{
-				imu->trace() << "Received command message";
+		// got message, checksum passed, queue it up
+		switch (descriptor)
+		{
+		case COMMAND_BASE:
+		case COMMAND_3DM:
+		case COMMAND_NAV_FILT:
+		case COMMAND_SYS:
+		{
+			imu->trace() << "Received command message";
 
-				imu->command_queue.push(buffer);
-				break;
-			}
-			case DATA_AHRS:
-			{
-				imu->trace() << "Received ahrs message";
-				imu->ahrs_queue.push(buffer);
-				break;
-			}
-			case DATA_GPS:
-			{
-				imu->trace() << "Received GPS message";
-				imu->gps_queue.push(buffer);
-				break;
-			}
-			case DATA_NAV:
-			{
-				imu->trace() << "Got Nav Message";
-				imu->nav_queue.push(buffer);
-				break;
-			}
-			default:
-				imu->warning("Unknown command received from GX3. Cannot add it to a queue");
-				break;
-			}
+			imu->command_queue.push(buffer);
+			break;
+		}
+		case DATA_AHRS:
+		{
+			imu->trace() << "Received ahrs message";
+			imu->ahrs_queue.push(buffer);
+			break;
+		}
+		case DATA_GPS:
+		{
+			imu->trace() << "Received GPS message";
+			imu->gps_queue.push(buffer);
+			break;
+		}
+		case DATA_NAV:
+		{
+			imu->trace() << "Got Nav Message";
+			imu->nav_queue.push(buffer);
+			break;
+		}
+		default:
+			imu->warning("Unknown command received from GX3. Cannot add it to a queue");
+			break;
+		}
 	}
 }

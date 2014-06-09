@@ -111,7 +111,6 @@ void IMU::send_serial::start_send_thread(Callable f)
 template <typename floating_type>
 std::vector<uint8_t> IMU::send_serial::float_to_raw(const floating_type f)
 {
-//	debug() << "size of float: " << sizeof(floating_type);
 	std::vector<uint8_t> result;
 	const uint8_t* byte = reinterpret_cast<const uint8_t*>(&f);
 	for (int i = sizeof(floating_type) - 1; i >= 0; i--)
@@ -122,12 +121,10 @@ std::vector<uint8_t> IMU::send_serial::float_to_raw(const floating_type f)
 template <typename IntegerType>
 std::vector<uint8_t> IMU::send_serial::int_to_raw(const IntegerType i)
 {
-//	debug() << "sizeof int" << sizeof(IntegerType) << ", i: " << i;
 	std::vector<uint8_t> result;
 	const uint8_t* byte = reinterpret_cast<const uint8_t*>(&i);
 	for (int j= sizeof(IntegerType) - 1; j>= 0; j--)
 	{
-//		debug() << std::hex << byte[j];
 		result.push_back(byte[j]);
 	}
 	return result;
@@ -137,7 +134,6 @@ template<typename floating_type>
 void IMU::send_serial::pack_float(const floating_type f, std::vector<uint8_t>& message)
 {
 	std::vector<uint8_t> raw(float_to_raw(f));
-//	debug() << "size of vector to insert: " << raw.size();
 	message.insert(message.end(), raw.begin(), raw.end());
 }
 

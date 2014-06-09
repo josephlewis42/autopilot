@@ -117,7 +117,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		global STARTED_PROCESSES
 		global AUTHENTICATIONS
-		
+		'''
+		# auth is turned off because QGroundControl isn't smart enough to handle it
 		if self.headers.getheader('Authorization') == None:
 			self.do_AUTHHEAD()
 			self.wfile.write('no auth header received')
@@ -130,7 +131,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 			self.do_AUTHHEAD()
 			self.wfile.write('Not Authorized')
 			return
-		
+		'''
 		self._writeheaders()
 		
 		err = ""
