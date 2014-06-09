@@ -91,9 +91,9 @@ void MdlAltimiter::mainLoop() {
 		// Average a number of results because the error on this device is huge.
 		if(averagedThusFar < numberToAverage)
 		{	
-			uint16_t first_masked = first & 0b00111111;
-			uint16_t second_masked = second & 0b00111111;
-			uint16_t decoded_dist = (first_masked << 6) | second_masked;
+			uint16_t first_masked = first & 0b00111111; // last six bits of first byte
+			uint16_t second_masked = second & 0b00111111; // last six bits of second byte
+			uint16_t decoded_dist = (first_masked << 6) | second_masked; // combine them to decode distance
 			sum += decoded_dist;
 			averagedThusFar++;
 		}
