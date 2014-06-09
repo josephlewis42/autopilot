@@ -168,8 +168,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 			except:
 				pass # nothing to delete
 			
-			print " ".join(['tar', '-czf', tarpath, OTTO_PATH + "/" + f])
-			subprocess.check_output(['tar', '-czf', tarpath, OTTO_PATH + "/" + f])
+			print " ".join(['tar', '-czf', tarpath, f])
+			subprocess.check_output(['tar', '-czf', tarpath, f])
 			
 			with open(tarpath, 'rb') as z:
 				self.wfile.write(z.read())
