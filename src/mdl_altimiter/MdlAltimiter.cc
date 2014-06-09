@@ -32,9 +32,9 @@
 
 
 const std::string ALTIMITER_ENABLED = "mdl_altimiter.enabled";
-const bool ALTIMITER_ENABLED_DEFAULT = false;
+const bool ALTIMITER_ENABLED_DEFAULT = true;
 const std::string ALTIMITER_PATH = "mdl_altimiter.device";
-const std::string ALTIMITER_PATH_DEFAULT = "/dev/ttyS1";
+const std::string ALTIMITER_PATH_DEFAULT = "/dev/ttyUSB0";
 
 
 MdlAltimiter::MdlAltimiter()
@@ -57,7 +57,8 @@ MdlAltimiter::MdlAltimiter()
 	}
 	else
 	{
-		boost::thread(mainLoop);
+		debug() << "Altimiter set up!";
+		boost::thread* altimiter_thread = new boost::thread(&MdlAltimiter::mainLoop, this);
 	}
 }
 
@@ -67,44 +68,38 @@ MdlAltimiter::~MdlAltimiter() {
 
 void MdlAltimiter::mainLoop() {
 
-	char first = '\0', second = '\0';
-	int multiplierCM = 10;
-	int numberToAverage = 100;
-	int averagedThusFar = 0;
-	int errorsThusFar = 0;
-	int sum = 0;
+	uint8_t first = '\0', second = '\0';
+	uint16_t multiplierCM = 10;
+	uint16_t numberToAverage = 100;
+	uint16_t averagedThusFar = 0;
+	uint16_t errorsThusFar = 0;
+	uint16_t sum = 0;
+
+	debug() << "Started main Altimiter loop ";
 
 	while(! terminateRequested())
 	{
-
-		while(first >> 4 != 0x8)
+		while(((first >> 6) & 0b11) != 0x2)
 		{
 			readDevice(_serialFd, &first, 1);
 		}
-
-		if(readDevice(_serialFd, &second, 1) < 1)
+		if((readDevice(_serialFd, &second, 1) >> 6) != 0x0)
 		{
 			continue;
 		}
 
 		// Average a number of results because the error on this device is huge.
 		if(averagedThusFar < numberToAverage)
-		{
-			if(first == 0xbf)
-			{
-				errorsThusFar++;
-			}
-			else
-			{
-				sum += second;
-			}
-
+		{	
+			uint16_t first_masked = first & 0b00111111;
+			uint16_t second_masked = second & 0b00111111;
+			uint16_t decoded_dist = (first_masked << 6) | second_masked;
+			sum += decoded_dist;
 			averagedThusFar++;
 		}
 		else
 		{
-			float distance = (averagedThusFar - errorsThusFar == 0)? 0.0 :
-									((float(sum) / (averagedThusFar - errorsThusFar)) * multiplierCM);
+			float distance = (float(sum) / float(averagedThusFar)) * multiplierCM;
 
 			debug() << "Distance: " << distance / 100 << "m " << distance << " cm (" << distance * 0.393701 << " in)";
 
@@ -112,5 +107,7 @@ void MdlAltimiter::mainLoop() {
 			errorsThusFar = 0;
 			averagedThusFar = 0;
 		}
+		first = '\0';
+		second = '\0';
 	}
 }
