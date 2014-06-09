@@ -48,7 +48,7 @@ MdlAltimiter::MdlAltimiter()
 
 	std::string serial_path = Configuration::getInstance()->gets(ALTIMITER_PATH, ALTIMITER_PATH_DEFAULT);
 
-	_serialFd = open(serial_path.c_str(), O_RDWR | O_NOCTTY);
+	_serialFd = open(serial_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
 	// Set up the terminal.
 	if(!namedTerminalSettings("Altimiter1", _serialFd, 38400, "8N1", false, true))
