@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
 	// Setup TCP
 	////////////////////////////////////////////////////////////////////
 	
-    int sockfd, numbytes;  
+    int sockfd;  
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];

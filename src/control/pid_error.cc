@@ -27,29 +27,37 @@
 pid_error::pid_error(double integral_error_limit)
 :_integral_error_limit(integral_error_limit)
 {
-	error.fill(0);
+	reset();
 }
 
-double& pid_error::operator++()
+double pid_error::operator++()
 {
-	integral() += proportional()*0.01; // multiply by the timestep
-	if(fabs(integral()) > _integral_error_limit)
-		integral() = 0;
-	return integral();
+	_integral = _integral + _proportional * 0.01; // multiply by the timestep
+
+	if(fabs(getIntegral()) > _integral_error_limit)
+	{
+		_integral = 0;
+	}
+
+	return _integral;
+}
+
+/// zero all the errors
+void pid_error::reset()
+{
+	_integral = 0;
+	_derivative = 0;
+	_proportional = 0;
 }
 
 
 /* Global functions */
 std::ostream& operator<<(std::ostream& os, const pid_error& error)
 {
-	for (std::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
-		os << *it << ", ";
-	return os << error.error.back();
+	return os << error._integral << ", " << error._derivative << ", " << error._proportional;
 }
 
 Debug& operator<<(Debug& dbg, const pid_error& error)
 {
-	for (std::array<double, 3>::const_iterator it=error.error.begin(); it != error.error.end()-1; ++it)
-		dbg << *it << ", ";
-	return dbg << error.error.back();
+	return dbg << error._integral << ", " << error._derivative << ", " << error._proportional;
 }

@@ -121,15 +121,15 @@ void attitude_pid::operator()(const blas::vector<double>& reference) throw(bad_c
 
 	std::vector<double> error_states;
 	roll_lock.lock();
-	error_states.push_back(roll.error().proportional() = euler_error[0]);
-	error_states.push_back(roll.error().derivative() = euler_rate[0]);
+	error_states.push_back(roll.error().setProportional(euler_error[0]));
+	error_states.push_back(roll.error().setDerivative(euler_rate[0]));
 	error_states.push_back(++roll.error());
 	control_effort[0] = roll.compute_pid();
 	roll_lock.unlock();
 
 	pitch_lock.lock();
-	error_states.push_back(pitch.error().proportional() = euler_error[1]);
-	error_states.push_back(pitch.error().derivative() = euler_rate[1]);
+	error_states.push_back(pitch.error().setProportional(euler_error[1]));
+	error_states.push_back(pitch.error().setDerivative(euler_rate[1]));
 	error_states.push_back(++pitch.error());
 
 	LogFile::getInstance()->logData(heli::LOG_ATTITUDE_ERROR, error_states);

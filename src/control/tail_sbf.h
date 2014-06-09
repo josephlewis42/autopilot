@@ -41,6 +41,7 @@ namespace blas = boost::numeric::ublas;
 #include <vector>
 #include <string>
 #include <mutex>
+#include <atomic>
 
 
 class tail_sbf : public ControllerInterface
@@ -61,7 +62,7 @@ public:
 	inline blas::vector<double> get_control_effort() const {std::lock_guard<std::mutex> lock(control_effort_lock); return control_effort;}
 
 	/// return the scaled travel in degrees
-	inline double scaled_travel_degrees() const {std::lock_guard<std::mutex> lock(scaled_travel_lock); return scaled_travel;}
+	inline double scaled_travel_degrees() const {return scaled_travel;}
 	/// return the scaled travel in radians
 	inline double scaled_travel_radians() const {return scaled_travel_degrees()*boost::math::constants::pi<double>()/180;}
 	/// set the scaled travel in degrees
@@ -155,9 +156,7 @@ private:
 	 * translational control into an angle reference.  This value is stored in degrees.
 	 * @note Roll and pitch use the same value.
 	 */
-	double scaled_travel;
-	/// serializes access to scaled_travel
-	mutable std::mutex scaled_travel_lock;
+	std::atomic<double> scaled_travel;
 	/**
 	 * Set the scaled travel used to represent the pilot stick position
 	 * @param travel new travel value in degrees

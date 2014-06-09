@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
- * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
+ * Copyright 2013-14 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -127,4 +127,50 @@ void circle::parse_xml_node()
 	set_radius(config->getd(XML_RADIUS_PARAM, get_radius()));
 	set_hover_time(config->getd(XML_HOVER_PARAM, get_hover_time()));
 	set_speed(config->getd(XML_SPEED_PARAM, get_speed()));
+}
+
+
+void circle::set_initial_angle(const double angle)
+{
+	initial_angle = angle;
+	message() << "Circle: Initial angle set to: " << initial_angle;
+}
+
+double circle::get_initial_angle() const
+{
+	return initial_angle;
+}
+
+
+
+
+void circle::set_speed(const double newSpeed)
+{
+	speed = newSpeed;
+	message() << "Circle: speed set to " << newSpeed;
+}
+
+double circle::get_speed() const
+{
+	return speed;
+}
+
+void circle::set_radius(const double newRadius) {
+	radius = newRadius;
+}
+
+double circle::get_radius() const
+{
+	return radius;
+}
+
+void circle::set_hover_time(const double newHoverTime)
+{
+	hover_time = newHoverTime;
+	message() << "Circle: Hover time set to " << newHoverTime;
+}
+
+double circle::get_hover_time() const
+{
+	return hover_time;
 }

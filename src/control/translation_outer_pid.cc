@@ -82,15 +82,15 @@ void translation_outer_pid::operator()(const blas::vector<double>& reference) th
 	std::vector<double> error_states;
 	{
 		std::lock_guard<std::mutex> lock(x_lock);
-		error_states.push_back(x.error().proportional() = body_position_error[0]);
-		error_states.push_back(x.error().derivative() = body_velocity_error[0]);
+		error_states.push_back(x.error().setProportional(body_position_error[0]));
+		error_states.push_back(x.error().setDerivative(body_velocity_error[0]));
 		error_states.push_back(++(x.error()));
 		attitude_reference[1] = -x.compute_pid();
 	}
 	{
 		std::lock_guard<std::mutex> lock(y_lock);
-		error_states.push_back(y.error().proportional() = body_position_error[1]);
-		error_states.push_back(y.error().derivative() = body_velocity_error[1]);
+		error_states.push_back(y.error().setProportional(body_position_error[1]));
+		error_states.push_back(y.error().setDerivative(body_velocity_error[1]));
 		error_states.push_back(++(y.error()));
 		attitude_reference[0] = y.compute_pid();
 	}

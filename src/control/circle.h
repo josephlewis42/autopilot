@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
- * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
+ * Copyright 2013-14 Joseph Lewis <joehms22@gmail.com>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -32,6 +32,7 @@ namespace blas = boost::numeric::ublas;
 #include <string>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 /* Project Headers */
 #include "Debug.h"
@@ -54,19 +55,19 @@ public:
 	void reset();
 
 	/// set the speed
-	void set_speed(const double speed) {{std::lock_guard<std::mutex> lock(speed_lock); this->speed = speed;} message() << "Circle: speed set to " << speed;}
+	void set_speed(const double speed);
 	/// get the speed
-	double get_speed() const {std::lock_guard<std::mutex> lock(speed_lock); return speed;}
+	double get_speed() const;
 
 	/// set the radius
-	void set_radius(const double radius) {std::lock_guard<std::mutex> lock(radius_lock); this->radius = radius;}
+	void set_radius(const double radius);
 	/// get the radius
-	double get_radius() const {std::lock_guard<std::mutex>  lock(radius_lock); return radius;}
+	double get_radius() const;
 
 	/// set the initial hover time before trajectory begins
-	void set_hover_time(const double hover_time) {{std::lock_guard<std::mutex>  lock(hover_time_lock); this->hover_time = hover_time;} message() << "Circle: Hover time set to " << hover_time;}
+	void set_hover_time(const double hover_time);
 	/// get the hover time
-	double get_hover_time() const {std::lock_guard<std::mutex> lock(hover_time_lock); return hover_time;}
+	double get_hover_time() const;
 
 	/// return the parameter list to send to qgc
 	std::vector<Parameter> getParameters() const;
@@ -81,9 +82,7 @@ public:
 	static const std::string PARAM_SPEED;
 protected:
 	/// radius of circular trajectory
-	double radius;
-	///serialize access to radius
-	mutable std::mutex radius_lock;
+	std::atomic<double> radius;
 
 	/// position to begin trajectory in NED frame
 	blas::vector<double> start_location;
@@ -104,14 +103,10 @@ protected:
 	blas::vector<double> get_center_location() const {std::lock_guard<std::mutex> lock(center_location_lock); return center_location;}
 
 	/// average speed to fly trajectory in m/s
-	double speed;
-	/// serialize access to speed
-	mutable std::mutex speed_lock;
+	std::atomic<double> speed;
 
 	/// time to hover before manouever in seconds
-	double hover_time;
-	/// serialize access to hover_time
-	mutable std::mutex hover_time_lock;
+	std::atomic<double> hover_time;
 
 	/// time the trajectory started
 	boost::posix_time::ptime start_time;
@@ -123,13 +118,12 @@ protected:
 	boost::posix_time::ptime get_start_time() const {std::lock_guard<std::mutex>  lock(start_time_lock); return start_time;}
 
 	/// initial angle (where the helicopter started in polar)
-	double initial_angle;
-	/// serialize access to initial_angle
-	mutable std::mutex initial_angle_lock;
+	std::atomic<double> initial_angle;
+
 	/// set the initial angle
-	void set_initial_angle(const double initial_angle) {std::lock_guard<std::mutex>  lock(initial_angle_lock); this->initial_angle = initial_angle; message() << "Circle: Initial angle set to: " << initial_angle;}
+	void set_initial_angle(const double angle);
 	/// get the initial angle
-	double get_initial_angle() const {std::lock_guard<std::mutex>  lock(initial_angle_lock); return initial_angle;}
+	double get_initial_angle() const;
 
 	/// return circumference of the circular trajectory
 	double get_circumference() const;
