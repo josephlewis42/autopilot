@@ -54,13 +54,37 @@
 #include "Debug.h"
 #include "LogFile.h"
 
+#include <gtest/gtest.h>
+
+// TESTS
+TEST(MainTest, Positive) {
+  EXPECT_EQ(1, 1);
+  EXPECT_EQ(1, 0);
+}
+
+
 int main(int argc, char* argv[])
 {
+
 	printf("Usage: autopilot [-override_param=value ...]\n");
+	printf("Usage: autopilot test\t(for running unittests)\n");
 	printf("PID is: %d\n", getpid());
 	printf("Autopilot Version: %s %s\n", __DATE__, __TIME__);
+	
+	// do unittesting if needed.
+	if(argc == 2 && strcmp(argv[1], "test") == 0)
+	{
+		::testing::InitGoogleTest(&argc, argv);
+		if(RUN_ALL_TESTS() != 0)
+		{
+			return 1;
+		}
+		
+		return 0;
+	}
 
 	LogFile::getInstance();
+	
 
 	// Set configuration params from CLI if applicable
 	Configuration::getInstance()->overrideWith(argc, argv);

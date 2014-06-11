@@ -69,6 +69,9 @@ public:
 	Debug trace();
 
 	// Reads a fd in to the given buffer with a minimum of n bytes
+	/**
+	 * 
+	 **/
 	int readDevice(int fd, void * buf, int n);
 
 	/**

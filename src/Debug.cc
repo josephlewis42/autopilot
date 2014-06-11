@@ -84,6 +84,23 @@ Debug::~Debug()
 	std::string message = ss.str();
 
 #ifndef NDEBUG
+	std::string linecolor = "";
+	switch(debug_level)
+	{
+		case WARNING:
+			linecolor = "\x1b[33;1m";
+			break;
+		case CRITICAL:
+			linecolor = "\x1b[31;1m";
+			break;
+		case DEBUG:
+			linecolor = "\x1b[37m";
+			break;
+		default:
+			linecolor = "";
+	}
+	
+	
 	{
 
 		std::lock_guard<std::mutex> lock(cerr_lock);
@@ -96,7 +113,7 @@ Debug::~Debug()
 		{
 			last_message = message;
 			message_count = 1;
-			std::cerr << std::endl << message;
+			std::cerr << std::endl << linecolor << message << "\x1b[0m";
 		}
 	}
 #endif
