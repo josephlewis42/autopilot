@@ -52,9 +52,10 @@ QGCLink::QGCLink()
   control_output_rate(10),
   position_rate(10),
   attitude_rate(10),
-  requested_rc_calibration(false),
-  uasId(100)
+  requested_rc_calibration(false)
 {
+	uasId = configGeti("UASidentifier", 100);
+
 	init();
 	param_recv = false;
 }
