@@ -149,7 +149,7 @@
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<enabled>true</enabled>
-		<device>/dev/ttyUSB0</device>
+		<device>/dev/ttyUSB3</device>
 		<terminal>
 			<Altimiter1>
 				<baudrate>38400</baudrate>

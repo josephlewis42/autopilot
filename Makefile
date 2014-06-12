@@ -29,7 +29,7 @@ SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc'
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot
 
-all: gtest $(SOURCES) $(EXECUTABLE) ser2net configuration
+all: gtest $(SOURCES) $(EXECUTABLE) ser2net configuration run
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 
@@ -48,6 +48,9 @@ clean: gtest-clean
 
 configuration:
 	cp config.xml $(BUILD_DIR)/config.xml
+
+run:
+	$(BUILD_DIR)/autopilot
 
 install:
 	cp $(BUILD_DIR)/ser2net /usr/local/bin
