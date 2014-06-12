@@ -20,7 +20,7 @@
 #include "gps_time.h"
 
 gps_time::gps_time()
-: week(0), seconds(0)
+: week(0), seconds(0), status(UNKNOWN)
 {
 }
 

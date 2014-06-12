@@ -38,7 +38,6 @@
 
 /* File Handling Headers */
 #include "servo_switch.h"
-#include "Configuration.h"
 #include "RateLimiter.h"
 #include "qnx2linux.h"
 
@@ -114,7 +113,7 @@ servo_switch::~servo_switch()
 
 bool servo_switch::init_port()
 {
-	std::string port = Configuration::getInstance()->gets(SERVO_SERIAL_PORT_CONFIG_NAME, SERVO_SERIAL_PORT_CONFIG_DEFAULT);
+	std::string port = configGets("serial_port", SERVO_SERIAL_PORT_CONFIG_DEFAULT);
 
 	debug() << "Servo switch: port is " << port;
 
@@ -130,33 +129,7 @@ bool servo_switch::init_port()
 
 	debug() << "Servo switch: opened";
 
-	// Set up the terminal configuration for the given port.
-	struct termios port_config;
-
-	tcgetattr(fd_ser1, &port_config);                  // get the current port settings
-
-	// Set the baud rate
-	cfsetospeed(&port_config, B115200);
-	cfsetispeed(&port_config, B115200);
-
-	port_config.c_cflag |= (CLOCAL | CREAD);          // Enable the receiver and set local mode...
-	port_config.c_cflag &= ~(CSIZE);                  // Set terminal data length.
-	port_config.c_cflag |=  CS8;                      // 8 data bits
-
-	// Set the number of stop bits to 1
-	port_config.c_cflag &= ~(CSTOPB);                 // clear for one stop bit
-
-
-	port_config.c_cflag &= ~(PARENB| PARODD);        // Set terminal parity.
-	// Clear terminal output flow control.
-	port_config.c_iflag &= ~(IXON | IXOFF);           // set -isflow  & -osflow
-
-	if (tcsetattr(fd_ser1, TCSADRAIN, &port_config) != 0)
-	{
-		critical() << "could not set serial port attributes";
-	}
-	tcgetattr(fd_ser1, &port_config);
-	tcflush(fd_ser1, TCIOFLUSH);
+	namedTerminalSettings("switch1", fd_ser1, 115200, "8N1",false,true);
 
 	return true;
 }
