@@ -329,6 +329,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			{
 				IMU::getInstance()->set_nav_euler(euler);
 			}
+			break;
 		}
 		case 0x0E:
 		{
