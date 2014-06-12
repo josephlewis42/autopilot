@@ -21,24 +21,21 @@
 #define IMU_H_
 
 /* Boost Headers */
-#include <boost/thread.hpp>
 #include <boost/signals2.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-namespace blas = boost::numeric::ublas;
-#include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 /* STL Headers */
 #include <vector>
-#include <queue>
-#include <map>
 #include <mutex>
 
 /* Project Headers */
-#include "IMU_Filter.h"
 #include "Driver.h"
 #include "ThreadQueue.h"
+
+namespace blas = boost::numeric::ublas;
+
 
 /**
  * @brief This class contains all the code for interacting with the 3DM-GX3 IMU.

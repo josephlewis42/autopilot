@@ -28,7 +28,6 @@
 
 /* Boost Headers */
 #include <boost/thread.hpp>
-#include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 namespace blas = boost::numeric::ublas;
 
@@ -36,6 +35,8 @@ namespace blas = boost::numeric::ublas;
 #include "Parameter.h"
 #include "pid_channel.h"
 #include "ControllerInterface.h"
+#include "util/AutopilotMath.hpp"
+
 
 /**
  * @brief track pilot reference attitude
@@ -136,7 +137,7 @@ public:
 	/** get the roll trim point.  threadsafe
 	 * @returns roll trim in degress
 	 */
-	inline double get_roll_trim_degrees() {return roll_trim.load() * 180 / boost::math::constants::pi<double>();}
+	inline double get_roll_trim_degrees() {return AutopilotMath::radiansToDegrees(roll_trim.load());}
 	/** set the pitch trim point.  threadsafe
 	 * @param trim pitch trim in radians
 	 */
@@ -152,7 +153,7 @@ public:
 	/** get the pitch trim point.  threadsafe
 	 * @returns pitch trim in degress
 	 */
-	inline double get_pitch_trim_degrees() {return pitch_trim * 180 / boost::math::constants::pi<double>();}
+	inline double get_pitch_trim_degrees() {return AutopilotMath::radiansToDegrees(pitch_trim);}
 	/// threadsafe get runnable
 	inline bool runnable() const {return _runnable;}
 

@@ -21,6 +21,7 @@
 #define MESSAGE_PARSER_H_
 
 #include "IMU.h"
+#include "IMU_Filter.h"
 
 /* STL HEADERS */
 #include <bitset>

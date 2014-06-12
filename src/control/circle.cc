@@ -20,15 +20,13 @@
 
 #include "circle.h"
 
-/* Boost Headers */
-#include <boost/math/constants/constants.hpp>
-
 /* STL Headers */
 #include <math.h>
 
 /* Project Headers */
 #include "IMU.h"
 #include "Configuration.h"
+#include "util/AutopilotMath.hpp"
 
 
 // Constants
@@ -88,16 +86,15 @@ blas::vector<double> circle::get_reference_position() const
 	{
 		elapsed_time -= hover_time;
 		blas::vector<double> reference_position(get_center_location());
-		static double pi = boost::math::constants::pi<double>();
-		reference_position(0) += get_radius()*cos(2*pi*elapsed_time/period + get_initial_angle());
-		reference_position(1) += get_radius()*sin(2*pi*elapsed_time/period + get_initial_angle());
+		reference_position(0) += get_radius()*cos(2*AutopilotMath::PI*elapsed_time/period + get_initial_angle());
+		reference_position(1) += get_radius()*sin(2*AutopilotMath::PI*elapsed_time/period + get_initial_angle());
 		return reference_position;
 	}
 }
 
 double circle::get_circumference() const
 {
-	return 2*boost::math::constants::pi<double>()*get_radius();
+	return 2*AutopilotMath::PI*get_radius();
 }
 
 void circle::set_center_location()

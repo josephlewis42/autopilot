@@ -9,10 +9,25 @@
 	</servo>
 	<gx3>
 		<debug>true</debug>
-		<enabled>false</enabled>
+		<enabled>true</enabled>
 		<serial_port>/dev/ttyACM0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<terminal>
+			<IMU1>
+				<baudrate>115200</baudrate>
+				<parity>8N1</parity>
+				<hardware_flow_control>false</hardware_flow_control>
+				<raw_mode>true</raw_mode>
+			</IMU1>
+		</terminal>
+		<vehicle_offset_x_meters>0.052</vehicle_offset_x_meters>
+		<vehicle_offset_y_meters>0</vehicle_offset_y_meters>
+		<vehicle_offset_z_meters>-0.3</vehicle_offset_z_meters>
+		<antenna_offset_x_meters>-0.24</antenna_offset_x_meters>
+		<antenna_offset_y_meters>-0.05</antenna_offset_y_meters>
+		<antenna_offset_z_meters>-0.473</antenna_offset_z_meters>
+		<use_external_gps>true</use_external_gps>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>

@@ -26,6 +26,7 @@
 #include "Control.h"
 #include "Configuration.h"
 #include "LogFile.h"
+#include "util/AutopilotMath.hpp"
 
 
 const std::string XML_ROLL_PROPORTIONAL = "controller_params.attitude_pid.roll.gain.proportional";
@@ -259,13 +260,13 @@ void attitude_pid::set_pitch_integral(double ki)
 }
 void attitude_pid::set_roll_trim_degrees(double trim_degrees)
 {
-	roll_trim = trim_degrees * boost::math::constants::pi<double>()/180;
+	roll_trim = AutopilotMath::degreesToRadians(trim_degrees);
 	message() << "Set roll trim to " << trim_degrees << " deg.";
 }
 
 void attitude_pid::set_pitch_trim_degrees(double trim_degrees)
 {
-	pitch_trim = trim_degrees * boost::math::constants::pi<double>()/180;
+	pitch_trim = AutopilotMath::degreesToRadians(trim_degrees);
 	message() << "Set pitch trim to " << trim_degrees << " deg.";
 }
 
