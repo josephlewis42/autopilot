@@ -16,6 +16,9 @@ typedef struct __mavlink_novatel_gps_raw_t
 #define MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN 32
 #define MAVLINK_MSG_ID_223_LEN 32
 
+#define MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC 80
+#define MAVLINK_MSG_ID_223_CRC 80
+
 #define MAVLINK_MSG_NOVATEL_GPS_RAW_FIELD_POS_ERROR_LEN 3
 #define MAVLINK_MSG_NOVATEL_GPS_RAW_FIELD_VEL_ERROR_LEN 3
 
@@ -52,7 +55,7 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack(uint8_t system_id, uint8
 						       uint8_t pos_type, uint8_t pos_status, uint8_t num_sats, const float *pos_error, uint8_t vel_type, const float *vel_error, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[32];
+	char buf[MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN];
 	_mav_put_uint32_t(buf, 24, time_boot_ms);
 	_mav_put_uint8_t(buf, 28, pos_type);
 	_mav_put_uint8_t(buf, 29, pos_status);
@@ -60,7 +63,7 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack(uint8_t system_id, uint8
 	_mav_put_uint8_t(buf, 31, vel_type);
 	_mav_put_float_array(buf, 0, pos_error, 3);
 	_mav_put_float_array(buf, 12, vel_error, 3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 32);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
 #else
 	mavlink_novatel_gps_raw_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -70,18 +73,22 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack(uint8_t system_id, uint8
 	packet.vel_type = vel_type;
 	mav_array_memcpy(packet.pos_error, pos_error, sizeof(float)*3);
 	mav_array_memcpy(packet.vel_error, vel_error, sizeof(float)*3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 32);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_NOVATEL_GPS_RAW;
-	return mavlink_finalize_message(msg, system_id, component_id, 32, 80);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
 }
 
 /**
  * @brief Pack a novatel_gps_raw message on a channel
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
- * @param chan The MAVLink channel this message was sent over
+ * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
  * @param pos_type Position solution type
  * @param pos_status Position solution status
@@ -97,7 +104,7 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack_chan(uint8_t system_id, 
 						           uint8_t pos_type,uint8_t pos_status,uint8_t num_sats,const float *pos_error,uint8_t vel_type,const float *vel_error,uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[32];
+	char buf[MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN];
 	_mav_put_uint32_t(buf, 24, time_boot_ms);
 	_mav_put_uint8_t(buf, 28, pos_type);
 	_mav_put_uint8_t(buf, 29, pos_status);
@@ -105,7 +112,7 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack_chan(uint8_t system_id, 
 	_mav_put_uint8_t(buf, 31, vel_type);
 	_mav_put_float_array(buf, 0, pos_error, 3);
 	_mav_put_float_array(buf, 12, vel_error, 3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 32);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
 #else
 	mavlink_novatel_gps_raw_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -115,15 +122,19 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack_chan(uint8_t system_id, 
 	packet.vel_type = vel_type;
 	mav_array_memcpy(packet.pos_error, pos_error, sizeof(float)*3);
 	mav_array_memcpy(packet.vel_error, vel_error, sizeof(float)*3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 32);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_NOVATEL_GPS_RAW;
-	return mavlink_finalize_message_chan(msg, system_id, component_id, chan, 32, 80);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
 }
 
 /**
- * @brief Encode a novatel_gps_raw struct into a message
+ * @brief Encode a novatel_gps_raw struct
  *
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
@@ -133,6 +144,20 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_pack_chan(uint8_t system_id, 
 static inline uint16_t mavlink_msg_novatel_gps_raw_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_novatel_gps_raw_t* novatel_gps_raw)
 {
 	return mavlink_msg_novatel_gps_raw_pack(system_id, component_id, msg, novatel_gps_raw->pos_type, novatel_gps_raw->pos_status, novatel_gps_raw->num_sats, novatel_gps_raw->pos_error, novatel_gps_raw->vel_type, novatel_gps_raw->vel_error, novatel_gps_raw->time_boot_ms);
+}
+
+/**
+ * @brief Encode a novatel_gps_raw struct on a channel
+ *
+ * @param system_id ID of this system
+ * @param component_id ID of this component (e.g. 200 for IMU)
+ * @param chan The MAVLink channel this message will be sent over
+ * @param msg The MAVLink message to compress the data into
+ * @param novatel_gps_raw C-struct to read the message contents from
+ */
+static inline uint16_t mavlink_msg_novatel_gps_raw_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_novatel_gps_raw_t* novatel_gps_raw)
+{
+	return mavlink_msg_novatel_gps_raw_pack_chan(system_id, component_id, chan, msg, novatel_gps_raw->pos_type, novatel_gps_raw->pos_status, novatel_gps_raw->num_sats, novatel_gps_raw->pos_error, novatel_gps_raw->vel_type, novatel_gps_raw->vel_error, novatel_gps_raw->time_boot_ms);
 }
 
 /**
@@ -152,7 +177,7 @@ static inline uint16_t mavlink_msg_novatel_gps_raw_encode(uint8_t system_id, uin
 static inline void mavlink_msg_novatel_gps_raw_send(mavlink_channel_t chan, uint8_t pos_type, uint8_t pos_status, uint8_t num_sats, const float *pos_error, uint8_t vel_type, const float *vel_error, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[32];
+	char buf[MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN];
 	_mav_put_uint32_t(buf, 24, time_boot_ms);
 	_mav_put_uint8_t(buf, 28, pos_type);
 	_mav_put_uint8_t(buf, 29, pos_status);
@@ -160,7 +185,11 @@ static inline void mavlink_msg_novatel_gps_raw_send(mavlink_channel_t chan, uint
 	_mav_put_uint8_t(buf, 31, vel_type);
 	_mav_put_float_array(buf, 0, pos_error, 3);
 	_mav_put_float_array(buf, 12, vel_error, 3);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, buf, 32, 80);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
 #else
 	mavlink_novatel_gps_raw_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -170,9 +199,55 @@ static inline void mavlink_msg_novatel_gps_raw_send(mavlink_channel_t chan, uint
 	packet.vel_type = vel_type;
 	mav_array_memcpy(packet.pos_error, pos_error, sizeof(float)*3);
 	mav_array_memcpy(packet.vel_error, vel_error, sizeof(float)*3);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, (const char *)&packet, 32, 80);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, (const char *)&packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, (const char *)&packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
 #endif
 }
+
+#if MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN <= MAVLINK_MAX_PAYLOAD_LEN
+/*
+  This varient of _send() can be used to save stack space by re-using
+  memory from the receive buffer.  The caller provides a
+  mavlink_message_t which is the size of a full mavlink message. This
+  is usually the receive buffer for the channel, and allows a reply to an
+  incoming message with minimum stack space usage.
+ */
+static inline void mavlink_msg_novatel_gps_raw_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint8_t pos_type, uint8_t pos_status, uint8_t num_sats, const float *pos_error, uint8_t vel_type, const float *vel_error, uint32_t time_boot_ms)
+{
+#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
+	char *buf = (char *)msgbuf;
+	_mav_put_uint32_t(buf, 24, time_boot_ms);
+	_mav_put_uint8_t(buf, 28, pos_type);
+	_mav_put_uint8_t(buf, 29, pos_status);
+	_mav_put_uint8_t(buf, 30, num_sats);
+	_mav_put_uint8_t(buf, 31, vel_type);
+	_mav_put_float_array(buf, 0, pos_error, 3);
+	_mav_put_float_array(buf, 12, vel_error, 3);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, buf, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
+#else
+	mavlink_novatel_gps_raw_t *packet = (mavlink_novatel_gps_raw_t *)msgbuf;
+	packet->time_boot_ms = time_boot_ms;
+	packet->pos_type = pos_type;
+	packet->pos_status = pos_status;
+	packet->num_sats = num_sats;
+	packet->vel_type = vel_type;
+	mav_array_memcpy(packet->pos_error, pos_error, sizeof(float)*3);
+	mav_array_memcpy(packet->vel_error, vel_error, sizeof(float)*3);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, (const char *)packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_NOVATEL_GPS_RAW, (const char *)packet, MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
+#endif
+#endif
+}
+#endif
 
 #endif
 
@@ -266,6 +341,6 @@ static inline void mavlink_msg_novatel_gps_raw_decode(const mavlink_message_t* m
 	novatel_gps_raw->num_sats = mavlink_msg_novatel_gps_raw_get_num_sats(msg);
 	novatel_gps_raw->vel_type = mavlink_msg_novatel_gps_raw_get_vel_type(msg);
 #else
-	memcpy(novatel_gps_raw, _MAV_PAYLOAD(msg), 32);
+	memcpy(novatel_gps_raw, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_NOVATEL_GPS_RAW_LEN);
 #endif
 }

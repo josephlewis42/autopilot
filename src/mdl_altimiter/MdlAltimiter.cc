@@ -36,6 +36,20 @@ const bool ALTIMITER_ENABLED_DEFAULT = true;
 const std::string ALTIMITER_PATH = "mdl_altimiter.device";
 const std::string ALTIMITER_PATH_DEFAULT = "/dev/ttyUSB0";
 
+MdlAltimiter* MdlAltimiter::_instance = NULL;
+std::mutex MdlAltimiter::_instance_lock;
+
+MdlAltimiter* MdlAltimiter::getInstance()
+{
+	std::lock_guard<std::mutex> lock(_instance_lock);
+
+	if (!_instance)
+	{
+		_instance = new MdlAltimiter();
+	}
+
+	return _instance;
+}
 
 MdlAltimiter::MdlAltimiter()
 :Driver("MDL Altimiter", "mdl_altimiter")
@@ -58,7 +72,9 @@ MdlAltimiter::MdlAltimiter()
 	else
 	{
 		debug() << "Altimiter set up!";
-		boost::thread* altimiter_thread = new boost::thread(&MdlAltimiter::mainLoop, this);
+		distance = 0;
+		new_distance = false;
+		new boost::thread(&MdlAltimiter::mainLoop, this);
 	}
 }
 
@@ -72,7 +88,6 @@ void MdlAltimiter::mainLoop() {
 	uint16_t multiplierCM = 10;
 	uint16_t numberToAverage = 100;
 	uint16_t averagedThusFar = 0;
-	uint16_t errorsThusFar = 0;
 	uint16_t sum = 0;
 
 	debug() << "Started main Altimiter loop ";
@@ -99,15 +114,22 @@ void MdlAltimiter::mainLoop() {
 		}
 		else
 		{
-			float distance = (float(sum) / float(averagedThusFar)) * multiplierCM;
-
+			distance = (float(sum) / float(averagedThusFar)) * multiplierCM;
+			new_distance = true;
+			
 			debug() << "Distance: " << distance / 100 << "m " << distance << " cm (" << distance * 0.393701 << " in)";
 
 			sum = 0;
-			errorsThusFar = 0;
 			averagedThusFar = 0;
 		}
 		first = '\0';
 		second = '\0';
 	}
+}
+
+bool MdlAltimiter::hasNewDistance()
+{
+	bool ret = new_distance;
+	new_distance = false;
+	return ret;
 }

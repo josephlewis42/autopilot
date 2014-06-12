@@ -98,7 +98,15 @@ private:
 	 * @param sendq send queue
 	 */
 	void send_rc_calibration(std::queue<std::vector<uint8_t> > *sendq);
+	/** add console message to send queue
+	 * @param sendq send queue
+	 */
 	void send_console_message(const std::string& message, std::queue<std::vector<uint8_t> > *sendq);
+	/** add altimiter message to send queue
+	 * @param sendq send queue
+	 */
+	void send_altimiter_distance(std::queue<std::vector<uint8_t> > *sendq);
+
 	/** determine whether to send a particular stream
 	 * @param stream_rate requested stream rate
 	 * @param send_rate rate at which the send loop runs

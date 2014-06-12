@@ -17,6 +17,9 @@ typedef struct __mavlink_ualberta_position_t
 #define MAVLINK_MSG_ID_UALBERTA_POSITION_LEN 88
 #define MAVLINK_MSG_ID_224_LEN 88
 
+#define MAVLINK_MSG_ID_UALBERTA_POSITION_CRC 247
+#define MAVLINK_MSG_ID_224_CRC 247
+
 #define MAVLINK_MSG_UALBERTA_POSITION_FIELD_LLH_POS_LEN 3
 #define MAVLINK_MSG_UALBERTA_POSITION_FIELD_NED_POS_LEN 3
 #define MAVLINK_MSG_UALBERTA_POSITION_FIELD_NED_VEL_LEN 3
@@ -60,7 +63,7 @@ static inline uint16_t mavlink_msg_ualberta_position_pack(uint8_t system_id, uin
 						       const float *llh_pos, const float *ned_pos, const float *ned_vel, const float *ned_origin, const float *reference_position, const float *position_error_body, const float *position_error_ned, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[88];
+	char buf[MAVLINK_MSG_ID_UALBERTA_POSITION_LEN];
 	_mav_put_uint32_t(buf, 84, time_boot_ms);
 	_mav_put_float_array(buf, 0, llh_pos, 3);
 	_mav_put_float_array(buf, 12, ned_pos, 3);
@@ -69,7 +72,7 @@ static inline uint16_t mavlink_msg_ualberta_position_pack(uint8_t system_id, uin
 	_mav_put_float_array(buf, 48, reference_position, 3);
 	_mav_put_float_array(buf, 60, position_error_body, 3);
 	_mav_put_float_array(buf, 72, position_error_ned, 3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 88);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
 #else
 	mavlink_ualberta_position_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -80,18 +83,22 @@ static inline uint16_t mavlink_msg_ualberta_position_pack(uint8_t system_id, uin
 	mav_array_memcpy(packet.reference_position, reference_position, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_body, position_error_body, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_ned, position_error_ned, sizeof(float)*3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 88);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_POSITION;
-	return mavlink_finalize_message(msg, system_id, component_id, 88, 247);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
 }
 
 /**
  * @brief Pack a ualberta_position message on a channel
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
- * @param chan The MAVLink channel this message was sent over
+ * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
  * @param llh_pos Postion in lat long height(Estimated)
  * @param ned_pos Position in local tangent frame(Estimated)
@@ -108,7 +115,7 @@ static inline uint16_t mavlink_msg_ualberta_position_pack_chan(uint8_t system_id
 						           const float *llh_pos,const float *ned_pos,const float *ned_vel,const float *ned_origin,const float *reference_position,const float *position_error_body,const float *position_error_ned,uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[88];
+	char buf[MAVLINK_MSG_ID_UALBERTA_POSITION_LEN];
 	_mav_put_uint32_t(buf, 84, time_boot_ms);
 	_mav_put_float_array(buf, 0, llh_pos, 3);
 	_mav_put_float_array(buf, 12, ned_pos, 3);
@@ -117,7 +124,7 @@ static inline uint16_t mavlink_msg_ualberta_position_pack_chan(uint8_t system_id
 	_mav_put_float_array(buf, 48, reference_position, 3);
 	_mav_put_float_array(buf, 60, position_error_body, 3);
 	_mav_put_float_array(buf, 72, position_error_ned, 3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 88);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
 #else
 	mavlink_ualberta_position_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -128,15 +135,19 @@ static inline uint16_t mavlink_msg_ualberta_position_pack_chan(uint8_t system_id
 	mav_array_memcpy(packet.reference_position, reference_position, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_body, position_error_body, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_ned, position_error_ned, sizeof(float)*3);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 88);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_POSITION;
-	return mavlink_finalize_message_chan(msg, system_id, component_id, chan, 88, 247);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
 }
 
 /**
- * @brief Encode a ualberta_position struct into a message
+ * @brief Encode a ualberta_position struct
  *
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
@@ -146,6 +157,20 @@ static inline uint16_t mavlink_msg_ualberta_position_pack_chan(uint8_t system_id
 static inline uint16_t mavlink_msg_ualberta_position_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_ualberta_position_t* ualberta_position)
 {
 	return mavlink_msg_ualberta_position_pack(system_id, component_id, msg, ualberta_position->llh_pos, ualberta_position->ned_pos, ualberta_position->ned_vel, ualberta_position->ned_origin, ualberta_position->reference_position, ualberta_position->position_error_body, ualberta_position->position_error_ned, ualberta_position->time_boot_ms);
+}
+
+/**
+ * @brief Encode a ualberta_position struct on a channel
+ *
+ * @param system_id ID of this system
+ * @param component_id ID of this component (e.g. 200 for IMU)
+ * @param chan The MAVLink channel this message will be sent over
+ * @param msg The MAVLink message to compress the data into
+ * @param ualberta_position C-struct to read the message contents from
+ */
+static inline uint16_t mavlink_msg_ualberta_position_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_ualberta_position_t* ualberta_position)
+{
+	return mavlink_msg_ualberta_position_pack_chan(system_id, component_id, chan, msg, ualberta_position->llh_pos, ualberta_position->ned_pos, ualberta_position->ned_vel, ualberta_position->ned_origin, ualberta_position->reference_position, ualberta_position->position_error_body, ualberta_position->position_error_ned, ualberta_position->time_boot_ms);
 }
 
 /**
@@ -166,7 +191,7 @@ static inline uint16_t mavlink_msg_ualberta_position_encode(uint8_t system_id, u
 static inline void mavlink_msg_ualberta_position_send(mavlink_channel_t chan, const float *llh_pos, const float *ned_pos, const float *ned_vel, const float *ned_origin, const float *reference_position, const float *position_error_body, const float *position_error_ned, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[88];
+	char buf[MAVLINK_MSG_ID_UALBERTA_POSITION_LEN];
 	_mav_put_uint32_t(buf, 84, time_boot_ms);
 	_mav_put_float_array(buf, 0, llh_pos, 3);
 	_mav_put_float_array(buf, 12, ned_pos, 3);
@@ -175,7 +200,11 @@ static inline void mavlink_msg_ualberta_position_send(mavlink_channel_t chan, co
 	_mav_put_float_array(buf, 48, reference_position, 3);
 	_mav_put_float_array(buf, 60, position_error_body, 3);
 	_mav_put_float_array(buf, 72, position_error_ned, 3);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, buf, 88, 247);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
 #else
 	mavlink_ualberta_position_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -186,9 +215,57 @@ static inline void mavlink_msg_ualberta_position_send(mavlink_channel_t chan, co
 	mav_array_memcpy(packet.reference_position, reference_position, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_body, position_error_body, sizeof(float)*3);
 	mav_array_memcpy(packet.position_error_ned, position_error_ned, sizeof(float)*3);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, (const char *)&packet, 88, 247);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
 #endif
 }
+
+#if MAVLINK_MSG_ID_UALBERTA_POSITION_LEN <= MAVLINK_MAX_PAYLOAD_LEN
+/*
+  This varient of _send() can be used to save stack space by re-using
+  memory from the receive buffer.  The caller provides a
+  mavlink_message_t which is the size of a full mavlink message. This
+  is usually the receive buffer for the channel, and allows a reply to an
+  incoming message with minimum stack space usage.
+ */
+static inline void mavlink_msg_ualberta_position_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  const float *llh_pos, const float *ned_pos, const float *ned_vel, const float *ned_origin, const float *reference_position, const float *position_error_body, const float *position_error_ned, uint32_t time_boot_ms)
+{
+#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
+	char *buf = (char *)msgbuf;
+	_mav_put_uint32_t(buf, 84, time_boot_ms);
+	_mav_put_float_array(buf, 0, llh_pos, 3);
+	_mav_put_float_array(buf, 12, ned_pos, 3);
+	_mav_put_float_array(buf, 24, ned_vel, 3);
+	_mav_put_float_array(buf, 36, ned_origin, 3);
+	_mav_put_float_array(buf, 48, reference_position, 3);
+	_mav_put_float_array(buf, 60, position_error_body, 3);
+	_mav_put_float_array(buf, 72, position_error_ned, 3);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, buf, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
+#else
+	mavlink_ualberta_position_t *packet = (mavlink_ualberta_position_t *)msgbuf;
+	packet->time_boot_ms = time_boot_ms;
+	mav_array_memcpy(packet->llh_pos, llh_pos, sizeof(float)*3);
+	mav_array_memcpy(packet->ned_pos, ned_pos, sizeof(float)*3);
+	mav_array_memcpy(packet->ned_vel, ned_vel, sizeof(float)*3);
+	mav_array_memcpy(packet->ned_origin, ned_origin, sizeof(float)*3);
+	mav_array_memcpy(packet->reference_position, reference_position, sizeof(float)*3);
+	mav_array_memcpy(packet->position_error_body, position_error_body, sizeof(float)*3);
+	mav_array_memcpy(packet->position_error_ned, position_error_ned, sizeof(float)*3);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN, MAVLINK_MSG_ID_UALBERTA_POSITION_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_POSITION, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
+#endif
+#endif
+}
+#endif
 
 #endif
 
@@ -293,6 +370,6 @@ static inline void mavlink_msg_ualberta_position_decode(const mavlink_message_t*
 	mavlink_msg_ualberta_position_get_position_error_ned(msg, ualberta_position->position_error_ned);
 	ualberta_position->time_boot_ms = mavlink_msg_ualberta_position_get_time_boot_ms(msg);
 #else
-	memcpy(ualberta_position, _MAV_PAYLOAD(msg), 88);
+	memcpy(ualberta_position, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_UALBERTA_POSITION_LEN);
 #endif
 }

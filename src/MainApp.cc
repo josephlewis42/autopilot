@@ -85,7 +85,7 @@ void MainApp::run()
 	IMU::getInstance();
 
 	message() << "Setting up altimiter";
-	new MdlAltimiter();
+	MdlAltimiter::getInstance();
 
 	message() << "Setting up TCP";
 	new TCPSerial();

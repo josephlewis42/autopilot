@@ -20,6 +20,9 @@ typedef struct __mavlink_ualberta_sys_status_t
 #define MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN 22
 #define MAVLINK_MSG_ID_222_LEN 22
 
+#define MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC 122
+#define MAVLINK_MSG_ID_222_CRC 122
+
 
 
 #define MAVLINK_MESSAGE_INFO_UALBERTA_SYS_STATUS { \
@@ -63,7 +66,7 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack(uint8_t system_id, u
 						       uint8_t mode, uint8_t gx3_mode, uint8_t pilot_mode, uint8_t control_mode, uint8_t attitude_source, uint16_t engine_rpm, uint16_t rotor_rpm, float collective, float receiver_voltage, float avionics_voltage, uint8_t trajectory)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[22];
+	char buf[MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN];
 	_mav_put_float(buf, 0, collective);
 	_mav_put_float(buf, 4, receiver_voltage);
 	_mav_put_float(buf, 8, avionics_voltage);
@@ -76,7 +79,7 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack(uint8_t system_id, u
 	_mav_put_uint8_t(buf, 20, attitude_source);
 	_mav_put_uint8_t(buf, 21, trajectory);
 
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 22);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
 #else
 	mavlink_ualberta_sys_status_t packet;
 	packet.collective = collective;
@@ -91,18 +94,22 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack(uint8_t system_id, u
 	packet.attitude_source = attitude_source;
 	packet.trajectory = trajectory;
 
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 22);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_SYS_STATUS;
-	return mavlink_finalize_message(msg, system_id, component_id, 22, 122);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
 }
 
 /**
  * @brief Pack a ualberta_sys_status message on a channel
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
- * @param chan The MAVLink channel this message was sent over
+ * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
  * @param mode System mode, see UALBERTA_AUTOPILOT_MODE ENUM
  * @param gx3_mode Navigation mode, see UALBERTA_GX3_MODE ENUM
@@ -122,7 +129,7 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack_chan(uint8_t system_
 						           uint8_t mode,uint8_t gx3_mode,uint8_t pilot_mode,uint8_t control_mode,uint8_t attitude_source,uint16_t engine_rpm,uint16_t rotor_rpm,float collective,float receiver_voltage,float avionics_voltage,uint8_t trajectory)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[22];
+	char buf[MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN];
 	_mav_put_float(buf, 0, collective);
 	_mav_put_float(buf, 4, receiver_voltage);
 	_mav_put_float(buf, 8, avionics_voltage);
@@ -135,7 +142,7 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack_chan(uint8_t system_
 	_mav_put_uint8_t(buf, 20, attitude_source);
 	_mav_put_uint8_t(buf, 21, trajectory);
 
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 22);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
 #else
 	mavlink_ualberta_sys_status_t packet;
 	packet.collective = collective;
@@ -150,15 +157,19 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack_chan(uint8_t system_
 	packet.attitude_source = attitude_source;
 	packet.trajectory = trajectory;
 
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 22);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_SYS_STATUS;
-	return mavlink_finalize_message_chan(msg, system_id, component_id, chan, 22, 122);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
 }
 
 /**
- * @brief Encode a ualberta_sys_status struct into a message
+ * @brief Encode a ualberta_sys_status struct
  *
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
@@ -168,6 +179,20 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_pack_chan(uint8_t system_
 static inline uint16_t mavlink_msg_ualberta_sys_status_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_ualberta_sys_status_t* ualberta_sys_status)
 {
 	return mavlink_msg_ualberta_sys_status_pack(system_id, component_id, msg, ualberta_sys_status->mode, ualberta_sys_status->gx3_mode, ualberta_sys_status->pilot_mode, ualberta_sys_status->control_mode, ualberta_sys_status->attitude_source, ualberta_sys_status->engine_rpm, ualberta_sys_status->rotor_rpm, ualberta_sys_status->collective, ualberta_sys_status->receiver_voltage, ualberta_sys_status->avionics_voltage, ualberta_sys_status->trajectory);
+}
+
+/**
+ * @brief Encode a ualberta_sys_status struct on a channel
+ *
+ * @param system_id ID of this system
+ * @param component_id ID of this component (e.g. 200 for IMU)
+ * @param chan The MAVLink channel this message will be sent over
+ * @param msg The MAVLink message to compress the data into
+ * @param ualberta_sys_status C-struct to read the message contents from
+ */
+static inline uint16_t mavlink_msg_ualberta_sys_status_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_ualberta_sys_status_t* ualberta_sys_status)
+{
+	return mavlink_msg_ualberta_sys_status_pack_chan(system_id, component_id, chan, msg, ualberta_sys_status->mode, ualberta_sys_status->gx3_mode, ualberta_sys_status->pilot_mode, ualberta_sys_status->control_mode, ualberta_sys_status->attitude_source, ualberta_sys_status->engine_rpm, ualberta_sys_status->rotor_rpm, ualberta_sys_status->collective, ualberta_sys_status->receiver_voltage, ualberta_sys_status->avionics_voltage, ualberta_sys_status->trajectory);
 }
 
 /**
@@ -191,7 +216,7 @@ static inline uint16_t mavlink_msg_ualberta_sys_status_encode(uint8_t system_id,
 static inline void mavlink_msg_ualberta_sys_status_send(mavlink_channel_t chan, uint8_t mode, uint8_t gx3_mode, uint8_t pilot_mode, uint8_t control_mode, uint8_t attitude_source, uint16_t engine_rpm, uint16_t rotor_rpm, float collective, float receiver_voltage, float avionics_voltage, uint8_t trajectory)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[22];
+	char buf[MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN];
 	_mav_put_float(buf, 0, collective);
 	_mav_put_float(buf, 4, receiver_voltage);
 	_mav_put_float(buf, 8, avionics_voltage);
@@ -204,7 +229,11 @@ static inline void mavlink_msg_ualberta_sys_status_send(mavlink_channel_t chan, 
 	_mav_put_uint8_t(buf, 20, attitude_source);
 	_mav_put_uint8_t(buf, 21, trajectory);
 
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, buf, 22, 122);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
 #else
 	mavlink_ualberta_sys_status_t packet;
 	packet.collective = collective;
@@ -219,9 +248,65 @@ static inline void mavlink_msg_ualberta_sys_status_send(mavlink_channel_t chan, 
 	packet.attitude_source = attitude_source;
 	packet.trajectory = trajectory;
 
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, (const char *)&packet, 22, 122);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
 #endif
 }
+
+#if MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN <= MAVLINK_MAX_PAYLOAD_LEN
+/*
+  This varient of _send() can be used to save stack space by re-using
+  memory from the receive buffer.  The caller provides a
+  mavlink_message_t which is the size of a full mavlink message. This
+  is usually the receive buffer for the channel, and allows a reply to an
+  incoming message with minimum stack space usage.
+ */
+static inline void mavlink_msg_ualberta_sys_status_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint8_t mode, uint8_t gx3_mode, uint8_t pilot_mode, uint8_t control_mode, uint8_t attitude_source, uint16_t engine_rpm, uint16_t rotor_rpm, float collective, float receiver_voltage, float avionics_voltage, uint8_t trajectory)
+{
+#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
+	char *buf = (char *)msgbuf;
+	_mav_put_float(buf, 0, collective);
+	_mav_put_float(buf, 4, receiver_voltage);
+	_mav_put_float(buf, 8, avionics_voltage);
+	_mav_put_uint16_t(buf, 12, engine_rpm);
+	_mav_put_uint16_t(buf, 14, rotor_rpm);
+	_mav_put_uint8_t(buf, 16, mode);
+	_mav_put_uint8_t(buf, 17, gx3_mode);
+	_mav_put_uint8_t(buf, 18, pilot_mode);
+	_mav_put_uint8_t(buf, 19, control_mode);
+	_mav_put_uint8_t(buf, 20, attitude_source);
+	_mav_put_uint8_t(buf, 21, trajectory);
+
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, buf, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
+#else
+	mavlink_ualberta_sys_status_t *packet = (mavlink_ualberta_sys_status_t *)msgbuf;
+	packet->collective = collective;
+	packet->receiver_voltage = receiver_voltage;
+	packet->avionics_voltage = avionics_voltage;
+	packet->engine_rpm = engine_rpm;
+	packet->rotor_rpm = rotor_rpm;
+	packet->mode = mode;
+	packet->gx3_mode = gx3_mode;
+	packet->pilot_mode = pilot_mode;
+	packet->control_mode = control_mode;
+	packet->attitude_source = attitude_source;
+	packet->trajectory = trajectory;
+
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
+#endif
+#endif
+}
+#endif
 
 #endif
 
@@ -359,6 +444,6 @@ static inline void mavlink_msg_ualberta_sys_status_decode(const mavlink_message_
 	ualberta_sys_status->attitude_source = mavlink_msg_ualberta_sys_status_get_attitude_source(msg);
 	ualberta_sys_status->trajectory = mavlink_msg_ualberta_sys_status_get_trajectory(msg);
 #else
-	memcpy(ualberta_sys_status, _MAV_PAYLOAD(msg), 22);
+	memcpy(ualberta_sys_status, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_UALBERTA_SYS_STATUS_LEN);
 #endif
 }

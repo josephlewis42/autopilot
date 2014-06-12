@@ -4,9 +4,9 @@
      <enums>
           <enum name="UALBERTA_SERVO_MODE">
                <description>Possible servo pulse sources</description>
-               <entry value="0" name="UALBERTA_MODE_MANUAL_DIRECT">Raw input pulse widts sent to output</entry>
-               <entry name="UALBERTA_MODE_MANUAL_SCALED">Inputs are normalized using calibration, the converted back to raw pulse widths for output</entry>
-               <entry name="UALBERTA_MODE_AUTOMATIC_CONTROL">Use automatic controller</entry>
+               <entry value="0" name="UALBERTA_MODE_MANUAL_DIRECT"/>
+               <entry name="UALBERTA_MODE_MANUAL_SCALED"/>
+               <entry name="UALBERTA_MODE_AUTOMATIC_CONTROL"/>
           </enum>
           <enum name="UALBERTA_GX3_MODE">
                <entry value="0" name="UALBERTA_GX3_STARTUP"/>
@@ -35,8 +35,8 @@
 	  </enum>
           <enum name="UALBERTA_ACTION">
                <description>Request Actions from Autopilot</description>
-               <entry value="0" name="UALBERTA_RC_CALIBRATION">Request the current RC calibration parameters</entry>
-               <entry name="UALBERTA_SET_ORIGIN">Set the origin of the NED frame to the current position</entry>
+               <entry value="0" name="UALBERTA_RC_CALIBRATION"/>
+               <entry name="UALBERTA_SET_ORIGIN"/>
                <entry name="UALBERTA_SET_SERVO_SOURCE"/>
                <entry name="UALBERTA_SET_CONTROL_MODE"/>
 	       <entry name="UALBERTA_SET_TRAJECTORY_TYPE"/>
@@ -116,8 +116,12 @@
 	       <field type="float[2]" name="attitude_reference"/>
                <field type="uint32_t" name="time_boot_ms"/>
           </message>
-	  <message id="228" name="UALBERTA_CONTROL_EFFORT">
-	    <field type="float[6]" name="normalized_control_effort"/>
-	  </message>
+	    <message id="228" name="UALBERTA_CONTROL_EFFORT">
+	      <field type="float[6]" name="normalized_control_effort"/>
+	    </message>
+          <message id="229" name="UALBERTA_ALTIMITER">
+               <description>Laser altimiter distance</description>
+               <field type="float" name="dist"/>
+          </message>
      </messages>
 </mavlink>

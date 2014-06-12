@@ -31,12 +31,12 @@ static void mavlink_test_nav_filter_bias(uint8_t system_id, uint8_t component_id
         uint16_t i;
 	mavlink_nav_filter_bias_t packet_in = {
 		93372036854775807ULL,
-	73.0,
-	101.0,
-	129.0,
-	157.0,
-	185.0,
-	213.0,
+	}73.0,
+	}101.0,
+	}129.0,
+	}157.0,
+	}185.0,
+	}213.0,
 	};
 	mavlink_nav_filter_bias_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -86,11 +86,11 @@ static void mavlink_test_radio_calibration(uint8_t system_id, uint8_t component_
         uint16_t i;
 	mavlink_radio_calibration_t packet_in = {
 		{ 17235, 17236, 17237 },
-	{ 17547, 17548, 17549 },
-	{ 17859, 17860, 17861 },
-	{ 18171, 18172 },
-	{ 18379, 18380, 18381, 18382, 18383 },
-	{ 18899, 18900, 18901, 18902, 18903 },
+	}{ 17547, 17548, 17549 },
+	}{ 17859, 17860, 17861 },
+	}{ 18171, 18172 },
+	}{ 18379, 18380, 18381, 18382, 18383 },
+	}{ 18899, 18900, 18901, 18902, 18903 },
 	};
 	mavlink_radio_calibration_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -139,16 +139,16 @@ static void mavlink_test_ualberta_sys_status(uint8_t system_id, uint8_t componen
         uint16_t i;
 	mavlink_ualberta_sys_status_t packet_in = {
 		17.0,
-	45.0,
-	73.0,
-	17859,
-	17963,
-	53,
-	120,
-	187,
-	254,
-	65,
-	132,
+	}45.0,
+	}73.0,
+	}17859,
+	}17963,
+	}53,
+	}120,
+	}187,
+	}254,
+	}65,
+	}132,
 	};
 	mavlink_ualberta_sys_status_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -202,12 +202,12 @@ static void mavlink_test_novatel_gps_raw(uint8_t system_id, uint8_t component_id
         uint16_t i;
 	mavlink_novatel_gps_raw_t packet_in = {
 		{ 17.0, 18.0, 19.0 },
-	{ 101.0, 102.0, 103.0 },
-	963498712,
-	89,
-	156,
-	223,
-	34,
+	}{ 101.0, 102.0, 103.0 },
+	}963498712,
+	}89,
+	}156,
+	}223,
+	}34,
 	};
 	mavlink_novatel_gps_raw_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -257,13 +257,13 @@ static void mavlink_test_ualberta_position(uint8_t system_id, uint8_t component_
         uint16_t i;
 	mavlink_ualberta_position_t packet_in = {
 		{ 17.0, 18.0, 19.0 },
-	{ 101.0, 102.0, 103.0 },
-	{ 185.0, 186.0, 187.0 },
-	{ 269.0, 270.0, 271.0 },
-	{ 353.0, 354.0, 355.0 },
-	{ 437.0, 438.0, 439.0 },
-	{ 521.0, 522.0, 523.0 },
-	963501832,
+	}{ 101.0, 102.0, 103.0 },
+	}{ 185.0, 186.0, 187.0 },
+	}{ 269.0, 270.0, 271.0 },
+	}{ 353.0, 354.0, 355.0 },
+	}{ 437.0, 438.0, 439.0 },
+	}{ 521.0, 522.0, 523.0 },
+	}963501832,
 	};
 	mavlink_ualberta_position_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -357,7 +357,7 @@ static void mavlink_test_ualberta_action(uint8_t system_id, uint8_t component_id
         uint16_t i;
 	mavlink_ualberta_action_t packet_in = {
 		5,
-	72,
+	}72,
 	};
 	mavlink_ualberta_action_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -402,11 +402,11 @@ static void mavlink_test_ualberta_attitude(uint8_t system_id, uint8_t component_
         uint16_t i;
 	mavlink_ualberta_attitude_t packet_in = {
 		{ 17.0, 18.0, 19.0 },
-	{ 101.0, 102.0, 103.0 },
-	{ 185.0, 186.0, 187.0 },
-	{ 269.0, 270.0, 271.0 },
-	{ 353.0, 354.0 },
-	963500376,
+	}{ 101.0, 102.0, 103.0 },
+	}{ 185.0, 186.0, 187.0 },
+	}{ 269.0, 270.0, 271.0 },
+	}{ 353.0, 354.0 },
+	}963500376,
 	};
 	mavlink_ualberta_attitude_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -491,6 +491,49 @@ static void mavlink_test_ualberta_control_effort(uint8_t system_id, uint8_t comp
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
+static void mavlink_test_ualberta_altimiter(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_ualberta_altimiter_t packet_in = {
+		17.0,
+	};
+	mavlink_ualberta_altimiter_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.dist = packet_in.dist;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ualberta_altimiter_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ualberta_altimiter_pack(system_id, component_id, &msg , packet1.dist );
+	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ualberta_altimiter_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.dist );
+	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_ualberta_altimiter_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ualberta_altimiter_send(MAVLINK_COMM_1 , packet1.dist );
+	mavlink_msg_ualberta_altimiter_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mavlink_test_ualberta(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_test_nav_filter_bias(system_id, component_id, last_msg);
@@ -502,6 +545,7 @@ static void mavlink_test_ualberta(uint8_t system_id, uint8_t component_id, mavli
 	mavlink_test_ualberta_action(system_id, component_id, last_msg);
 	mavlink_test_ualberta_attitude(system_id, component_id, last_msg);
 	mavlink_test_ualberta_control_effort(system_id, component_id, last_msg);
+	mavlink_test_ualberta_altimiter(system_id, component_id, last_msg);
 }
 
 #ifdef __cplusplus

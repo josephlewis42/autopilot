@@ -25,8 +25,10 @@
 #include "MainApp.h"
 #include "IMU.h"
 #include "GPS.h"
+#include "MdlAltimiter.h"
 #include "Helicopter.h"
 #include "RateLimiter.h"
+#include "Debug.h"
 
 /* MAVLink Headers */
 #include <mavlink.h>
@@ -137,6 +139,9 @@ void QGCLink::QGCSend::send()
 			  send_status(send_queue);
 		  }
 
+		  if(MdlAltimiter::getInstance()->hasNewDistance())
+			  send_altimiter_distance(send_queue);
+
 		  if (get_gx3_new_message())
 			  send_gx3_message(send_queue);
 
@@ -186,7 +191,7 @@ void QGCLink::QGCSend::send()
 				  uint8_t sysid = send_queue->front().at(3);
 				  uint8_t compid = send_queue->front().at(4);
 				  uint8_t msgid = send_queue->front().at(5);
-				  debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
+				  qgc->debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
 #endif
 				  qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
 				  send_queue->pop();
@@ -589,5 +594,22 @@ void QGCLink::QGCSend::send_console_message(const std::string& message, std::que
 
 	::mavlink_msg_statustext_pack(qgc->uasId, 0, &msg, (boost::algorithm::starts_with(console, "Critical")?255:0), console.c_str());
 	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
+	sendq->push(buf);
+}
+
+void QGCLink::QGCSend::send_altimiter_distance(std::queue<std::vector<uint8_t> > *sendq)
+{
+	//get altimiter data
+	float dist = MdlAltimiter::getInstance()->distance;
+
+	mavlink_message_t msg;
+	std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
+
+	mavlink_msg_ualberta_altimiter_pack(qgc->uasId, heli::ALTIMITER_ID, &msg, dist);
+
+	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
+
+	qgc->debug() << "Sending altimiter distance.";
+
 	sendq->push(buf);
 }

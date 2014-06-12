@@ -15,6 +15,9 @@ typedef struct __mavlink_ualberta_attitude_t
 #define MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN 60
 #define MAVLINK_MSG_ID_227_LEN 60
 
+#define MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC 134
+#define MAVLINK_MSG_ID_227_CRC 134
+
 #define MAVLINK_MSG_UALBERTA_ATTITUDE_FIELD_NAV_EULER_LEN 3
 #define MAVLINK_MSG_UALBERTA_ATTITUDE_FIELD_NAV_EULER_RATE_LEN 3
 #define MAVLINK_MSG_UALBERTA_ATTITUDE_FIELD_AHRS_EULER_LEN 3
@@ -52,14 +55,14 @@ static inline uint16_t mavlink_msg_ualberta_attitude_pack(uint8_t system_id, uin
 						       const float *nav_euler, const float *nav_euler_rate, const float *ahrs_euler, const float *ahrs_euler_rate, const float *attitude_reference, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[60];
+	char buf[MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN];
 	_mav_put_uint32_t(buf, 56, time_boot_ms);
 	_mav_put_float_array(buf, 0, nav_euler, 3);
 	_mav_put_float_array(buf, 12, nav_euler_rate, 3);
 	_mav_put_float_array(buf, 24, ahrs_euler, 3);
 	_mav_put_float_array(buf, 36, ahrs_euler_rate, 3);
 	_mav_put_float_array(buf, 48, attitude_reference, 2);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 60);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
 #else
 	mavlink_ualberta_attitude_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -68,18 +71,22 @@ static inline uint16_t mavlink_msg_ualberta_attitude_pack(uint8_t system_id, uin
 	mav_array_memcpy(packet.ahrs_euler, ahrs_euler, sizeof(float)*3);
 	mav_array_memcpy(packet.ahrs_euler_rate, ahrs_euler_rate, sizeof(float)*3);
 	mav_array_memcpy(packet.attitude_reference, attitude_reference, sizeof(float)*2);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 60);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_ATTITUDE;
-	return mavlink_finalize_message(msg, system_id, component_id, 60, 134);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
 }
 
 /**
  * @brief Pack a ualberta_attitude message on a channel
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
- * @param chan The MAVLink channel this message was sent over
+ * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
  * @param nav_euler 
  * @param nav_euler_rate 
@@ -94,14 +101,14 @@ static inline uint16_t mavlink_msg_ualberta_attitude_pack_chan(uint8_t system_id
 						           const float *nav_euler,const float *nav_euler_rate,const float *ahrs_euler,const float *ahrs_euler_rate,const float *attitude_reference,uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[60];
+	char buf[MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN];
 	_mav_put_uint32_t(buf, 56, time_boot_ms);
 	_mav_put_float_array(buf, 0, nav_euler, 3);
 	_mav_put_float_array(buf, 12, nav_euler_rate, 3);
 	_mav_put_float_array(buf, 24, ahrs_euler, 3);
 	_mav_put_float_array(buf, 36, ahrs_euler_rate, 3);
 	_mav_put_float_array(buf, 48, attitude_reference, 2);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, 60);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
 #else
 	mavlink_ualberta_attitude_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -110,15 +117,19 @@ static inline uint16_t mavlink_msg_ualberta_attitude_pack_chan(uint8_t system_id
 	mav_array_memcpy(packet.ahrs_euler, ahrs_euler, sizeof(float)*3);
 	mav_array_memcpy(packet.ahrs_euler_rate, ahrs_euler_rate, sizeof(float)*3);
 	mav_array_memcpy(packet.attitude_reference, attitude_reference, sizeof(float)*2);
-        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, 60);
+        memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
 #endif
 
 	msg->msgid = MAVLINK_MSG_ID_UALBERTA_ATTITUDE;
-	return mavlink_finalize_message_chan(msg, system_id, component_id, chan, 60, 134);
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
 }
 
 /**
- * @brief Encode a ualberta_attitude struct into a message
+ * @brief Encode a ualberta_attitude struct
  *
  * @param system_id ID of this system
  * @param component_id ID of this component (e.g. 200 for IMU)
@@ -128,6 +139,20 @@ static inline uint16_t mavlink_msg_ualberta_attitude_pack_chan(uint8_t system_id
 static inline uint16_t mavlink_msg_ualberta_attitude_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_ualberta_attitude_t* ualberta_attitude)
 {
 	return mavlink_msg_ualberta_attitude_pack(system_id, component_id, msg, ualberta_attitude->nav_euler, ualberta_attitude->nav_euler_rate, ualberta_attitude->ahrs_euler, ualberta_attitude->ahrs_euler_rate, ualberta_attitude->attitude_reference, ualberta_attitude->time_boot_ms);
+}
+
+/**
+ * @brief Encode a ualberta_attitude struct on a channel
+ *
+ * @param system_id ID of this system
+ * @param component_id ID of this component (e.g. 200 for IMU)
+ * @param chan The MAVLink channel this message will be sent over
+ * @param msg The MAVLink message to compress the data into
+ * @param ualberta_attitude C-struct to read the message contents from
+ */
+static inline uint16_t mavlink_msg_ualberta_attitude_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_ualberta_attitude_t* ualberta_attitude)
+{
+	return mavlink_msg_ualberta_attitude_pack_chan(system_id, component_id, chan, msg, ualberta_attitude->nav_euler, ualberta_attitude->nav_euler_rate, ualberta_attitude->ahrs_euler, ualberta_attitude->ahrs_euler_rate, ualberta_attitude->attitude_reference, ualberta_attitude->time_boot_ms);
 }
 
 /**
@@ -146,14 +171,18 @@ static inline uint16_t mavlink_msg_ualberta_attitude_encode(uint8_t system_id, u
 static inline void mavlink_msg_ualberta_attitude_send(mavlink_channel_t chan, const float *nav_euler, const float *nav_euler_rate, const float *ahrs_euler, const float *ahrs_euler_rate, const float *attitude_reference, uint32_t time_boot_ms)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[60];
+	char buf[MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN];
 	_mav_put_uint32_t(buf, 56, time_boot_ms);
 	_mav_put_float_array(buf, 0, nav_euler, 3);
 	_mav_put_float_array(buf, 12, nav_euler_rate, 3);
 	_mav_put_float_array(buf, 24, ahrs_euler, 3);
 	_mav_put_float_array(buf, 36, ahrs_euler_rate, 3);
 	_mav_put_float_array(buf, 48, attitude_reference, 2);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, buf, 60, 134);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
 #else
 	mavlink_ualberta_attitude_t packet;
 	packet.time_boot_ms = time_boot_ms;
@@ -162,9 +191,53 @@ static inline void mavlink_msg_ualberta_attitude_send(mavlink_channel_t chan, co
 	mav_array_memcpy(packet.ahrs_euler, ahrs_euler, sizeof(float)*3);
 	mav_array_memcpy(packet.ahrs_euler_rate, ahrs_euler_rate, sizeof(float)*3);
 	mav_array_memcpy(packet.attitude_reference, attitude_reference, sizeof(float)*2);
-	_mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, (const char *)&packet, 60, 134);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, (const char *)&packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
 #endif
 }
+
+#if MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN <= MAVLINK_MAX_PAYLOAD_LEN
+/*
+  This varient of _send() can be used to save stack space by re-using
+  memory from the receive buffer.  The caller provides a
+  mavlink_message_t which is the size of a full mavlink message. This
+  is usually the receive buffer for the channel, and allows a reply to an
+  incoming message with minimum stack space usage.
+ */
+static inline void mavlink_msg_ualberta_attitude_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  const float *nav_euler, const float *nav_euler_rate, const float *ahrs_euler, const float *ahrs_euler_rate, const float *attitude_reference, uint32_t time_boot_ms)
+{
+#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
+	char *buf = (char *)msgbuf;
+	_mav_put_uint32_t(buf, 56, time_boot_ms);
+	_mav_put_float_array(buf, 0, nav_euler, 3);
+	_mav_put_float_array(buf, 12, nav_euler_rate, 3);
+	_mav_put_float_array(buf, 24, ahrs_euler, 3);
+	_mav_put_float_array(buf, 36, ahrs_euler_rate, 3);
+	_mav_put_float_array(buf, 48, attitude_reference, 2);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, buf, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
+#else
+	mavlink_ualberta_attitude_t *packet = (mavlink_ualberta_attitude_t *)msgbuf;
+	packet->time_boot_ms = time_boot_ms;
+	mav_array_memcpy(packet->nav_euler, nav_euler, sizeof(float)*3);
+	mav_array_memcpy(packet->nav_euler_rate, nav_euler_rate, sizeof(float)*3);
+	mav_array_memcpy(packet->ahrs_euler, ahrs_euler, sizeof(float)*3);
+	mav_array_memcpy(packet->ahrs_euler_rate, ahrs_euler_rate, sizeof(float)*3);
+	mav_array_memcpy(packet->attitude_reference, attitude_reference, sizeof(float)*2);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_UALBERTA_ATTITUDE, (const char *)packet, MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
+#endif
+#endif
+}
+#endif
 
 #endif
 
@@ -247,6 +320,6 @@ static inline void mavlink_msg_ualberta_attitude_decode(const mavlink_message_t*
 	mavlink_msg_ualberta_attitude_get_attitude_reference(msg, ualberta_attitude->attitude_reference);
 	ualberta_attitude->time_boot_ms = mavlink_msg_ualberta_attitude_get_time_boot_ms(msg);
 #else
-	memcpy(ualberta_attitude, _MAV_PAYLOAD(msg), 60);
+	memcpy(ualberta_attitude, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_UALBERTA_ATTITUDE_LEN);
 #endif
 }

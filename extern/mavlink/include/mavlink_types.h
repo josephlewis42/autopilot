@@ -17,7 +17,15 @@
 
 #define MAVLINK_MSG_ID_EXTENDED_MESSAGE 255
 #define MAVLINK_EXTENDED_HEADER_LEN 14
-#define MAVLINK_MAX_EXTENDED_PACKET_LEN 65507
+
+#if (defined _MSC_VER) | ((defined __APPLE__) & (defined __MACH__)) | (defined __linux__)
+  /* full fledged 32bit++ OS */
+  #define MAVLINK_MAX_EXTENDED_PACKET_LEN 65507
+#else
+  /* small microcontrollers */
+  #define MAVLINK_MAX_EXTENDED_PACKET_LEN 2048
+#endif
+
 #define MAVLINK_MAX_EXTENDED_PAYLOAD_LEN (MAVLINK_MAX_EXTENDED_PACKET_LEN - MAVLINK_EXTENDED_HEADER_LEN - MAVLINK_NUM_NON_PAYLOAD_BYTES)
 
 typedef struct param_union {
@@ -25,6 +33,9 @@ typedef struct param_union {
 		float param_float;
 		int32_t param_int32;
 		uint32_t param_uint32;
+		int16_t param_int16;
+		uint16_t param_uint16;
+		int8_t param_int8;
 		uint8_t param_uint8;
 		uint8_t bytes[4];
 	};
@@ -37,7 +48,7 @@ typedef struct __mavlink_system {
     uint8_t type;    ///< Unused, can be used by user to store the system's type
     uint8_t state;   ///< Unused, can be used by user to store the system's state
     uint8_t mode;    ///< Unused, can be used by user to store the system's mode
-    uint8_t nav_mode;    ///< Unused, can be used by user to store the system's navigation mode
+    uint32_t nav_mode;    ///< Unused, can be used by user to store the system's navigation mode
 } mavlink_system_t;
 
 typedef struct __mavlink_message {
