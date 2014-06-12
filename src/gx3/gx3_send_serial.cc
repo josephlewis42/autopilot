@@ -25,13 +25,13 @@
 #include "QGCLink.h"
 #include "GPS.h"
 #include "gps_time.h"
+#include "util/AutopilotMath.hpp"
 
 /* Boost Headers */
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 #include <boost/ref.hpp>
-#include <boost/math/constants/constants.hpp>
 #include <boost/assign.hpp>
 // this scope only pollutes the global namespace in a minimal way consistent with the stl global operators
 using namespace boost::assign;
@@ -71,6 +71,25 @@ uint8_t IMU::send_serial::finish_packet(std::vector<uint8_t> &vec, uint8_t ack_c
 	return ack.get_error_code();
 }
 
+uint8_t IMU::send_serial::finish_packet_and_alert(
+										std::vector<uint8_t> &vec,
+										uint8_t ack_command,
+										std::string human_command_name)
+{
+	uint8_t error_code = finish_packet(vec, ack_command);
+
+	if(error_code == 0x00)
+	{
+		IMU::getInstance()->message() << "Successfully sent: " << human_command_name;
+	}
+	else
+	{
+		IMU::getInstance()->warning() << "Received NACK after sending: " << human_command_name <<
+											" with error code: " << std::hex << static_cast<int>(error_code);
+	}
+
+	return error_code;
+}
 
 void IMU::send_serial::init_imu()
 {
@@ -93,57 +112,31 @@ void IMU::send_serial::init_imu()
 
 void IMU::send_serial::set_to_idle()
 {
-	std::vector<uint8_t> set_to_idle;
-	set_to_idle += 0x75, 0x65, 0x01, 0x02, 0x02, 0x02;
-
-	if(finish_packet(set_to_idle, 0x02) == 0x00)
-		IMU::getInstance()->message() << "Successfully sent set to idle command";
-	else
-		IMU::getInstance()->debug() << "Received NACK after sending set to idle";
+	std::vector<uint8_t> set_to_idle = {0x75, 0x65, 0x01, 0x02, 0x02, 0x02};
+	finish_packet_and_alert(set_to_idle, 0x02, "set to idle");
 }
 
 void IMU::send_serial::ping()
 {
-	IMU* imu = IMU::getInstance();
-
-	std::vector<uint8_t> ping;
-	ping += 0x75, 0x65, 0x01, 0x02, 0x02, 0x01;
-
-	if(finish_packet(ping, 0x01) == 0x00)
-		imu->debug("Successfully sent ping");
-	else
-		imu->warning("Received NACK after sending ping command");
+	std::vector<uint8_t> ping = {0x75, 0x65, 0x01, 0x02, 0x02, 0x01};
+	finish_packet_and_alert(ping, 0x01, "ping");
 }
 
 void IMU::send_serial::ahrs_message_format()
 {
-	IMU* imu = IMU::getInstance();
-
-	std::vector<uint8_t> ahrs_format;
-	ahrs_format += 0x75, 0x65, 0x0C, 0x0A, 0x0A, 0x08, 0x01, 0x02, 0x0C, 0, 0x01, 0x05, 0, 0x01;
-
-	uint8_t error_code = finish_packet(ahrs_format, 0x08);
-	if(error_code == 0x00)
-		imu->message("Successfully sent AHRS format message");
-	else
-		imu->message() << "Received NACK after sending AHRS format message with error code: " << std::hex << static_cast<int>(error_code);
+	std::vector<uint8_t> ahrs_format = {0x75, 0x65, 0x0C, 0x0A, 0x0A, 0x08, 0x01, 0x02, 0x0C, 0, 0x01, 0x05, 0, 0x01};
+	finish_packet_and_alert(ahrs_format, 0x08, "AHRS format");
 }
 
 
 
 void IMU::send_serial::nav_message_format()
 {
-	IMU* imu = IMU::getInstance();
-
 	std::vector<uint8_t> nav_format;
 	nav_format += 0x75, 0x65, 0x0C, 0x0, 0x0, 0x0A, 0x01, 0x05, 0x10, 0, 0x0A, 0x01, 0, 0x05, 0x02, 0, 0x05, 0x0E, 0, 0x01, 0x05, 0, 0x01;
 	nav_format[3] = nav_format[4] = nav_format.size() - 4;
 
-	uint8_t error_code = finish_packet(nav_format, 0x0A);
-	if(error_code == 0x00)
-		imu->message("Successfully sent nav message format command");
-	else
-		imu->warning() << "Received NACK after sending nav message format command with error code: " << std::hex << static_cast<int>(error_code);
+	finish_packet_and_alert(nav_format, 0x0A, "nav message");
 }
 
 
@@ -169,6 +162,22 @@ void IMU::send_serial::enable_messages()
 		IMU::getInstance()->warning() << "Received NACK after sending enable message with error codes: "
 		<< std::hex << static_cast<int>(nav_enable_ack.get_error_code())
 		<< " and " << static_cast<int>(ahrs_enable_ack.get_error_code());
+}
+
+void IMU::send_serial::on_error_set_status(ack_handler& ack, std::string human_ack_name)
+{
+	ack.wait_for_ack();
+
+	if(ack.get_error_code() == 0x00)
+	{
+		IMU::getInstance()->message("Successfully set " + human_ack_name);
+	}
+	else
+	{
+		std::string message = "Error setting: " + human_ack_name;
+		IMU::getInstance()->warning(message);
+		IMU::getInstance()->gx3_status_message(message);
+	}
 }
 
 void IMU::send_serial::set_filter_parameters()
@@ -201,23 +210,19 @@ void IMU::send_serial::set_filter_parameters()
 	ack_handler antenna_ack(0x13);
 
 	// heading update control
-	std::vector<uint8_t> heading;
-	heading += 0x04, 0x18, 0x01, 0x01;
+	std::vector<uint8_t> heading = {0x04, 0x18, 0x01, 0x01};
 	ack_handler heading_ack(0x18);
 
 	// gps source control
-	std::vector<uint8_t> gps;
-	gps += 0x04, 0x15, 1, 2;
+	std::vector<uint8_t> gps = {0x04, 0x15, 1, 2};
 	ack_handler gps_ack(0x15);
 
 	// auto initialization
-	std::vector<uint8_t> init;
-	init += 0x04, 0x19, 0x01, 0x0;
+	std::vector<uint8_t> init = {0x04, 0x19, 0x01, 0x0};
 	ack_handler init_ack(0x19);
 
 	// create message header
-	std::vector<uint8_t> nav_params;
-	nav_params += 0x75, 0x65, 0x0D, 0;
+	std::vector<uint8_t> nav_params = {0x75, 0x65, 0x0D, 0};
 
 	// add fields
 	nav_params.insert(nav_params.end(), dynamics.begin(), dynamics.end());
@@ -238,105 +243,37 @@ void IMU::send_serial::set_filter_parameters()
 	write(IMU::getInstance()->fd_ser, &nav_params[0], nav_params.size());
 	send_lock.unlock();
 
-	dynamics_ack.wait_for_ack();
-	if (dynamics_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message() << "Successfully set vehicle dynamics mode.";
-	else
-	{
-		std::string message = "Error setting vehicle dynamics mode";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
-
-	vehicle_ack.wait_for_ack();
-	if (dynamics_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message("Successfully set vehicle frame offset");
-	else
-	{
-		std::string message = "Error setting vehicle frame offset";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
-
-	antenna_ack.wait_for_ack();
-	if (antenna_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message() << "Successfully set antenna offset.";
-	else
-	{
-		std::string message = "Error setting antenna offset";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
-
-	heading_ack.wait_for_ack();
-	if (heading_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message() << "Successfully set heading update source";
-	else
-	{
-		std::string message = "Error setting antenna offset";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
-
-	gps_ack.wait_for_ack();
-	if (gps_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message("Successfully set gps source");
-	else
-	{
-		std::string message = "Error setting gps source";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
-
-	init_ack.wait_for_ack();
-	if (init_ack.get_error_code() == 0x00)
-		IMU::getInstance()->message("Successfully set auto-initialization control");
-	else
-	{
-		std::string message = "Error setting auto-initialization";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
-	}
+	on_error_set_status(dynamics_ack, "vehicle dynamics mode");
+	on_error_set_status(vehicle_ack, "vehicle frame offset");
+	on_error_set_status(antenna_ack, "antenna offset");
+	on_error_set_status(heading_ack, "heading update source");
+	on_error_set_status(gps_ack, "gps source");
+	on_error_set_status(init_ack, "auto-initialization control");
 }
 
 void IMU::send_serial::reset_filter()
 {
-	std::vector<uint8_t> reset;
-	reset += 0x75, 0x65, 0x0D, 0x02, 0x02, 0x01;
+	std::vector<uint8_t> reset = {0x75, 0x65, 0x0D, 0x02, 0x02, 0x01};
 
-	if(finish_packet(reset, 0x01) == 0x00)
-		IMU::getInstance()->message() << "Successfully reset navigation filter";
-	else
+	if(finish_packet_and_alert(reset, 0x01, "reset nav filter") != 0x00)
 	{
-		std::string message = "Error resetting nav filter";
-		::message() << message;
-		IMU::getInstance()->gx3_status_message(message);
+		IMU::getInstance()->gx3_status_message("Error resetting nav filter");
 	}
 }
 
 void IMU::send_serial::init_filter()
 {
-	IMU* imu = IMU::getInstance();
-
 	std::vector<uint8_t> declination(float_to_raw(0.0f));
-	std::vector<uint8_t> init;
-	init += 0x75, 0x65, 0x0D, 0x06, 0x06, 0x04;
+	std::vector<uint8_t> init = {0x75, 0x65, 0x0D, 0x06, 0x06, 0x04};
 	init.insert(init.end(), declination.begin(), declination.end());
 
-	uint8_t error_code = finish_packet(init,0x04);
-	if(error_code == 0x00)
-		imu->message("Successfully sent Set Initial Attitude from AHRS");
-	else
-		imu->message() << "Error sending Set Initial Attitude from AHRS with error code: " << static_cast<int>(error_code);
+	finish_packet_and_alert(init, 0x04, "Set Initial Attitude from AHRS");
 }
 
 void IMU::send_serial::external_gps_update()
 {
 	IMU* imu = IMU::getInstance();
 
-
-
-//	if (IMU::getInstance()->get_gx3_mode() == IMU::RUNNING)
 	try
 	{
 		// get gps data
@@ -352,9 +289,8 @@ void IMU::send_serial::external_gps_update()
 						"\t pos_error: " << pos_error << std::endl <<
 						"\t vel_error: " << vel_error << std::endl <<
 						"\t time: " << time << "]" << std::endl;
-
-		llh[0]*=180.0/boost::math::constants::pi<double>();
-		llh[1]*=180.0/boost::math::constants::pi<double>();
+		llh[0] = AutopilotMath::radiansToDegrees(llh[0]);
+		llh[1] = AutopilotMath::radiansToDegrees(llh[1]);
 
 		// create message
 		std::vector<uint8_t> gps_update;

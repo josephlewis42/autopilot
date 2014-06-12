@@ -71,6 +71,26 @@ private:
 	 */
 	uint8_t finish_packet(std::vector<uint8_t> &vec, uint8_t ack_command);
 
+	/**
+	 * Finishes a packet by computnig and appending the checksum, sending it, creating
+	 * an ack from the command and waiting for it to return.
+	 *
+	 * If ack is not an error, prints a message. Else, prints a warning and the error
+	 * code using the human_command_name param to describe where the error came from.
+	 *
+	 * returns the ack error code.
+	 */
+	uint8_t finish_packet_and_alert(
+							std::vector<uint8_t> &vec,
+							uint8_t ack_command,
+							std::string human_command_name);
+
+	/**
+	 * Waits for the ack to finish, on success sends a message, on failure
+	 * sends a warning and sets the GX3 status message.
+	 */
+	void on_error_set_status(ack_handler& ack, std::string human_ack_name);
+
 
 	template <typename floating_type>
 	static std::vector<uint8_t> float_to_raw(const floating_type f);
