@@ -21,7 +21,6 @@
 #include "IMU.h"
 
 /* Project Headers */
-#include "Configuration.h"
 #include "Debug.h"
 #include "gx3_read_serial.h"
 #include "MainApp.h"
@@ -29,15 +28,14 @@
 #include "ack_handler.h"
 #include "gx3_send_serial.h"
 #include "QGCLink.h"
+#include "util/AutopilotMath.hpp"
 
 /* File Handling Headers */
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 /* C Headers */
 #include <unistd.h>
-#include <termios.h>
 #include <errno.h>
 #include <cstdlib>
 #include <math.h>
@@ -49,9 +47,9 @@ IMU* IMU::_instance = NULL;
 std::mutex IMU::_instance_lock;
 
 // path to serial device connected to gx3
-const std::string IMU_SERIAL_PORT_CONFIG_NAME = "gx3.serial_port";
+const std::string IMU_SERIAL_PORT_CONFIG_NAME = "serial_port";
 const std::string IMU_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser2";
-const std::string IMU_ENABLED = "gx3.enabled";
+const std::string IMU_ENABLED = "enabled";
 const bool IMU_ENABLED_DEFAULT = true;
 
 IMU* IMU::getInstance()
@@ -81,8 +79,7 @@ IMU::IMU()
  nav_angular_rate(blas::zero_vector<double>(3)),
  ahrs_angular_rate(blas::zero_vector<double>(3))
 {
-
-	if(! Configuration::getInstance()->getb(IMU_ENABLED, IMU_ENABLED_DEFAULT))
+	if(! configGetb(IMU_ENABLED, IMU_ENABLED_DEFAULT))
 	{
 		warning() << "GX3 disabled!";
 		return;
@@ -112,7 +109,7 @@ bool IMU::init_serial()
 		close(fd_ser);
 	}
 
-	std::string serial_path = Configuration::getInstance()->gets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
+	std::string serial_path = configGets(IMU_SERIAL_PORT_CONFIG_NAME, IMU_SERIAL_PORT_CONFIG_DEFAULT);
 	trace() << "starting on " << serial_path;
 	fd_ser = open(serial_path.c_str(), O_RDWR | O_NOCTTY);
 	trace() << "port opened";
@@ -175,8 +172,8 @@ blas::vector<double> IMU::get_euler_rate() const
 blas::vector<double> IMU::get_ned_position() const
 {
 	blas::vector<double> llh(get_llh_position());
-	llh[0]*=boost::math::constants::pi<double>()/180;
-	llh[1]*=boost::math::constants::pi<double>()/180;
+	llh[0] = AutopilotMath::degreesToRadians(llh[0]);
+	llh[1] = AutopilotMath::degreesToRadians(llh[1]);
 
 	blas::matrix<double> rot(3,3);
 	rot.clear();
@@ -194,10 +191,11 @@ blas::vector<double> IMU::get_ned_position() const
 
 blas::vector<double> IMU::llh2ecef(const blas::vector<double>& llh_deg)
 {
+
 	// wgs84 constants
 	blas::vector<double> llh(llh_deg);
-	llh[0]*=boost::math::constants::pi<double>()/180;
-	llh[1]*=boost::math::constants::pi<double>()/180;
+	llh[0] = AutopilotMath::degreesToRadians(llh[0]);
+	llh[1] = AutopilotMath::degreesToRadians(llh[1]);
 	static const double equatorial_radius = 6378137;
 	static const double flatness = 1/298.257223563;
 	static double eccentricity = sqrt(flatness*(2-flatness));

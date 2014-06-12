@@ -191,7 +191,14 @@ void IMU::send_serial::set_filter_parameters()
 	std::vector<uint8_t> vehicle;
 	vehicle += 0x0F, 0x12, 0x01;
 	{
-		std::vector<uint8_t> x(float_to_raw(0.052f)), y(float_to_raw(0.0f)), z(float_to_raw(-0.30f));
+		float xOffset = IMU::getInstance()->configGetf("vehicle_offset_x_meters",0.052f);
+		float yOffset = IMU::getInstance()->configGetf("vehicle_offset_y_meters",0.0f);
+		float zOffset = IMU::getInstance()->configGetf("vehicle_offset_z_meters",-0.30f);
+
+		std::vector<uint8_t> 	x(float_to_raw(xOffset)),
+								y(float_to_raw(yOffset)),
+								z(float_to_raw(zOffset));
+
 		vehicle.insert(vehicle.end(), x.begin(), x.end());
 		vehicle.insert(vehicle.end(), y.begin(), y.end());
 		vehicle.insert(vehicle.end(), z.begin(), z.end());
@@ -202,7 +209,14 @@ void IMU::send_serial::set_filter_parameters()
 	std::vector<uint8_t> antenna;
 	antenna += 0x0F, 0x13, 0x01;
 	{
-		std::vector<uint8_t> x(float_to_raw(-0.24f)), y(float_to_raw(-0.05f)), z(float_to_raw(-0.473f));
+		float xOffset = IMU::getInstance()->configGetf("antenna_offset_x_meters",-0.24f);
+		float yOffset = IMU::getInstance()->configGetf("antenna_offset_y_meters",-0.05f);
+		float zOffset = IMU::getInstance()->configGetf("antenna_offset_z_meters",-0.473f);
+
+		std::vector<uint8_t> 	x(float_to_raw(xOffset)),
+								y(float_to_raw(yOffset)),
+								z(float_to_raw(zOffset));
+
 		antenna.insert(antenna.end(), x.begin(), x.end());
 		antenna.insert(antenna.end(), y.begin(), y.end());
 		antenna.insert(antenna.end(), z.begin(), z.end());
@@ -214,7 +228,11 @@ void IMU::send_serial::set_filter_parameters()
 	ack_handler heading_ack(0x18);
 
 	// gps source control
-	std::vector<uint8_t> gps = {0x04, 0x15, 1, 2};
+	bool externGPS = IMU::getInstance()->configGetb("use_external_gps", true);
+	// 3DM-GX3-45-Data-Communications-Protocol.pdf p 65 2 for external 1 for internal
+	uint8_t externGPSVal = (externGPS)? 0x02: 0x01;
+
+	std::vector<uint8_t> gps = {0x04, 0x15, 0x01, externGPSVal};
 	ack_handler gps_ack(0x15);
 
 	// auto initialization
