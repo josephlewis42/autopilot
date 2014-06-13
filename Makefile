@@ -17,7 +17,8 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I/usr/include/boost \
 		-I$(PROJECT_ROOT)/extern \
 		-I$(PROJECT_ROOT)/extern/gtest/make \
-		-I$(PROJECT_ROOT)/extern/gtest/include
+		-I$(PROJECT_ROOT)/extern/gtest/include \
+		-I$(BUILD_DIR)
 #32 bit
 #CFLAGS:=  -m32 -static ${INCLUDE} -c -g -Wall -fstack-protector-all
 #LDFLAGS:= -m32 -static -g -L/usr/lib -L$(PROJECT_ROOT)/lib/Linux32 -fstack-protector-all -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem  -lpthread
@@ -71,6 +72,6 @@ tests: $(EXECUTABLE)
 # Google testing framework
 gtest:
 	$(CC) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
-     		-pthread -c ${GTEST_DIR}/src/gtest-all.cc -o ${BUILD_DIR}/gtest-all.o
+     		-lpthread -c ${GTEST_DIR}/src/gtest-all.cc -o ${BUILD_DIR}/gtest-all.o
 	ar -rv ${BUILD_DIR}/libgtest.a ${BUILD_DIR}/gtest-all.o
 
