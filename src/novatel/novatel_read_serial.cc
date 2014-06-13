@@ -336,7 +336,7 @@ void GPS::ReadSerial::readPort()
 				parse_log(log_data, log);
 				last_data = boost::posix_time::second_clock::local_time();
 				//GPS::getInstance()->gps_updated();
-				LogFile::getInstance()->logData(heli::LOG_NOVATEL_GPS, log);
+				LogFile::getInstance()->logData(gps->LOG_NOVATEL_GPS, log);
 			}
 			break;
 

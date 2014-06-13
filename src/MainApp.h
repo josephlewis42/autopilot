@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
+ * Copyright 2014 Joseph Lewis <joseph@josephlewis.net>
  * 
  * This file is part of ANCL Autopilot.
  * 
@@ -87,6 +88,8 @@ public:
 	};
 
 private:
+	static const std::string LOG_SCALED_INPUTS ;
+
 	/// Function in which to place main program logic (replaces main()).
 	void run();
 

@@ -430,7 +430,7 @@ void QGCLink::QGCReceive::receive()
 					}
 				#endif
 				default:
-					qgc->debug("QGCLink: Unknown Packet");
+					qgc->debug() << "QGCLink: Unknown Packet: " << msg.msgid;
 					break;
 				}
 			}

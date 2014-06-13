@@ -39,6 +39,10 @@ std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT = "/dev/ser1";
 std::string GPS::GPS_ENABLED = "novatel.enabled";
 
+std::string GPS::LOG_NOVATEL_GPS = "Novatel GPS (Invalid Solutions Removed)";
+std::string GPS::LOG_NOVATEL_GPS_ALL = "Novatel GPS (All Measurements)";
+
+
 bool GPS::GPS_ENABLED_DEFAULT = true;
 
 const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
@@ -70,7 +74,7 @@ GPS::GPS()
  vel_sigma(blas::vector<double>(0,3))
 {
 	trace() << "Generating log headers";
-	LogFile::getInstance()->logHeader(heli::LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
+	LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 
 	trace() << "Adding read serial thread";
 	MainApp::add_thread(&read_serial_thread, READ_GPS_THREAD_NAME);

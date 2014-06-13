@@ -39,6 +39,9 @@ std::string Control::XML_ROLL_MIX = "controller_params.mix.roll";
 std::string Control::XML_PITCH_MIX = "controller_params.mix.pitch";
 std::string Control::XML_CONTROLLER_MODE = "controller_params.mode";
 std::string Control::XML_TRAJECTORY_VALUE = "controller_params.trajectory";
+const std::string Control::LOG_POSITION_REFERENCE = "Position Reference Nav Frame";
+const std::string Control::LOG_PID_TRANS_ATTITUDE_REF = "Translation PID Attitude Reference";
+const std::string Control::LOG_SBF_TRANS_ATTITUDE_REF = "Translation SBF Attitude Reference";
 
 
 Control::Control()
@@ -285,7 +288,7 @@ void Control::loadFile()
 void Control::operator()()
 {
 	blas::vector<double> reference_position(get_reference_position());
-	LogFile::getInstance()->logData(heli::LOG_POSITION_REFERENCE, reference_position);
+	LogFile::getInstance()->logData(LOG_POSITION_REFERENCE, reference_position);
 
 	if (get_controller_mode() == heli::Mode_Position_Hold_PID)
 	{
@@ -296,7 +299,7 @@ void Control::operator()()
 				translation_pid_controller()(reference_position);
 				blas::vector<double> roll_pitch_reference(translation_pid_controller().get_control_effort());
 				set_reference_attitude(roll_pitch_reference);
-				LogFile::getInstance()->logData(heli::LOG_PID_TRANS_ATTITUDE_REF, roll_pitch_reference);
+				LogFile::getInstance()->logData(LOG_PID_TRANS_ATTITUDE_REF, roll_pitch_reference);
 				attitude_pid_controller()(roll_pitch_reference);
 			}
 			catch (bad_control& bc)
@@ -323,7 +326,7 @@ void Control::operator()()
 				x_y_sbf_controller(reference_position);
 				blas::vector<double> attitude_reference(x_y_sbf_controller.get_control_effort());
 				set_reference_attitude(attitude_reference);
-				LogFile::getInstance()->logData(heli::LOG_SBF_TRANS_ATTITUDE_REF, attitude_reference);
+				LogFile::getInstance()->logData(LOG_SBF_TRANS_ATTITUDE_REF, attitude_reference);
 				attitude_pid_controller()(attitude_reference);
 			}
 			catch (bad_control& bc)

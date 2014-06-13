@@ -37,6 +37,9 @@
 #include "RateLimiter.h"
 #include "TCPSerial.h"
 
+const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
+
+
 MainApp::MainApp()
 :autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
 {
@@ -142,8 +145,8 @@ void MainApp::run()
 
 
 		inputScaled = RCTrans::getScaledVector();
-		log->logHeader(heli::LOG_SCALED_INPUTS, "CH1 CH2 CH3 CH4 CH5 CH6");
-		log->logData(heli::LOG_SCALED_INPUTS, inputScaled);
+		log->logHeader(LOG_SCALED_INPUTS, "CH1 CH2 CH3 CH4 CH5 CH6");
+		log->logData(LOG_SCALED_INPUTS, inputScaled);
 
 		switch(getMode())
 		{

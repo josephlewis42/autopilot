@@ -91,9 +91,12 @@ public:
 	static std::string GPS_SERIAL_PORT_CONFIGURATION_DEFAULT;
 	static std::string GPS_ENABLED;
 	static bool GPS_ENABLED_DEFAULT;
+	static std::string LOG_NOVATEL_GPS;
+	static std::string LOG_NOVATEL_GPS_ALL;
 
 
 private:
+
 
 	/// default constructor
 	GPS();

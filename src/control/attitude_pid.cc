@@ -47,6 +47,11 @@ const std::string attitude_pid::PARAM_PITCH_KI = "PID_PITCH_KI";
 const std::string attitude_pid::PARAM_ROLL_TRIM = "TRIM_ROLL";
 const std::string attitude_pid::PARAM_PITCH_TRIM = "TRIM_PITCH";
 
+const std::string attitude_pid::LOG_ATTITUDE_ERROR = "Attitude PID Error States";
+const std::string attitude_pid::LOG_ATTITUDE_REFERENCE = "Pilot Attitude Reference";
+const std::string attitude_pid::LOG_ATTITUDE_CONTROL_EFFORT = "Attitude PID Control Effort";
+
+
 attitude_pid::attitude_pid()
 :roll(5),
  pitch(5),
@@ -59,10 +64,10 @@ attitude_pid::attitude_pid()
 	pitch.name() = "Pitch";
 
 	LogFile *log = LogFile::getInstance();
-	log->logHeader(heli::LOG_ATTITUDE_ERROR, "Roll_Proportional Roll_Derivative Roll_Integral Pitch_Proportional Pitch_Derivative Pitch_Integral");
-	log->logData(heli::LOG_ATTITUDE_ERROR, std::vector<double>());
-	log->logHeader(heli::LOG_ATTITUDE_REFERENCE, "Roll Pitch");
-	log->logData(heli::LOG_ATTITUDE_REFERENCE, std::vector<double>());
+	log->logHeader(LOG_ATTITUDE_ERROR, "Roll_Proportional Roll_Derivative Roll_Integral Pitch_Proportional Pitch_Derivative Pitch_Integral");
+	log->logData(LOG_ATTITUDE_ERROR, std::vector<double>());
+	log->logHeader(LOG_ATTITUDE_REFERENCE, "Roll Pitch");
+	log->logData(LOG_ATTITUDE_REFERENCE, std::vector<double>());
 
 }
 
@@ -133,7 +138,7 @@ void attitude_pid::operator()(const blas::vector<double>& reference) throw(bad_c
 	error_states.push_back(pitch.error().setDerivative(euler_rate[1]));
 	error_states.push_back(++pitch.error());
 
-	LogFile::getInstance()->logData(heli::LOG_ATTITUDE_ERROR, error_states);
+	LogFile::getInstance()->logData(LOG_ATTITUDE_ERROR, error_states);
 	control_effort[1] = pitch.compute_pid();
 	pitch_lock.unlock();
 
@@ -141,7 +146,7 @@ void attitude_pid::operator()(const blas::vector<double>& reference) throw(bad_c
 	Control::saturate(control_effort);
 	set_control_effort(control_effort);
 
-	LogFile::getInstance()->logData(heli::LOG_ATTITUDE_CONTROL_EFFORT, control_effort);
+	LogFile::getInstance()->logData(LOG_ATTITUDE_CONTROL_EFFORT, control_effort);
 //	debug() << "Attitude PID control effort: " << control_effort;
 }
 

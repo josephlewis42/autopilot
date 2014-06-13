@@ -21,7 +21,6 @@
 
 /* c headers */
 #include <unistd.h>
-#include <termios.h>
 #include <errno.h>
 #include <cstdlib>
 #include <stdint.h>
@@ -33,13 +32,13 @@
 // stl headers
 #include "Debug.h"
 #include "LogFile.h"
+#include "heli.h"
 
 
 
 /* File Handling Headers */
 #include "servo_switch.h"
 #include "RateLimiter.h"
-#include "qnx2linux.h"
 
 
 
@@ -71,6 +70,10 @@ const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser3";
 
 const std::string SERVO_SWITCH_ENABLED = "servo.enabled";
 const bool SERVO_SWITCH_ENABLED_DEFAULT = true;
+const std::string servo_switch::LOG_INPUT_PULSE_WIDTHS = "Input Pulse Widths";
+const std::string servo_switch::LOG_OUTPUT_PULSE_WIDTHS = "Output Pulse Widths";
+const std::string servo_switch::LOG_INPUT_RPM = "Engine RPM";
+
 
 
 servo_switch* servo_switch::getInstance()
@@ -100,9 +103,9 @@ servo_switch::servo_switch()
 		receive = boost::thread(read_serial());
 		send = boost::thread(send_serial());
 		LogFile *log = LogFile::getInstance();
-		log->logHeader(heli::LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
-		log->logHeader(heli::LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
-		log->logHeader(heli::LOG_INPUT_RPM, "RPM");
+		log->logHeader(LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
+		log->logHeader(LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
+		log->logHeader(LOG_INPUT_RPM, "RPM");
 	}
 }
 
@@ -129,7 +132,7 @@ bool servo_switch::init_port()
 
 	debug() << "Servo switch: opened";
 
-	namedTerminalSettings("switch1", fd_ser1, 115200, "8N1",false,true);
+	namedTerminalSettings("switch1", fd_ser1, 115200, "8N1", false, true);
 
 	return true;
 }
@@ -139,21 +142,8 @@ void servo_switch::set_pilot_mode(heli::PILOT_MODE mode)
 	if (pilot_mode != mode)
 	{
 		pilot_mode = mode;
-		message() << "Pilot mode changed to: " << pilot_mode_string(mode);
+		message() << "Pilot mode changed to: " << heli::PILOT_MODE_DESCRIPTOR[mode];
 		pilot_mode_changed(mode);
-	}
-}
-
-std::string servo_switch::pilot_mode_string(heli::PILOT_MODE mode)
-{
-	switch(mode)
-	{
-	case heli::PILOT_MANUAL:
-		return "manual";
-	case heli::PILOT_AUTO:
-		return "auto";
-	default:
-		return "unknown mode";
 	}
 }
 
@@ -174,13 +164,8 @@ std::vector<uint8_t> servo_switch::compute_checksum(uint8_t id, uint8_t count, c
 int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
 {
 	// TODO enable this to see if it works for servo.
-	//servo_switch* servo = servo_switch::getInstance();
-	//servo->readDevice(fd, buf, n);
-#ifdef __QNX__
-	return readcond(fd, buf, n, n, 10, 10);
-#else
-	return QNX2Linux::readUntilMin(fd, buf, n, n);
-#endif
+	servo_switch* servo = servo_switch::getInstance();
+	return servo->readDevice(fd, buf, n);
 }
 
 /* read_serial functions */
@@ -245,37 +230,36 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
 
 	switch (id)
 	{
-	case STATUS:
-	{
-		uint16_t status =  payload[1];
-		// shift right to get command channel state
-		status = (status & 0x6) >> 1;
-		switch (status)
+		case STATUS:
 		{
-		case 1:
-			servo->set_pilot_mode(heli::PILOT_MANUAL);
+			uint16_t status =  payload[1];
+			// shift right to get command channel state
+			status = (status & 0x6) >> 1;
+			switch (status)
+			{
+			case 1:
+				servo->set_pilot_mode(heli::PILOT_MANUAL);
+				break;
+			case 2:
+			case 3:
+				servo->set_pilot_mode(heli::PILOT_AUTO);
+				break;
+			default:
+				servo->warning("Command channel state signal not present on servo switch");
+			}
 			break;
-		case 2:
-		case 3:
-			servo->set_pilot_mode(heli::PILOT_AUTO);
-			break;
-		default:
-			servo->warning("Command channel state signal not present on servo switch");
 		}
-		break;
-	}
-	case PULSE_INPUTS:
-	{
-		parse_pulse_inputs(payload);
-		break;
-	}
-	case AUXILIARY_INPUTS:
-	{
-		parse_aux_inputs(payload);
-		break;
-	}
-	default:
-		servo->debug() << "Received unknown message from servo switch id: " << id;
+		
+		case PULSE_INPUTS:
+			parse_pulse_inputs(payload);
+			break;
+			
+		case AUXILIARY_INPUTS:
+			parse_aux_inputs(payload);
+			break;
+		
+		default:
+			servo->debug() << "Received unknown message from servo switch id: " << id;
 	}
 }
 
@@ -302,7 +286,7 @@ void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& p
 
 	getInstance()->set_raw_inputs(pulse_inputs);
     LogFile *log = LogFile::getInstance();
-    log->logData(heli::LOG_INPUT_PULSE_WIDTHS, pulse_inputs);
+    log->logData(LOG_INPUT_PULSE_WIDTHS, pulse_inputs);
 }
 
 void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& payload)
@@ -334,7 +318,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 	speeds.push_back(ss.get_engine_speed());
 
 	LogFile *log = LogFile::getInstance();
-	log->logData(heli::LOG_INPUT_RPM, speeds);
+	log->logData(LOG_INPUT_RPM, speeds);
 }
 
 
@@ -371,7 +355,7 @@ void servo_switch::send_serial::send_data()
 		rl.wait();
 
 		std::vector<uint8_t> pulse_message = get_pulse_message();
-		LogFile::getInstance()->logData(heli::LOG_OUTPUT_PULSE_WIDTHS, servo->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
+		LogFile::getInstance()->logData(LOG_OUTPUT_PULSE_WIDTHS, servo->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
 		while (write(servo->fd_ser1, &pulse_message[0], pulse_message.size()) < 0)
 		{
 			servo->debug("Error sending pulse output message to servo switch");
