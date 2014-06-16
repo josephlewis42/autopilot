@@ -45,14 +45,11 @@ the documentation will be placed in the doc directory.
 
 MAVLink Dependency
 
-The official MAVLink source can be found at https://github.com/mavlink/mavlink
+**********************************************************************************************
+* PLEASE NOTE: YOU NEED TO DOWNLOAD THE UDENVERMAVLINK LIBRARY (https://github.com/josephlewis42/UDenverMavlink) IN ORDER TO COMPILE THIS APPLICATION *
+**********************************************************************************************
 
-However, this autopilot is built against a custom version which is not always in sync with the official version.
-Therefore, it is recommended that to build the autopilot you clone our custom version available from
-https://github.com/ancl/mavlink.  Note, we are currently using the v10release branch.
-
-Similar to QGroundControl (http://qgroundcontrol.org) this software expects MAVLink to be stored in the same directory as the autopilot source.
-In other words, after cloning the autopilot and mavlink you should see both of the folders in a single directory listing.
+To build on Linux, make sure you have the UDenverMavlink folder at the same level as the UDenverQGC
 
 
 License
