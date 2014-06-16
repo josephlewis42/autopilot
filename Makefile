@@ -29,7 +29,7 @@ SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc'
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot
 
-all: gtest $(SOURCES) $(EXECUTABLE) ser2net configuration
+all: gtest mavlink $(SOURCES) $(EXECUTABLE) ser2net configuration
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 
@@ -42,6 +42,9 @@ $(BUILD_DIR)/%.o:%.cc
 ser2net: utils/ser2net.cpp
 	mkdir -p $(dir $@)
 	$(CC) -std=c++11 -g -Wall $< -o ${BUILD_DIR}/$@
+
+mavlink:
+	make --directory ../UDenverMavlink
 
 clean:
 	rm -r $(BUILD_DIR)
