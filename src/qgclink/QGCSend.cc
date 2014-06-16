@@ -609,7 +609,7 @@ void QGCLink::QGCSend::send_altimiter_distance(std::queue<std::vector<uint8_t> >
 
 	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
 
-	qgc->debug() << "Sending altimiter distance.";
+	//qgc->debug() << "Sending altimiter distance: " << dist << "\n";
 
 	sendq->push(buf);
 }
