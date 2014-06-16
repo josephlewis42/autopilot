@@ -437,8 +437,8 @@ include `Linux.h` and in the `MainApp::run()` method, call getInstance() after
 all the other plugins have done the same:
 
 		...
-		message() << "Setting up altimiter";
-		MdlAltimiter::getInstance();
+		message() << "Setting up altimeter";
+		MdlAltimeter::getInstance();
 		
 		message() << "Setting up Linux CPU Reader";
 		Linux::getInstance();

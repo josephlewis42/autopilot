@@ -2,7 +2,7 @@
 
 laser.py - a monitor for the Renishaw plc ilm-500-hr
 
-This program reads data from the laser altimiter.
+This program reads data from the laser altimeter.
 
 Copyright 2013 Joseph Lewis <joseph@josephlewis.net>
 

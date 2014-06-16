@@ -102,10 +102,10 @@ private:
 	 * @param sendq send queue
 	 */
 	void send_console_message(const std::string& message, std::queue<std::vector<uint8_t> > *sendq);
-	/** add altimiter message to send queue
+	/** add altimeter message to send queue
 	 * @param sendq send queue
 	 */
-	void send_altimiter_distance(std::queue<std::vector<uint8_t> > *sendq);
+	void send_altimeter_distance(std::queue<std::vector<uint8_t> > *sendq);
 
 	/** determine whether to send a particular stream
 	 * @param stream_rate requested stream rate
