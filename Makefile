@@ -73,6 +73,7 @@ tests: $(EXECUTABLE)
 
 # Google testing framework
 gtest:
+	mkdir -p $(DIST_DIR)
 	$(CC) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
      		-lpthread -c ${GTEST_DIR}/src/gtest-all.cc -o ${BUILD_DIR}/gtest-all.o
 	ar -rv ${BUILD_DIR}/libgtest.a ${BUILD_DIR}/gtest-all.o
