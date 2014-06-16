@@ -1,11 +1,11 @@
 /*
- * MdlAltimiter.cpp
+ * MdlAltimeter.cpp
  *
  *  Created on: May 16, 2014
  *      Author: joseph
  */
 
-#include "MdlAltimiter.h"
+#include "MdlAltimeter.h"
 /* File Handling Headers */
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,58 +31,58 @@
 
 
 
-const std::string ALTIMITER_ENABLED = "mdl_altimiter.enabled";
-const bool ALTIMITER_ENABLED_DEFAULT = true;
-const std::string ALTIMITER_PATH = "mdl_altimiter.device";
-const std::string ALTIMITER_PATH_DEFAULT = "/dev/ttyUSB0";
+const std::string ALTIMETER_ENABLED = "mdl_altimeter.enabled";
+const bool ALTIMETER_ENABLED_DEFAULT = true;
+const std::string ALTIMETER_PATH = "mdl_altimeter.device";
+const std::string ALTIMETER_PATH_DEFAULT = "/dev/ttyUSB0";
 
-MdlAltimiter* MdlAltimiter::_instance = NULL;
-std::mutex MdlAltimiter::_instance_lock;
+MdlAltimeter* MdlAltimeter::_instance = NULL;
+std::mutex MdlAltimeter::_instance_lock;
 
-MdlAltimiter* MdlAltimiter::getInstance()
+MdlAltimeter* MdlAltimeter::getInstance()
 {
 	std::lock_guard<std::mutex> lock(_instance_lock);
 
 	if (!_instance)
 	{
-		_instance = new MdlAltimiter();
+		_instance = new MdlAltimeter();
 	}
 
 	return _instance;
 }
 
-MdlAltimiter::MdlAltimiter()
-:Driver("MDL Altimiter", "mdl_altimiter")
+MdlAltimeter::MdlAltimeter()
+:Driver("MDL Altimeter", "mdl_altimeter")
 {
-	if(!Configuration::getInstance()->getb(ALTIMITER_ENABLED, ALTIMITER_ENABLED_DEFAULT))
+	if(!Configuration::getInstance()->getb(ALTIMETER_ENABLED, ALTIMETER_ENABLED_DEFAULT))
 	{
-		warning() << "MDL Altimiter disabled!";
+		warning() << "MDL Altimeter disabled!";
 		return;
 	}
 
-	std::string serial_path = Configuration::getInstance()->gets(ALTIMITER_PATH, ALTIMITER_PATH_DEFAULT);
+	std::string serial_path = Configuration::getInstance()->gets(ALTIMETER_PATH, ALTIMETER_PATH_DEFAULT);
 
 	_serialFd = open(serial_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
 	// Set up the terminal.
-	if(!namedTerminalSettings("Altimiter1", _serialFd, 38400, "8N1", false, true))
+	if(!namedTerminalSettings("Altimeter1", _serialFd, 38400, "8N1", false, true))
 	{
 		warning() << "Could not setup serial!";
 	}
 	else
 	{
-		debug() << "Altimiter set up!";
+		debug() << "Altimeter set up!";
 		distance = 0;
 		new_distance = false;
-		new boost::thread(&MdlAltimiter::mainLoop, this);
+		new boost::thread(&MdlAltimeter::mainLoop, this);
 	}
 }
 
-MdlAltimiter::~MdlAltimiter() {
+MdlAltimeter::~MdlAltimeter() {
 	close(_serialFd);
 }
 
-void MdlAltimiter::mainLoop() {
+void MdlAltimeter::mainLoop() {
 
 	uint8_t first = '\0', second = '\0';
 	uint16_t multiplierCM = 10;
@@ -90,7 +90,7 @@ void MdlAltimiter::mainLoop() {
 	uint16_t averagedThusFar = 0;
 	uint16_t sum = 0;
 
-	debug() << "Started main Altimiter loop ";
+	debug() << "Started main Altimeter loop ";
 
 	while(! terminateRequested())
 	{
@@ -127,7 +127,7 @@ void MdlAltimiter::mainLoop() {
 	}
 }
 
-bool MdlAltimiter::hasNewDistance()
+bool MdlAltimeter::hasNewDistance()
 {
 	bool ret = new_distance;
 	new_distance = false;

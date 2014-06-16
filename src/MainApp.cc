@@ -33,7 +33,7 @@
 #include "IMU.h"
 #include "GPS.h"
 #include "Driver.h"
-#include "MdlAltimiter.h"
+#include "MdlAltimeter.h"
 #include "RateLimiter.h"
 #include "TCPSerial.h"
 #include "Linux.h"
@@ -88,8 +88,8 @@ void MainApp::run()
 	message() << "Setting up IMU";
 	IMU::getInstance();
 
-	message() << "Setting up altimiter";
-	MdlAltimiter::getInstance();
+	message() << "Setting up altimeter";
+	MdlAltimeter::getInstance();
 
 	message() << "Setting up TCP";
 	new TCPSerial();

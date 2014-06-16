@@ -119,8 +119,8 @@
 	    <message id="228" name="UALBERTA_CONTROL_EFFORT">
 	      <field type="float[6]" name="normalized_control_effort"/>
 	    </message>
-          <message id="229" name="UALBERTA_ALTIMITER">
-               <description>Laser altimiter distance</description>
+          <message id="229" name="UALBERTA_ALTIMETER">
+               <description>Laser altimeter distance</description>
                <field type="float" name="dist"/>
           </message>
           

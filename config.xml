@@ -160,21 +160,21 @@
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 	</log>
-	<mdl_altimiter>
+	<mdl_altimeter>
 		<debug>true</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<enabled>true</enabled>
 		<device>/dev/ttyUSB0</device>
 		<terminal>
-			<Altimiter1>
+			<Altimeter1>
 				<baudrate>38400</baudrate>
 				<parity>8N1</parity>
 				<hardware_flow_control>false</hardware_flow_control>
 				<raw_mode>true</raw_mode>
-			</Altimiter1>
+			</Altimeter1>
 		</terminal>
-	</mdl_altimiter>
+	</mdl_altimeter>
 	<tcpserial>
 		<debug>false</debug>
 		<read_style>2</read_style>
@@ -192,4 +192,10 @@
 		<TCP_Port>5000</TCP_Port>
 		<TCP_backlog>10</TCP_backlog>
 	</tcpserial>
+	<linux_cpu_info>
+		<debug>false</debug>
+		<read_style>2</read_style>
+		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<enabled>true</enabled>
+	</linux_cpu_info>
 </configuration>

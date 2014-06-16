@@ -491,33 +491,33 @@ static void mavlink_test_ualberta_control_effort(uint8_t system_id, uint8_t comp
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
-static void mavlink_test_ualberta_altimiter(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+static void mavlink_test_ualberta_altimeter(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_message_t msg;
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
-	mavlink_ualberta_altimiter_t packet_in = {
+	mavlink_ualberta_altimeter_t packet_in = {
 		17.0,
 	};
-	mavlink_ualberta_altimiter_t packet1, packet2;
+	mavlink_ualberta_altimeter_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         	packet1.dist = packet_in.dist;
         
         
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_ualberta_altimiter_encode(system_id, component_id, &msg, &packet1);
-	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+	mavlink_msg_ualberta_altimeter_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_ualberta_altimeter_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_ualberta_altimiter_pack(system_id, component_id, &msg , packet1.dist );
-	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+	mavlink_msg_ualberta_altimeter_pack(system_id, component_id, &msg , packet1.dist );
+	mavlink_msg_ualberta_altimeter_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_ualberta_altimiter_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.dist );
-	mavlink_msg_ualberta_altimiter_decode(&msg, &packet2);
+	mavlink_msg_ualberta_altimeter_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.dist );
+	mavlink_msg_ualberta_altimeter_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
@@ -525,12 +525,12 @@ static void mavlink_test_ualberta_altimiter(uint8_t system_id, uint8_t component
         for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
         	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
         }
-	mavlink_msg_ualberta_altimiter_decode(last_msg, &packet2);
+	mavlink_msg_ualberta_altimeter_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_ualberta_altimiter_send(MAVLINK_COMM_1 , packet1.dist );
-	mavlink_msg_ualberta_altimiter_decode(last_msg, &packet2);
+	mavlink_msg_ualberta_altimeter_send(MAVLINK_COMM_1 , packet1.dist );
+	mavlink_msg_ualberta_altimeter_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
@@ -588,7 +588,7 @@ static void mavlink_test_ualberta(uint8_t system_id, uint8_t component_id, mavli
 	mavlink_test_ualberta_action(system_id, component_id, last_msg);
 	mavlink_test_ualberta_attitude(system_id, component_id, last_msg);
 	mavlink_test_ualberta_control_effort(system_id, component_id, last_msg);
-	mavlink_test_ualberta_altimiter(system_id, component_id, last_msg);
+	mavlink_test_ualberta_altimeter(system_id, component_id, last_msg);
 	mavlink_test_udenver_cpu_usage(system_id, component_id, last_msg);
 }
 
