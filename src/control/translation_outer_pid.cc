@@ -35,6 +35,8 @@ std::string translation_outer_pid::XML_TRANSLATION_X_INTEGRAL = "controller_para
 std::string translation_outer_pid::XML_TRANSLATION_Y_INTEGRAL = "controller_params.translation_outer_pid.y.integral";
 std::string translation_outer_pid::XML_TRAVEL = "controller_params.translation_outer_pid.travel";
 
+const std::string LOG_TRANS_PID_ERROR_STATES = "Translation PID Error States";
+
 
 
 translation_outer_pid::translation_outer_pid()
@@ -95,7 +97,7 @@ void translation_outer_pid::operator()(const blas::vector<double>& reference) th
 		attitude_reference[0] = y.compute_pid();
 	}
 
-	LogFile::getInstance()->logData(heli::LOG_TRANS_PID_ERROR_STATES, error_states);
+	LogFile::getInstance()->logData(LOG_TRANS_PID_ERROR_STATES, error_states);
 
 	Control::saturate(attitude_reference, scaled_travel_radians());
 

@@ -40,6 +40,8 @@ std::string tail_sbf::XML_TRANSLATION_X_INTEGRAL = "controller_params.translatio
 std::string tail_sbf::XML_TRANSLATION_Y_INTEGRAL = "controller_params.translation_outer_sbf.ned_y.integral";
 std::string tail_sbf::XML_TRAVEL = "controller_params.translation_outer_sbf.travel";
 
+const std::string LOG_TRANS_SBF_ERROR_STATES = "Translation SBF Error States";
+
 
 
 tail_sbf::tail_sbf()
@@ -85,7 +87,7 @@ void tail_sbf::operator()(const blas::vector<double>& reference) throw(bad_contr
 		ned_control(1) = ned_y.compute_pid();
 	}
 
-	LogFile::getInstance()->logData(heli::LOG_TRANS_SBF_ERROR_STATES, error_states);
+	LogFile::getInstance()->logData(LOG_TRANS_SBF_ERROR_STATES, error_states);
 
 	double heading = imu->get_euler()(2);
 	blas::matrix<double> Rz(3,3);

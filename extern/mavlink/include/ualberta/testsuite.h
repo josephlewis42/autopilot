@@ -534,6 +534,49 @@ static void mavlink_test_ualberta_altimiter(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
+static void mavlink_test_udenver_cpu_usage(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_udenver_cpu_usage_t packet_in = {
+		17.0,
+	};
+	mavlink_udenver_cpu_usage_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.cpu_usage = packet_in.cpu_usage;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_udenver_cpu_usage_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_udenver_cpu_usage_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_udenver_cpu_usage_pack(system_id, component_id, &msg , packet1.cpu_usage );
+	mavlink_msg_udenver_cpu_usage_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_udenver_cpu_usage_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.cpu_usage );
+	mavlink_msg_udenver_cpu_usage_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_udenver_cpu_usage_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_udenver_cpu_usage_send(MAVLINK_COMM_1 , packet1.cpu_usage );
+	mavlink_msg_udenver_cpu_usage_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mavlink_test_ualberta(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_test_nav_filter_bias(system_id, component_id, last_msg);
@@ -546,6 +589,7 @@ static void mavlink_test_ualberta(uint8_t system_id, uint8_t component_id, mavli
 	mavlink_test_ualberta_attitude(system_id, component_id, last_msg);
 	mavlink_test_ualberta_control_effort(system_id, component_id, last_msg);
 	mavlink_test_ualberta_altimiter(system_id, component_id, last_msg);
+	mavlink_test_udenver_cpu_usage(system_id, component_id, last_msg);
 }
 
 #ifdef __cplusplus

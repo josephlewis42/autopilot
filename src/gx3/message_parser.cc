@@ -35,6 +35,18 @@ namespace blas = boost::numeric::ublas;
 #include "Debug.h"
 #include "LogFile.h"
 
+// Constants
+std::string const IMU::message_parser::LOG_LLH_POS = "GX3 Estimated LLH Position";
+std::string const IMU::message_parser::LOG_NED_VEL = "GX3 Estimated NED Velocity";
+std::string const IMU::message_parser::LOG_ORIENTATION = "GX3 Nav Orientation Matrix";
+std::string const IMU::message_parser::LOG_ANG_RATE = "GX3 Nav Angular Rates";
+std::string const IMU::message_parser::LOG_ANG_RATE_FILTERED = "GX3 Nav Angular Rates Filtered";
+std::string const IMU::message_parser::LOG_EULER = "GX3 Nav Euler Angles";
+std::string const IMU::message_parser::Log_AHRS_Euler = "GX3 AHRS Euler Angles";
+std::string const IMU::message_parser::Log_AHRS_Ang_Rate = "GX3 AHRS Angular Rates";
+std::string const IMU::message_parser::Log_AHRS_Ang_Rate_Filtered = "GX3 AHRS Angular Rates Filtered";
+
+
 IMU::message_parser::message_parser()
 {
 
@@ -50,29 +62,29 @@ void IMU::message_parser::operator()()
 
 	// set up log files
 	LogFile *log = LogFile::getInstance();
-	log->logHeader(heli::LOG_LLH_POS, "Latitude Longitude Height Valid");
-	log->logData(heli::LOG_LLH_POS, std::vector<double>());
+	log->logHeader(LOG_LLH_POS, "Latitude Longitude Height Valid");
+	log->logData(LOG_LLH_POS, std::vector<double>());
 
-	log->logHeader(heli::LOG_NED_VEL, "Vel_X, Vel_Y, Vel_Z Valid");
-	log->logData(heli::LOG_NED_VEL, std::vector<double>());
+	log->logHeader(LOG_NED_VEL, "Vel_X, Vel_Y, Vel_Z Valid");
+	log->logData(LOG_NED_VEL, std::vector<double>());
 
-	log->logHeader(heli::LOG_ORIENTATION, "R11, R12, R13, R21, R22, R23, R31, R32, R33 Valid");
-	log->logData(heli::LOG_ORIENTATION, std::vector<double>());
+	log->logHeader(LOG_ORIENTATION, "R11, R12, R13, R21, R22, R23, R31, R32, R33 Valid");
+	log->logData(LOG_ORIENTATION, std::vector<double>());
 
-	log->logHeader(heli::LOG_ANG_RATE, "X, Y, Z Valid");
-	log->logData(heli::LOG_ANG_RATE, std::vector<double>());
+	log->logHeader(LOG_ANG_RATE, "X, Y, Z Valid");
+	log->logData(LOG_ANG_RATE, std::vector<double>());
 
-	log->logHeader(heli::LOG_ANG_RATE_FILTERED, "X, Y, Z");
-	log->logData(heli::LOG_ANG_RATE_FILTERED, std::vector<double>());
+	log->logHeader(LOG_ANG_RATE_FILTERED, "X, Y, Z");
+	log->logData(LOG_ANG_RATE_FILTERED, std::vector<double>());
 
-	log->logHeader(heli::Log_AHRS_Ang_Rate, "X, Y, Z");
-	log->logData(heli::Log_AHRS_Ang_Rate, std::vector<double>());
+	log->logHeader(Log_AHRS_Ang_Rate, "X, Y, Z");
+	log->logData(Log_AHRS_Ang_Rate, std::vector<double>());
 
-	log->logHeader(heli::Log_AHRS_Ang_Rate_Filtered, "X, Y, Z");
-	log->logData(heli::Log_AHRS_Ang_Rate_Filtered, std::vector<double>());
+	log->logHeader(Log_AHRS_Ang_Rate_Filtered, "X, Y, Z");
+	log->logData(Log_AHRS_Ang_Rate_Filtered, std::vector<double>());
 
-	log->logHeader(heli::LOG_EULER, "Roll Pitch Yaw Valid");
-	log->logData(heli::LOG_EULER, std::vector<double>());
+	log->logHeader(LOG_EULER, "Roll Pitch Yaw Valid");
+	log->logData(LOG_EULER, std::vector<double>());
 
 	while (true)
 	{
@@ -126,10 +138,10 @@ void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message
 			ang_rate[0] = raw_to_float(first_data);
 			ang_rate[1] = raw_to_float(first_data + 4);
 			ang_rate[2] = raw_to_float(first_data + 8);
-			LogFile::getInstance()->logData(heli::Log_AHRS_Ang_Rate, ang_rate);
+			LogFile::getInstance()->logData(Log_AHRS_Ang_Rate, ang_rate);
 			for (int i=0; i<3; ++i)
 				ang_rate[i] = ahrs_filters[i](ang_rate[i]);
-			LogFile::getInstance()->logData(heli::Log_AHRS_Ang_Rate_Filtered, ang_rate);
+			LogFile::getInstance()->logData(Log_AHRS_Ang_Rate_Filtered, ang_rate);
 			imu->set_ahrs_angular_rate(ang_rate);
 //			debug() << "ahrs ang rage" << ang_rate;
 			break;
@@ -142,7 +154,7 @@ void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message
 			euler[0] = raw_to_float(first_data);
 			euler[1] = raw_to_float(first_data + 4);
 			euler[2] = raw_to_float(first_data + 8);
-			LogFile::getInstance()->logData(heli::Log_AHRS_Euler, euler);
+			LogFile::getInstance()->logData(Log_AHRS_Euler, euler);
 			imu->set_ahrs_euler(euler);
 //			debug() << "AHRS euler: " << euler;
 			break;
@@ -248,7 +260,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			uint8_t valid = (*it)[27];
 			std::vector<double> log(llh.begin(), llh.end());
 			log.push_back(static_cast<double>(valid));
-			LogFile::getInstance()->logData(heli::LOG_LLH_POS, log);
+			LogFile::getInstance()->logData(LOG_LLH_POS, log);
 
 			if (valid)
 			{
@@ -269,7 +281,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 
 			std::vector<double> log(velocity.begin(), velocity.end());
 			log.push_back(static_cast<double>(valid));
-			LogFile::getInstance()->logData(heli::LOG_NED_VEL, log);
+			LogFile::getInstance()->logData(LOG_NED_VEL, log);
 			if (valid)
 			{
 				IMU::getInstance()->set_velocity(velocity);
@@ -301,7 +313,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			}
 
 			orientation.push_back(static_cast<double>(valid));
-			LogFile::getInstance()->logData(heli::LOG_ORIENTATION, orientation);
+			LogFile::getInstance()->logData(LOG_ORIENTATION, orientation);
 			if (valid)
 			{
 				IMU::getInstance()->set_nav_rotation(rotation);
@@ -323,7 +335,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 			uint8_t valid = *(first_data + 13);
 			std::vector<double> log(euler.begin(), euler.end());
 			log.push_back(static_cast<double>(valid));
-			LogFile::getInstance()->logData(heli::LOG_EULER, log);
+			LogFile::getInstance()->logData(LOG_EULER, log);
 
 			if (valid)
 			{
@@ -342,7 +354,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 
 			std::vector<double> log(angular_rate.begin(), angular_rate.end());
 			log.push_back(valid);
-			LogFile::getInstance()->logData(heli::LOG_ANG_RATE, log);
+			LogFile::getInstance()->logData(LOG_ANG_RATE, log);
 
 			if (valid)
 			{
@@ -350,7 +362,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
 				{
 					angular_rate[i] = nav_filters[i](angular_rate[i]);
 				}
-				LogFile::getInstance()->logData(heli::LOG_ANG_RATE_FILTERED, angular_rate);
+				LogFile::getInstance()->logData(LOG_ANG_RATE_FILTERED, angular_rate);
 				IMU::getInstance()->set_nav_angular_rate(angular_rate);
 			}
 			break;

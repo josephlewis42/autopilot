@@ -26,7 +26,8 @@
 #include <atomic>
 #include "Debug.h"
 #include "Configuration.h"
-
+#include <vector>
+#include <mavlink.h>
 
 /**
  * The driver class is the base class for all the extension points in the program.
@@ -64,6 +65,12 @@ public:
 		debug() << "Driver Terminating: " << getName();
 		_terminate = true;
 	};
+	
+	/**
+	 * Gets a vector with all drivers contained in it.
+	 **/
+	static std::vector<Driver*> getDrivers();
+
 
 	/// Traces an item to the debugging output of the software if debugging has been set up in the config file.
 	Debug trace();
@@ -79,12 +86,12 @@ public:
 	 * with name. If name already exists in the configuration file, those
 	 * settings will overwrite these.
 	 */
-	bool namedTerminalSettings(std::string name,
-									int fd,
-									int baudrate,
-									std::string parity,
-									bool enableHwFlow,
-									bool enableRawMode);
+	bool namedTerminalSettings(	std::string name,
+								int fd,
+								int baudrate,
+								std::string parity,
+								bool enableHwFlow,
+								bool enableRawMode);
 
 
 	/**
@@ -93,11 +100,27 @@ public:
 	 * hw flow control
 	 * and raw mode
 	 */
-	bool terminalSettings(int fd,
-									int baudrate,
-									std::string parity,
-									bool enableHwFlow,
-									bool enableRawMode);
+	bool terminalSettings(	int fd,
+							int baudrate,
+							std::string parity,
+							bool enableHwFlow,
+							bool enableRawMode);
+	
+	/**
+	 * Override this method to send out your own MavLink messages from
+	 * your driver.
+	 * 
+	 * @param msg - the message to populate.
+	 * @param uasId - the identifier of this system
+	 * @param sendRateHz - the number of messages sent/sec.
+	 * @param msgNumber - the number of messages sent thus far
+	 * 
+	 * Returns true if the message is populated, false otherwise.
+	 **/
+	virtual bool sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+	{
+		return false;
+	};
 
 };
 

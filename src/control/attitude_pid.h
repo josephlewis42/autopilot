@@ -166,6 +166,11 @@ public:
 	double get_pitch_integral();
 
 private:
+	static const std::string LOG_ATTITUDE_ERROR;
+	static const std::string LOG_ATTITUDE_REFERENCE;
+	static const std::string LOG_ATTITUDE_CONTROL_EFFORT;
+
+
 	pid_channel roll;
 	mutable std::mutex roll_lock;
 	pid_channel pitch;

@@ -1,6 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt
- * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
+ * Copyright 2013 Joseph Lewis <joseph@josephlewis.net>
  * 
  * This file is part of ANCL Autopilot.
  * 

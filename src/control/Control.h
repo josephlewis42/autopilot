@@ -170,6 +170,9 @@ private:
 	static std::string XML_PITCH_MIX;
 	static std::string XML_CONTROLLER_MODE;
 	static std::string XML_TRAJECTORY_VALUE;
+	static const std::string LOG_POSITION_REFERENCE;
+	static const std::string LOG_PID_TRANS_ATTITUDE_REF;
+	static const std::string LOG_SBF_TRANS_ATTITUDE_REF;
 
 
 

@@ -102,6 +102,11 @@ private:
 	servo_switch();
 	static servo_switch* _instance;
 	static std::mutex _instance_lock;
+	
+	static const std::string LOG_INPUT_PULSE_WIDTHS ;
+	static const std::string LOG_OUTPUT_PULSE_WIDTHS ;
+	static const std::string LOG_INPUT_RPM ;
+
 
 	/// @returns true if the port was successfully set up, false otherwise
 	bool init_port();
@@ -125,7 +130,6 @@ private:
 
 	std::atomic<heli::PILOT_MODE> pilot_mode;
 	void set_pilot_mode(heli::PILOT_MODE mode);
-	static std::string pilot_mode_string(heli::PILOT_MODE mode);
 
 	std::atomic<double> engine_speed;
 	inline void set_engine_speed(double speed) {engine_speed = speed;}

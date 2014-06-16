@@ -39,6 +39,19 @@ public:
 	void operator()();
 
 private:
+
+	static std::string const LOG_LLH_POS;
+	static std::string const LOG_NED_VEL;
+	static std::string const LOG_ORIENTATION;
+	static std::string const LOG_ANG_RATE;
+	static std::string const LOG_ANG_RATE_FILTERED;
+	static std::string const LOG_EULER;
+	static std::string const Log_AHRS_Euler;
+	static std::string const Log_AHRS_Ang_Rate;
+	static std::string const Log_AHRS_Ang_Rate_Filtered;
+
+
+
 	/// parse nav filter data message and take appropriate action
 	void parse_nav_message(const std::vector<uint8_t>& message);
 	/// parse command message and take appropriate action
