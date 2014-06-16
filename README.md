@@ -37,7 +37,7 @@ MAVLink Dependency
 
 * PLEASE NOTE: YOU NEED TO DOWNLOAD THE UDENVERMAVLINK LIBRARY (https://github.com/josephlewis42/UDenverMavlink) IN ORDER TO COMPILE THIS APPLICATION *
 
-To build on Linux, make sure you have the UDenverMavlink folder at the same level as the UDenverQGC
+To build on Linux, make sure you have the 'UDenverMavlink' folder at the same level as the 'autopilot' folder.
 
 ============================
 
