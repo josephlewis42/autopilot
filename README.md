@@ -32,6 +32,14 @@ Directory Structure
 * build/ - place where the makefile places the output
 * settings/ - settings files
 
+MAVLink Dependency
+------------------
+
+* PLEASE NOTE: YOU NEED TO DOWNLOAD THE UDENVERMAVLINK LIBRARY (https://github.com/josephlewis42/UDenverMavlink) IN ORDER TO COMPILE THIS APPLICATION *
+
+To build on Linux, make sure you have the UDenverMavlink folder at the same level as the UDenverQGC
+
+============================
 
 Generate Documentation
 ----------------------
@@ -42,15 +50,6 @@ Generate Documentation
 the documentation will be placed in the doc directory.
 
 ============================
-
-MAVLink Dependency
-
-**********************************************************************************************
-* PLEASE NOTE: YOU NEED TO DOWNLOAD THE UDENVERMAVLINK LIBRARY (https://github.com/josephlewis42/UDenverMavlink) IN ORDER TO COMPILE THIS APPLICATION *
-**********************************************************************************************
-
-To build on Linux, make sure you have the UDenverMavlink folder at the same level as the UDenverQGC
-
 
 License
 =======
