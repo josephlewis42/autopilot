@@ -117,7 +117,7 @@ void MdlAltimeter::mainLoop() {
 			distance = (float(sum) / float(averagedThusFar)) * multiplierCM;
 			new_distance = true;
 			
-			debug() << "Distance: " << distance / 100 << "m " << distance << " cm (" << distance * 0.393701 << " in)";
+			//debug() << "Distance: " << distance / 100 << "m " << distance << " cm (" << distance * 0.393701 << " in)";
 
 			sum = 0;
 			averagedThusFar = 0;
