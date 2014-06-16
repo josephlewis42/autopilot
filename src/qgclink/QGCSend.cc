@@ -31,7 +31,7 @@
 #include "Debug.h"
 
 /* MAVLink Headers */
-#include <mavlink.h>
+//#include <mavlink.h>
 
 /* STL Headers */
 #include <vector>
@@ -178,6 +178,20 @@ void QGCLink::QGCSend::send()
 			  send_rc_calibration(send_queue);
 			  qgc->clear_requested_rc_calibration();
 		  }
+		  
+		// Do bulk allocation of messages for drivers.
+		for(Driver* driver : Driver::getDrivers())
+		{
+			mavlink_message_t msg;
+			
+			if(driver->sendMavlinkMsg(&msg, qgc->uasId, send_rate, loop_count))
+			{
+				std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
+				buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
+				send_queue->push(buf);
+			}
+		}
+		
 
 		  /* Send any queued messages to the console */
 		  if (!message_queue_empty()) //only send max one message per iteration

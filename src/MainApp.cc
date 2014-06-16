@@ -36,6 +36,7 @@
 #include "MdlAltimiter.h"
 #include "RateLimiter.h"
 #include "TCPSerial.h"
+#include "Linux.h"
 
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
@@ -103,6 +104,10 @@ void MainApp::run()
 
 	message() << "Setting up control";
 	Control* control = Control::getInstance();
+	
+	
+	message() << "Setting up Linux CPU Reader";
+	Linux::getInstance();
 
 
 	// broadcast the controller mode

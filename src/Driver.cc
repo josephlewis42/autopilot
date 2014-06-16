@@ -13,6 +13,10 @@
 #include "Configuration.h"
 #include "qnx2linux.h"
 
+#include <mavlink.h> 
+
+
+
 std::mutex Driver::_all_drivers_lock;
 std::list<Driver*> Driver::all_drivers;
 
@@ -54,6 +58,20 @@ void Driver::terminateAll()
 
 	// wait for all threads to terminate
 	sleep(3);
+}
+
+std::vector<Driver*> Driver::getDrivers()
+{
+	std::vector<Driver*> drivers;
+	{
+		std::lock_guard<std::mutex> lock(_all_drivers_lock);
+		for(Driver* d : all_drivers)
+		{
+			drivers.push_back(d);
+		}
+	}
+	
+	return drivers;
 }
 
 Debug Driver::trace()
