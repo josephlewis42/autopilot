@@ -139,9 +139,6 @@ void QGCLink::QGCSend::send()
 			  send_status(send_queue);
 		  }
 
-		  if(MdlAltimeter::getInstance()->hasNewDistance())
-			  send_altimeter_distance(send_queue);
-
 		  if (get_gx3_new_message())
 			  send_gx3_message(send_queue);
 
@@ -608,22 +605,5 @@ void QGCLink::QGCSend::send_console_message(const std::string& message, std::que
 
 	::mavlink_msg_statustext_pack(qgc->uasId, 0, &msg, (boost::algorithm::starts_with(console, "Critical")?255:0), console.c_str());
 	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-	sendq->push(buf);
-}
-
-void QGCLink::QGCSend::send_altimeter_distance(std::queue<std::vector<uint8_t> > *sendq)
-{
-	//get altimeter data
-	float dist = MdlAltimeter::getInstance()->distance;
-
-	mavlink_message_t msg;
-	std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-	mavlink_msg_ualberta_altimeter_pack(qgc->uasId, heli::ALTIMETER_ID, &msg, dist);
-
-	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-
-	//qgc->debug() << "Sending altimeter distance: " << dist << "\n";
-
 	sendq->push(buf);
 }

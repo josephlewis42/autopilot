@@ -27,7 +27,7 @@
 		<antenna_offset_x_meters>-0.24</antenna_offset_x_meters>
 		<antenna_offset_y_meters>-0.05</antenna_offset_y_meters>
 		<antenna_offset_z_meters>-0.473</antenna_offset_z_meters>
-		<use_external_gps>true</use_external_gps>
+		<use_external_gps>false</use_external_gps>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>

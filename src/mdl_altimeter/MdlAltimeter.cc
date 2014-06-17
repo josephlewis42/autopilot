@@ -54,14 +54,21 @@ MdlAltimeter* MdlAltimeter::getInstance()
 MdlAltimeter::MdlAltimeter()
 :Driver("MDL Altimeter", "mdl_altimeter")
 {
-	if(!Configuration::getInstance()->getb(ALTIMETER_ENABLED, ALTIMETER_ENABLED_DEFAULT))
+	isEnabled = configGetb("enabled", true);
+
+	if(terminateRequested())
+	{
+		return;
+	}
+
+	if(!isEnabled)
 	{
 		warning() << "MDL Altimeter disabled!";
 		return;
 	}
 
+	// Open up the serial port
 	std::string serial_path = Configuration::getInstance()->gets(ALTIMETER_PATH, ALTIMETER_PATH_DEFAULT);
-
 	_serialFd = open(serial_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
 	// Set up the terminal.
@@ -73,7 +80,7 @@ MdlAltimeter::MdlAltimeter()
 	{
 		debug() << "Altimeter set up!";
 		distance = 0;
-		new_distance = false;
+		has_new_distance = false;
 		new boost::thread(&MdlAltimeter::mainLoop, this);
 	}
 }
@@ -115,10 +122,7 @@ void MdlAltimeter::mainLoop() {
 		else
 		{
 			distance = (float(sum) / float(averagedThusFar)) * multiplierCM;
-			new_distance = true;
-			
-			//debug() << "Distance: " << distance / 100 << "m " << distance << " cm (" << distance * 0.393701 << " in)";
-
+			has_new_distance = true;
 			sum = 0;
 			averagedThusFar = 0;
 		}
@@ -127,9 +131,16 @@ void MdlAltimeter::mainLoop() {
 	}
 }
 
-bool MdlAltimeter::hasNewDistance()
+bool MdlAltimeter::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
 {
-	bool ret = new_distance;
-	new_distance = false;
-	return ret;
-}
+	if(! isEnabled) return false;
+
+	if(has_new_distance) // only send message for new distance
+	{
+		mavlink_msg_ualberta_altimeter_pack(uasId, heli::ALTIMETER_ID, msg, distance);
+		//debug() << "Sending altimeter distance: " << distance << "\n";
+		has_new_distance = false;
+		return true;
+	}
+	return false;
+};

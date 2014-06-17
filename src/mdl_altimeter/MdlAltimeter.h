@@ -18,16 +18,14 @@ public:
 	static MdlAltimeter* getInstance();
 	float distance;
 	void mainLoop();
-	bool hasNewDistance();
+	virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
 
 private:
-	/// pointer to the instance of Alitimiter
-	static MdlAltimeter* _instance;
-	/// serialize access to _instance
-	static std::mutex _instance_lock;
-
+	static MdlAltimeter* _instance; /// pointer to the instance of Alitimiter
+	static std::mutex _instance_lock; /// serialize access to _instance
 	int _serialFd;
-	bool new_distance;
+	bool isEnabled;
+	bool has_new_distance;
 
 };
 
