@@ -21,6 +21,8 @@
 #include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
+#include <sys/sysinfo.h>
+
 
 #include "RateLimiter.h"
 
@@ -70,23 +72,38 @@ void Linux::cpuInfo(Linux* instance)
 {	
 	RateLimiter rl(1);
 
-	std::ifstream myfile;
-	myfile.open ("/proc/loadavg");
+	std::ifstream cpufile, memfile;
+	cpufile.open ("/proc/loadavg");
+	
+	struct sysinfo sysinf;
 	
 	float util = 0;
 	while(!instance->terminateRequested())
 	{
 		rl.wait(); // suspends until we're ready to go
 		
-		myfile >> util;
-		myfile.seekg(0); // go to the beginning of the file
+		// read cpufile
+		cpufile >> util;
+		cpufile.seekg(0); // go to the beginning of the file
+		
 		instance->cpu_utilization = util; // set our utilization
-		instance->debug() << "Got Load of: " << util;
+		// read memory info
+		
+		sysinfo(&sysinf);
+		instance->uptime_seconds = sysinf.uptime;
+		instance->totalram = (sysinf.totalram * sysinf.mem_unit) / (1024 * 1024);
+		instance->freeram = (sysinf.freeram * sysinf.mem_unit) / (1024 * 1024);
+		
+		int totalram = (int)instance->totalram;
+		int freeram = (int)instance->freeram;
+		
+
+		instance->debug() << "Got Load of: " << util << " memtotal: " << totalram << " mb free: " << freeram << " mb";
 		
 		rl.finishedCriticalSection(); // call to yield
 	}
 	
-	myfile.close();
+	cpufile.close();
 }
 
 bool Linux::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
@@ -96,7 +113,7 @@ bool Linux::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, in
 	if(msgNumber % sendRateHz == 0) // do this once a second.
 	{
 		debug() << "Sending CPU Utilization";
-		mavlink_msg_udenver_cpu_usage_pack(uasId, 40, msg, getCpuUtilization());
+		mavlink_msg_udenver_cpu_usage_pack(uasId, 40, msg, getCpuUtilization(), totalram.load(), freeram.load());
 		return true;
 	}
 	return false;
