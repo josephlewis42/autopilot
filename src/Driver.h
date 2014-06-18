@@ -43,23 +43,36 @@ private:
 	/// stores the prefix for the driver
 	std::string _config_prefix;
 
-	// Keeps the human readable name for the current driver.
+	/// Keeps the human readable name for the current driver.
 	std::string _name;
 
 	/// stores if the driver is going to do big debugging.
 	bool _debug;
 
-	// Keeps a list of all drivers so we can terminate them later.
+	/// Locks the all_drivers list
 	static std::mutex _all_drivers_lock;
+	
+	/// Keeps a list of all drivers so we can iterate over them later.
 	static std::list<Driver*> all_drivers;
+	
+	/// Keeps the value of the read property on a particular device.
 	int _readDeviceType;
 
 
 public:
 	Driver(std::string name, std::string config_prefix);
 	virtual ~Driver();
+	
+	/// calls terminate() on all drivers
 	static void terminateAll();
+	
+	/// Returns the human-readable name of this driver
 	inline const std::string getName(){return _name;};
+	
+	/** Checks if terminate() has been called for this driver
+	 * 
+	 * @return true if terminate() has been called, false otherwise
+	 **/
 	inline bool terminateRequested() {return _terminate;};
 	inline void terminate() {
 		debug() << "Driver Terminating: " << getName();
@@ -75,9 +88,8 @@ public:
 	/// Traces an item to the debugging output of the software if debugging has been set up in the config file.
 	Debug trace();
 
-	// Reads a fd in to the given buffer with a minimum of n bytes
 	/**
-	 * 
+	 * Reads a fd in to the given buffer with a minimum of n bytes
 	 **/
 	int readDevice(int fd, void * buf, int n);
 

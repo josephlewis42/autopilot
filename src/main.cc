@@ -23,20 +23,11 @@
    @author Nikos Vitzilaios <nvitzilaios@ualberta.ca>
    @author Aakash Vasudevan <avasudev@ualberta.ca>
    \author Hasitha Senanayake <senanaya@ualberta.ca>
+   \author Joseph Lewis III <joseph@josephlewis.net>
    \mainpage
-   This project contains the code for the autopilot system.  This documentation is available on the
-   local network at http://doc/autopilot/html/index.html .
-   The central version should be used (as opposed to a locally generated version) since it is regenerated
-   every time a push is made to the central repository.
-
-   \p The contents of the root folder are
-   - \b doc/ project documentation
-   - \b README describes folder structure
-   - \b src/ source code
-   - \b utils/ sample programs to demonstrate various aspects of the system (e.g., counter board i/o)
-   - \b extern/ external libraries used to build the autopilot
-
-   @note all debugging messages should be printed using the ::debug() function.  See the Debug class.
+   This project contains the code for the UDenver autopilot system.
+   
+   Source code can be found [at the github repo](https://github.com/josephlewis42/autopilot)
  */
 
 
