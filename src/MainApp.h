@@ -22,9 +22,7 @@
 #define MAINAPP_H_
 
 /* STL Headers */
-#include <iostream> // used only while quick debugging to print to screen.
 #include <string>
-#include <vector>
 #include <mutex>
 #include <atomic>
 
@@ -32,24 +30,16 @@
 #include "heli.h"
 
 /* Boost Headers */
-#include <boost/date_time.hpp>
-#include <boost/thread.hpp>
 #include <boost/signals2.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 /**
  * \brief This class replaces the standard main function and implements the main program logic.
  * \author Bryan Godbolt <godbolt@ece.ualberta.ca>
+ * \author Joseph Lewis <joseph@josephlewis.net>
  * \date June 15, 2011 Class created
  * @date January 20, 2012 Added pilot mode switch from new takeover
- *
- * This class is necessary in order to facilitate thread cleanup.  In particular, when this object
- * is destroyed (because the main function is about to return) boost::this_thread::at_thread_exit()
- * is used to call a cleanup routine which sends a terminate signal to other threads in the program
- * then waits for them to terminate.  The signal is sent using the (thread safe) boost::signals2 library.
- * In order for the cleanup class to wait on a thread, the thread must have identified itself at some point
- * by calling the MainApp::add_thread function and passing a pointer to itself and its name (the latter is
- * used for printing messages to the user).
+ * \date 2014-06-19 - Removed the main signaling and thread tracking done
+ * by this class as it now is handled internally by all drivers
  */
 
 class MainApp {
@@ -62,24 +52,12 @@ public:
 	
 	/// Function in which to place main program logic (replaces main()).
 	void run();
-	
-	/// Append a thread to a list so that MainApp can wait for it after sending terminate signal
-	static void add_thread(boost::thread *thread, std::string name);
 
 	/// signal send by main app to notify other threads of a mode change (in particular qgclink::qgcsend)
 	static boost::signals2::signal<void (heli::AUTOPILOT_MODE)> mode_changed;
 
 	/// signal to request a mode change from other threads
 	static boost::signals2::signal<void (heli::AUTOPILOT_MODE)> request_mode;
-
-	/// Data structure for storing a boost::thread*, thread name pair
-	class ThreadName
-	{
-	public:
-		ThreadName(boost::thread * = new boost::thread(), std::string name = std::string());
-		boost::thread *thread;
-		std::string name;
-	};
 	
 	/// terminates the signal
 	static void terminate(){MainApp::getInstance()->_terminate = true;};
@@ -100,30 +78,21 @@ private:
 	/// thread safe assignment operator
 	const MainApp& operator=(const MainApp& other) = delete;
 
-	/// List of other threads in the program which should be allowed to terminate before the main program exits
-	static std::vector<ThreadName> threads;
-
 	/// controls whether the main loop continues to execute
 	std::atomic_bool _terminate;
-
-	/// Send terminate signal and then wait for other threads when run() finishes
-	void cleanup();
 
 	/// stores the current operating mode of the autopilot
 	std::atomic<heli::AUTOPILOT_MODE> autopilot_mode;
 
-	/// @returns the value of MainApp::autopilot_mode using MainApp::autopilot_mode_lock
-	int getMode();
-
 	/// @returns the string representation of the current mode
 	std::string getModeString();
-
-	/// @returns the string representation of mode
-	static std::string getModeString(heli::AUTOPILOT_MODE mode);
 
 	/// slot connected to MainApp::request_mode to change the value of MainApp::autopilot_mode
 	void change_mode(heli::AUTOPILOT_MODE mode);
 
+	/** Changes the pilot mode and sends a signal out that it has been changed.
+	 * 
+	 **/
 	void change_pilot_mode(heli::PILOT_MODE mode);
 
 

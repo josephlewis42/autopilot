@@ -39,6 +39,10 @@
 #include "Linux.h"
 #include "SystemState.h"
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time.hpp>
+
+
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
 
@@ -56,23 +60,17 @@ MainApp* MainApp::getInstance()
 }
 
 
-
 MainApp::MainApp()
 :autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
 {
 	this->_terminate = false;
 }
 
+
 void MainApp::run()
 {
 	boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
 
-	/**
-	terminate.connect([]()
-		{
-			MainApp::getInstance()->do_terminate();
-		}); // Shutdown program by sending a SIGINT.
-	**/
 	signal(SIGINT, [](int signum)
 		{
 			MainApp::getInstance()->terminate();
@@ -161,19 +159,17 @@ void MainApp::run()
 		log->logHeader(LOG_SCALED_INPUTS, "CH1 CH2 CH3 CH4 CH5 CH6");
 		log->logData(LOG_SCALED_INPUTS, inputScaled);
 
-		switch(getMode())
+		switch(autopilot_mode.load())
 		{
 		case heli::MODE_DIRECT_MANUAL:
-		{
 			inputMicros = servo_board->getRaw();
 			servo_board->setRaw(inputMicros);
 			break;
-		}
+
 		case heli::MODE_SCALED_MANUAL:
-		{
 			bergen->setScaled(inputScaled);
 			break;
-		}
+		
 		case heli::MODE_AUTOMATIC_CONTROL:
 		{
 			if (control->runnable())
@@ -199,44 +195,22 @@ void MainApp::run()
 			}
 			break;
 		}
+		
+		default:
+			critical() << "MainApp: The given mode is not defined!";
+			critical() << "MainApp: Switching to Direct Manual Mode.";
+			request_mode(heli::MODE_DIRECT_MANUAL);
+			break;
 		}
 
 		rl.finishedCriticalSection();
 	}
 	
-	cleanup();
-}
-
-std::vector<MainApp::ThreadName> MainApp::threads;
-
-void MainApp::add_thread(boost::thread *thread, std::string name)
-{
-	threads.push_back(MainApp::ThreadName(thread, name));
-}
-
-MainApp::ThreadName::ThreadName(boost::thread *thread, std::string name)
-{
-	this->thread = thread;
-	this->name = name;
+	Driver::terminateAll();
 }
 
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::mode_changed;
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::request_mode;
-
-void MainApp::cleanup()
-{
-	Driver::terminateAll();
-
-    int n = (int)boost::posix_time::time_duration::ticks_per_second() * 1;
-    boost::posix_time::time_duration delay(0,0,0,n);
-
-    for(ThreadName t : MainApp::threads)
-	{
-		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
-		t.thread->timed_join(delay);
-	}
-	message() << "All registered threads ended.";
-}
 
 void MainApp::change_mode(heli::AUTOPILOT_MODE mode)
 {
@@ -246,19 +220,9 @@ void MainApp::change_mode(heli::AUTOPILOT_MODE mode)
 	MainApp::mode_changed(mode);
 }
 
-int MainApp::getMode()
-{
-	return autopilot_mode;
-}
-
 std::string MainApp::getModeString()
 {
-	return heli::AUTOPILOT_MODE_DESCRIPTOR[getMode()];
-}
-
-std::string MainApp::getModeString(heli::AUTOPILOT_MODE mode)
-{
-	return heli::AUTOPILOT_MODE_DESCRIPTOR[mode];
+	return heli::AUTOPILOT_MODE_DESCRIPTOR[autopilot_mode.load()];
 }
 
 void MainApp::change_pilot_mode(heli::PILOT_MODE mode)
