@@ -240,6 +240,8 @@ void QGCLink::QGCReceive::receive()
 					{
 						qgc->debug() << "Position Data Stream at " << m.req_message_rate << " Hz.";
 						qgc->set_position_rate(m.req_message_rate);
+						
+						IMU::getInstance()->setMessageSendRate(m.req_message_rate);
 						break;
 					}
 					default:

@@ -26,7 +26,8 @@ Driver::Driver(std::string name, std::string config_prefix)
   ConfigurationSubTree(config_prefix),
   _terminate(false),
   _config_prefix(config_prefix),
-  _name(name)
+  _name(name),
+  _driverInit(std::chrono::system_clock::now())
 {
 	{
 		std::lock_guard<std::mutex> lock(_all_drivers_lock);
@@ -250,4 +251,12 @@ bool Driver::terminalSettings(int fd,
 	trace() << "serial set up success " << fd;
 
 	return true;
+}
+
+
+
+long Driver::getMsSinceInit()
+{
+	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _driverInit;
+	return (long)(elapsed_seconds.count() * 1000);
 }

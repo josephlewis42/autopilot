@@ -64,10 +64,6 @@ private:
 	/** queue up a heartbeat message
 	 * @param sendq queue to put heartbeat message in */
 	void send_heartbeat(std::queue<std::vector<uint8_t> >* sendq);
-	/** queue up a raw imu sense message
-	 * @param sendq queue to put message in
-	 */
-	void send_raw_imu(std::queue<std::vector<uint8_t> >* sendq);
 	/** queue up rc channel (raw and scaled) message
 	 * @param sendq queue to put messages in
 	 */

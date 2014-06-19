@@ -127,54 +127,67 @@ void QGCLink::QGCSend::send()
   boost::signals2::scoped_connection critical_connection(Debug::criticalSignal.connect(
 		  boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
 
-  while(true)
-  {
-	  rl.wait();
+	while(true)
+	{
+		rl.wait();
+		
+		if (should_run(qgc->get_heartbeat_rate(), send_rate, loop_count))
+		{
+			send_heartbeat(send_queue);
+			send_status(send_queue);
+		}
+		
+		if (get_gx3_new_message())
+		{
+			send_gx3_message(send_queue);
+		}
+		
+		if(should_run(qgc->get_attitude_rate(), send_rate, loop_count))
+		{
+			send_attitude(send_queue);
+		}
+		
+		/* Send parameters */
+		qgc->param_recv_lock.lock();
+		bool param_recv = qgc->param_recv;
+		qgc->param_recv = false;
+		qgc->param_recv_lock.unlock();
+		
+		if(param_recv)
+		{
+			send_param(send_queue);
+		}
+		
+		/* Send RC Channels */
+		if (should_run(qgc->get_rc_channel_rate(), send_rate, loop_count))
+		{
+			send_rc_channels(send_queue);
+		}
+		
+		/* send control effort */
+		if (should_run(qgc->get_control_output_rate(), send_rate, loop_count))
+		{
+			send_control_effort(send_queue);
+		}
+		
+		if (should_run(qgc->get_position_rate(), send_rate, loop_count))
+		{
+			send_position(send_queue);
+		}
+		
+		qgc->requested_params_lock.lock();
+		if (!qgc->requested_params.empty())
+		{
+			send_requested_params(send_queue);
+		}
+		qgc->requested_params_lock.unlock();
 
-
-
-		  if (should_run(qgc->get_heartbeat_rate(), send_rate, loop_count))
-		  {
-			  send_heartbeat(send_queue);
-			  send_status(send_queue);
-		  }
-
-		  if (get_gx3_new_message())
-			  send_gx3_message(send_queue);
-
-		  if(should_run(qgc->get_attitude_rate(), send_rate, loop_count))
-			  send_attitude(send_queue);
-
-		  /* Send parameters */
-		  qgc->param_recv_lock.lock();
-		  bool param_recv = qgc->param_recv;
-		  qgc->param_recv = false;
-		  qgc->param_recv_lock.unlock();
-		  if(param_recv)
-			  send_param(send_queue);
-
-		  /* Send RC Channels */
-		  if (should_run(qgc->get_rc_channel_rate(), send_rate, loop_count))
-			  send_rc_channels(send_queue);
-
-		  /* send control effort */
-		  if (should_run(qgc->get_control_output_rate(), send_rate, loop_count))
-			  send_control_effort(send_queue);
-
-		  if (should_run(qgc->get_position_rate(), send_rate, loop_count))
-			  send_position(send_queue);
-
-		  qgc->requested_params_lock.lock();
-		  if (!qgc->requested_params.empty())
-			  send_requested_params(send_queue);
-		  qgc->requested_params_lock.unlock();
-
-		  /* Send RC Calibration */
-		  if (qgc->get_requested_rc_calibration())
-		  {
-			  send_rc_calibration(send_queue);
-			  qgc->clear_requested_rc_calibration();
-		  }
+		/* Send RC Calibration */
+		if (qgc->get_requested_rc_calibration())
+		{
+			send_rc_calibration(send_queue);
+			qgc->clear_requested_rc_calibration();
+		}
 		  
 		// Do bulk allocation of messages for drivers.
 		for(Driver* driver : Driver::getDrivers())
@@ -190,38 +203,36 @@ void QGCLink::QGCSend::send()
 		}
 		
 
-		  /* Send any queued messages to the console */
-		  if (!message_queue_empty()) //only send max one message per iteration
-			  send_console_message(message_queue_pop(), send_queue);
-		  try
-		  {
-			  /* actually send data to qgc */
-			  while (!send_queue->empty())
-			  {
-#ifndef NDEBUG
-				  uint8_t sysid = send_queue->front().at(3);
-				  uint8_t compid = send_queue->front().at(4);
-				  uint8_t msgid = send_queue->front().at(5);
-				  qgc->debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
-#endif
-				  qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
-				  send_queue->pop();
-			  }
+		/* Send any queued messages to the console */
+		if (!message_queue_empty()) //only send max one message per iteration
+		{
+			send_console_message(message_queue_pop(), send_queue);
+		}
+		
+		try
+		{
+			/* actually send data to qgc */
+			while (!send_queue->empty())
+			{
+				qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
+				send_queue->pop();
+			}
+		}
+		catch (boost::system::system_error e)
+		{
+			qgc->warning() << e.what();
+		}
+		
+		/* Increment loop count */
+		loop_count++;
 
-		  }
-		  catch (boost::system::system_error e)
-		  {
-			  qgc->warning() << e.what();
-		  }
-		  /* Increment loop count */
-		  loop_count++;
-
-		  rl.finishedCriticalSection();
-  }
+		rl.finishedCriticalSection();
+	}
 }
 
 void QGCLink::QGCSend::send_position(std::queue<std::vector<uint8_t> > *sendq)
 {
+	/**
 	{
 		IMU* imu = IMU::getInstance();
 
@@ -259,7 +270,7 @@ void QGCLink::QGCSend::send_position(std::queue<std::vector<uint8_t> > *sendq)
 
 		buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
 		sendq->push(buf);
-	}
+	}**/
 
 	{
 
@@ -381,27 +392,6 @@ bool QGCLink::QGCSend::should_run(int stream_rate, int send_rate, int count)
 	if (stream_rate == 0 || stream_rate > send_rate)
 		return false;
 	return count%(send_rate/stream_rate) == 0;
-}
-
-void QGCLink::QGCSend::send_raw_imu(std::queue<std::vector<uint8_t> > *sendq)
-{
-//	NavFilter *nav = NavFilter::getInstance();
-//
-//	NavFilter::IMU_Data data = nav->getCurrentRawIMU();
-//
-//	mavlink_message_t msg;
-//	std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-//
-//	mavlink_msg_scaled_imu_pack(100, 200, &msg, data.timerticks(),
-//			data.accel()[0]*1000, data.accel()[1]*1000, data.accel()[2]*1000,
-//			data.gyro()[0]*1000, data.gyro()[1]*1000, data.gyro()[2]*1000,
-//			data.mag()[0]/10, data.mag()[1]/10, data.mag()[2]/10);
-//
-//	buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-//
-//
-//	sendq->push(buf);
-
 }
 
 void QGCLink::QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)

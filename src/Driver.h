@@ -28,6 +28,9 @@
 #include "Configuration.h"
 #include <vector>
 #include <mavlink.h>
+#include <chrono>
+#include <ctime>
+
 
 /**
  * The driver class is the base class for all the extension points in the program.
@@ -57,6 +60,9 @@ private:
 	
 	/// Keeps the value of the read property on a particular device.
 	int _readDeviceType;
+	
+	/// Keeps the time that the driver was initiated
+	std::chrono::time_point<std::chrono::system_clock> _driverInit;
 
 
 public:
@@ -133,7 +139,12 @@ public:
 	{
 		return false;
 	};
-
+	
+	
+	/**
+	 * Gets the number of milliseconds since this driver was instnatiated.
+	 **/
+	 long getMsSinceInit();
 };
 
 #endif /* DRIVER_H_ */

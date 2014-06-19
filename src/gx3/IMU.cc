@@ -29,6 +29,7 @@
 #include "gx3_send_serial.h"
 #include "QGCLink.h"
 #include "util/AutopilotMath.hpp"
+#include "Control.h"
 
 /* File Handling Headers */
 #include <sys/types.h>
@@ -79,7 +80,10 @@ IMU::IMU()
  nav_angular_rate(blas::zero_vector<double>(3)),
  ahrs_angular_rate(blas::zero_vector<double>(3))
 {
-	if(! configGetb(IMU_ENABLED, IMU_ENABLED_DEFAULT))
+	isEnabled = configGetb(IMU_ENABLED, IMU_ENABLED_DEFAULT);
+	_positionSendRateHz = configGeti("position_message_rate_hz", 10);
+	
+	if(! isEnabled)
 	{
 		warning() << "GX3 disabled!";
 		return;
@@ -260,3 +264,57 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 	}
 	message() << "Origin set to: " << origin;
 }
+
+
+bool IMU::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+{
+	if(! isEnabled) return false;
+
+	if(msgNumber % (sendRateHz/_positionSendRateHz) == 0)
+	{
+		debug() << "Sending IMU message";
+		
+		// get llh pos
+		blas::vector<double> _llh_pos(get_llh_position());
+		std::vector<float> llh_pos(_llh_pos.begin(), _llh_pos.end());
+		
+		// get ned pos
+		blas::vector<double> _ned_pos(get_ned_position());
+		std::vector<float> ned_pos(_ned_pos.begin(), _ned_pos.end());
+		
+		// get ned vel
+		blas::vector<double> _ned_vel(get_velocity());
+		std::vector<float> ned_vel(_ned_vel.begin(), _ned_vel.end());
+		
+		// get ned origin
+		blas::vector<double> _ned_origin(get_llh_origin());
+		std::vector<float> ned_origin(_ned_origin.begin(), _ned_origin.end());
+
+		Control *control = Control::getInstance();
+		// get reference position
+		blas::vector<double> _ref_pos(control->get_reference_position());
+		std::vector<float> ref_pos(_ref_pos.begin(), _ref_pos.end());
+		
+		// get position error in body
+		blas::vector<double> _body_error(control->get_body_postion_error());
+		std::vector<float> body_error(_body_error.begin(), _body_error.end());
+		
+		// get position error in ned
+		blas::vector<double> _ned_error(control->get_ned_position_error());
+		std::vector<float> ned_error(_ned_error.begin(), _ned_error.end());
+
+		mavlink_message_t msg;
+		std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
+
+		mavlink_msg_ualberta_position_pack(
+			uasId, 
+			heli::GX3_ID, 
+			&msg,
+			&llh_pos[0], &ned_pos[0], &ned_vel[0], &ned_origin[0],
+			&ref_pos[0], &body_error[0], &ned_error[0],
+			getMsSinceInit());
+		
+		return true;
+	}
+	return false;
+};

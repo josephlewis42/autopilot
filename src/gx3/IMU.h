@@ -29,6 +29,7 @@
 /* STL Headers */
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 /* Project Headers */
 #include "Driver.h"
@@ -121,7 +122,13 @@ public:
 
 	static blas::matrix<double> euler_to_rotation(const blas::vector<double>& euler);
 
+	virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
+
+	void setMessageSendRate(int hz){_positionSendRateHz = hz;};
+
 private:
+	bool isEnabled;
+	
 	IMU();
 	static IMU* _instance;
 	static std::mutex _instance_lock;
@@ -258,6 +265,9 @@ private:
 
 	/// convert llh to ecef
 	static blas::vector<double> llh2ecef(const blas::vector<double>& llh_deg);
+	
+	
+	std::atomic_int _positionSendRateHz;
 };
 
 #endif /* IMU_H_ */
