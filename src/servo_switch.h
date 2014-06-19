@@ -55,6 +55,8 @@ public:
 
     virtual ~servo_switch();
 
+    virtual void writeToSystemState() override;
+
     class read_serial
     {
     public:

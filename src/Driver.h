@@ -147,6 +147,11 @@ public:
         return false;
     };
 
+    /**
+     * Override this method to write any relevent values to the
+     * SystemState object
+    **/
+    virtual void writeToSystemState() {};
 
     /**
      * Gets the number of milliseconds since this driver was instnatiated.

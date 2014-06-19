@@ -33,8 +33,7 @@
 #include "Debug.h"
 #include "LogFile.h"
 #include "heli.h"
-
-
+#include "SystemState.h"
 
 /* File Handling Headers */
 #include "servo_switch.h"
@@ -112,6 +111,17 @@ servo_switch::servo_switch()
 servo_switch::~servo_switch()
 {
 
+}
+
+void servo_switch::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->servo_raw_inputs = raw_inputs;
+    state->servo_raw_outputs = raw_outputs;
+    state->servo_pilot_mode.store(pilot_mode.load());
+    state->servo_engine_speed.store(engine_speed.load());
+    state->state_lock.unlock();
 }
 
 bool servo_switch::init_port()

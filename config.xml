@@ -28,6 +28,7 @@
 		<antenna_offset_y_meters>-0.05</antenna_offset_y_meters>
 		<antenna_offset_z_meters>-0.473</antenna_offset_z_meters>
 		<use_external_gps>false</use_external_gps>
+		<position_message_rate_hz>10</position_message_rate_hz>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>

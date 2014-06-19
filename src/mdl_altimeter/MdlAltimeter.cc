@@ -28,6 +28,7 @@
 #include "ack_handler.h"
 #include "gx3_send_serial.h"
 #include "QGCLink.h"
+#include "SystemState.h"
 
 
 
@@ -145,4 +146,12 @@ bool MdlAltimeter::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRat
         return true;
     }
     return false;
+};
+
+void MdlAltimeter::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->altimeter_height = distance;
+    state->state_lock.unlock();
 };

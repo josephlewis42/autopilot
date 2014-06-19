@@ -20,6 +20,7 @@ public:
     float distance;
     void mainLoop();
     virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
+    virtual void writeToSystemState() override;
 
 private:
     static MdlAltimeter* _instance; /// pointer to the instance of Alitimiter
