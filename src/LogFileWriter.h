@@ -39,34 +39,37 @@
 class LogfileWriter : public Driver
 {
 private:
-	static std::recursive_mutex _ALL_LOGGERS_MUTEX;
-	static std::map<std::string, LogfileWriter* > _ALL_LOGGERS;
+    static std::recursive_mutex _ALL_LOGGERS_MUTEX;
+    static std::map<std::string, LogfileWriter* > _ALL_LOGGERS;
 
-	std::string _logName;
-	ThreadSafeVariable<std::string> _header;
+    std::string _logName;
+    ThreadSafeVariable<std::string> _header;
 
-	mutable std::mutex _currentBufferLock;
-	std::stringstream* _currentBuffer;
+    mutable std::mutex _currentBufferLock;
+    std::stringstream* _currentBuffer;
 
-	std::stringstream _firstBuffer;
-	std::stringstream _secondBuffer;
+    std::stringstream _firstBuffer;
+    std::stringstream _secondBuffer;
 
-	/// swaps the buffers and returns a pointer to the one that was just swapped out.
-	std::stringstream* swapBuffers();
+    /// swaps the buffers and returns a pointer to the one that was just swapped out.
+    std::stringstream* swapBuffers();
 
-	/// a function that writes the buffers out.
-	void writeThread();
+    /// a function that writes the buffers out.
+    void writeThread();
 
-	/// gets the path to the log file
-	boost::filesystem::path getLogPath();
+    /// gets the path to the log file
+    boost::filesystem::path getLogPath();
 
-	LogfileWriter(std::string path);
-	~LogfileWriter();
+    LogfileWriter(std::string path);
+    ~LogfileWriter();
 public:
-	static LogfileWriter* getLogger(const std::string& path);
+    static LogfileWriter* getLogger(const std::string& path);
 
-	void log(const std::string& message);
-	void setHeader(const std::string& header){_header = header;}
+    void log(const std::string& message);
+    void setHeader(const std::string& header)
+    {
+        _header = header;
+    }
 
 };
 

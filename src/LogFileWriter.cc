@@ -32,128 +32,128 @@ std::recursive_mutex LogfileWriter::_ALL_LOGGERS_MUTEX;
 
 LogfileWriter* LogfileWriter::getLogger(const std::string& path)
 {
-	LogfileWriter* logger;
+    LogfileWriter* logger;
 
 
-	_ALL_LOGGERS_MUTEX.lock();
-	if(_ALL_LOGGERS.count(path) > 0)
-	{
-		logger = _ALL_LOGGERS[path];
-	}
-	else
-	{
-		logger = new LogfileWriter(path);
-		_ALL_LOGGERS[path] = logger;
-	}
+    _ALL_LOGGERS_MUTEX.lock();
+    if(_ALL_LOGGERS.count(path) > 0)
+    {
+        logger = _ALL_LOGGERS[path];
+    }
+    else
+    {
+        logger = new LogfileWriter(path);
+        _ALL_LOGGERS[path] = logger;
+    }
 
-	_ALL_LOGGERS_MUTEX.unlock();
+    _ALL_LOGGERS_MUTEX.unlock();
 
-	return logger;
+    return logger;
 }
 
 
 
 LogfileWriter::LogfileWriter(std::string path)
-:Driver("LogFile", "log")
+    :Driver("LogFile", "log")
 {
-	_logName = path;
-	_currentBuffer = &_firstBuffer;
+    _logName = path;
+    _currentBuffer = &_firstBuffer;
 
-	//debug() << "Created for " << path;
+    //debug() << "Created for " << path;
 
-	// all logging write threads will die when the software shuts down.
-	new boost::thread(boost::bind(&LogfileWriter::writeThread, this));
+    // all logging write threads will die when the software shuts down.
+    new boost::thread(boost::bind(&LogfileWriter::writeThread, this));
 }
 
 LogfileWriter::~LogfileWriter()
 {
-	_ALL_LOGGERS_MUTEX.lock();
-	_ALL_LOGGERS.erase(_logName);
-	_ALL_LOGGERS_MUTEX.unlock();
+    _ALL_LOGGERS_MUTEX.lock();
+    _ALL_LOGGERS.erase(_logName);
+    _ALL_LOGGERS_MUTEX.unlock();
 }
 
 boost::filesystem::path LogfileWriter::getLogPath()
 {
-	boost::filesystem::path filename;
-	if (!(boost::filesystem::path(_logName)).has_extension())
-	{
-		filename = LogFile::getInstance()->getLogFolder() / (_logName + ".dat");
-	}
-	else
-	{
-		filename = LogFile::getInstance()->getLogFolder() / _logName;
-	}
+    boost::filesystem::path filename;
+    if (!(boost::filesystem::path(_logName)).has_extension())
+    {
+        filename = LogFile::getInstance()->getLogFolder() / (_logName + ".dat");
+    }
+    else
+    {
+        filename = LogFile::getInstance()->getLogFolder() / _logName;
+    }
 
-	return filename;
+    return filename;
 }
 
 std::stringstream* LogfileWriter::swapBuffers()
 {
-	std::lock_guard<std::mutex> lock(_currentBufferLock);
+    std::lock_guard<std::mutex> lock(_currentBufferLock);
 
-	std::stringstream* firstPtr = &_firstBuffer;
-	std::stringstream* secondPtr = &_secondBuffer;
+    std::stringstream* firstPtr = &_firstBuffer;
+    std::stringstream* secondPtr = &_secondBuffer;
 
-	if(_currentBuffer == firstPtr)
-	{
-		_currentBuffer = secondPtr;
-		return firstPtr;
-	}
-	else
-	{
-		_currentBuffer = firstPtr;
-		return secondPtr;
-	}
+    if(_currentBuffer == firstPtr)
+    {
+        _currentBuffer = secondPtr;
+        return firstPtr;
+    }
+    else
+    {
+        _currentBuffer = firstPtr;
+        return secondPtr;
+    }
 }
 
 void LogfileWriter::log(const std::string& message)
 {
-	std::lock_guard<std::mutex> lock(_currentBufferLock);
-	*_currentBuffer << message;
+    std::lock_guard<std::mutex> lock(_currentBufferLock);
+    *_currentBuffer << message;
 }
 
 void LogfileWriter::writeThread()
 {
-	boost::filesystem::path filename = getLogPath();
+    boost::filesystem::path filename = getLogPath();
 
-	RateLimiter rl(2);
+    RateLimiter rl(2);
 
-	try
-	{
-		bool existed = boost::filesystem::exists(filename);
-		std::fstream output(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
+    try
+    {
+        bool existed = boost::filesystem::exists(filename);
+        std::fstream output(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
 
-		if(! existed)
-		{
-			debug() << "Creating log file " << filename.c_str();
-			std::string header = _header;
-			output << "Time(ms)\t" << header << std::endl;
-		}
+        if(! existed)
+        {
+            debug() << "Creating log file " << filename.c_str();
+            std::string header = _header;
+            output << "Time(ms)\t" << header << std::endl;
+        }
 
-		while(! terminateRequested())
-		{
-			rl.wait();
+        while(! terminateRequested())
+        {
+            rl.wait();
 
-			std::stringstream* writeBuffer = swapBuffers();
-			output << writeBuffer->str();
-			writeBuffer->str("");
+            std::stringstream* writeBuffer = swapBuffers();
+            output << writeBuffer->str();
+            writeBuffer->str("");
 
-			rl.finishedCriticalSection();
-		}
+            rl.finishedCriticalSection();
+        }
 
-		output.close();
-	}
-	catch (boost::filesystem::filesystem_error& fserr)
-	{
-		critical() << fserr.what();
+        output.close();
+    }
+    catch (boost::filesystem::filesystem_error& fserr)
+    {
+        critical() << fserr.what();
 
-		while(! terminateRequested())
-		{
-			rl.wait();
-			critical() << "Discarding: " << filename.c_str() << " data b/c the file could not be opened.";
+        while(! terminateRequested())
+        {
+            rl.wait();
+            critical() << "Discarding: " << filename.c_str() << " data b/c the file could not be opened.";
 
-			swapBuffers()->str("");
-			rl.finishedCriticalSection();
-		}
-	}
+            swapBuffers()->str("");
+            rl.finishedCriticalSection();
+        }
+    }
 }

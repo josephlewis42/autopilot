@@ -20,61 +20,61 @@
 #include "gps_time.h"
 
 gps_time::gps_time()
-: week(0), seconds(0), status(UNKNOWN)
+    : week(0), seconds(0), status(UNKNOWN)
 {
 }
 
 gps_time::gps_time(uint16_t week, double seconds, TIME_STATUS status)
-:week(week), seconds(seconds), status(status)
+    :week(week), seconds(seconds), status(status)
 {
 }
 
 gps_time::gps_time(uint16_t week, uint32_t milliseconds, TIME_STATUS status)
-:week(week), status(status)
+    :week(week), status(status)
 {
-	seconds = (static_cast<double>(milliseconds))/1000;
+    seconds = (static_cast<double>(milliseconds))/1000;
 }
 
 gps_time& gps_time::operator=(const gps_time& rhs)
 {
-	week = rhs.week;
-	seconds = rhs.seconds;
-	return *this;
+    week = rhs.week;
+    seconds = rhs.seconds;
+    return *this;
 }
 
 std::string gps_time::get_status_string() const
 {
-	switch(status)
-	{
-	case UNKNOWN:
-		return "Unknown";
-	case APPROXIMATE:
-		return "Approximate";
-	case COARSEADJUSTING:
-		return "Coarse Adjusting";
-	case COARSESTEERING:
-		return "Coarse Steering";
-	case COARSE:
-		return "Coarse";
-	case FREEWHEELING:
-		return "Freewheeling";
-	case FINEADJUSTING:
-		return "Fine Adjusting";
-	case FINE:
-		return "Fine";
-	case FINESTEERING:
-		return "Fine Steering";
-	case SATTIME:
-		return "Sat Time";
-	default:
-		return "not listed";
-	}
-	return std::string();
+    switch(status)
+    {
+    case UNKNOWN:
+        return "Unknown";
+    case APPROXIMATE:
+        return "Approximate";
+    case COARSEADJUSTING:
+        return "Coarse Adjusting";
+    case COARSESTEERING:
+        return "Coarse Steering";
+    case COARSE:
+        return "Coarse";
+    case FREEWHEELING:
+        return "Freewheeling";
+    case FINEADJUSTING:
+        return "Fine Adjusting";
+    case FINE:
+        return "Fine";
+    case FINESTEERING:
+        return "Fine Steering";
+    case SATTIME:
+        return "Sat Time";
+    default:
+        return "not listed";
+    }
+    return std::string();
 }
 
 Debug& operator<<(Debug& dbg, const gps_time& gt)
 {
-	return dbg << "week number: " << gt.week << ", seconds: " << gt.seconds << " Status: " << gt.get_status_string();
+    return dbg << "week number: " << gt.week << ", seconds: " << gt.seconds << " Status: " << gt.get_status_string();
 }
 
 

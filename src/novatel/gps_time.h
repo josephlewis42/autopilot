@@ -39,48 +39,54 @@
 class gps_time
 {
 public:
-	enum TIME_STATUS
-	{
-		UNKNOWN = 20,
-		APPROXIMATE = 60,
-		COARSEADJUSTING = 80,
-		COARSE = 100,
-		COARSESTEERING = 120,
-		FREEWHEELING = 130,
-		FINEADJUSTING = 140,
-		FINE = 160,
-		FINESTEERING = 180,
-		SATTIME = 200
-	};
-	/// initializes members to 0
-	gps_time();
-	/// initializeds week to week and scales milliseconds into seconds
-	gps_time(uint16_t week, uint32_t milliseconds, TIME_STATUS status);
-	/// initializes memebers to provided arguments
-	gps_time(uint16_t week, double seconds, TIME_STATUS status);
+    enum TIME_STATUS
+    {
+        UNKNOWN = 20,
+        APPROXIMATE = 60,
+        COARSEADJUSTING = 80,
+        COARSE = 100,
+        COARSESTEERING = 120,
+        FREEWHEELING = 130,
+        FINEADJUSTING = 140,
+        FINE = 160,
+        FINESTEERING = 180,
+        SATTIME = 200
+    };
+    /// initializes members to 0
+    gps_time();
+    /// initializeds week to week and scales milliseconds into seconds
+    gps_time(uint16_t week, uint32_t milliseconds, TIME_STATUS status);
+    /// initializes memebers to provided arguments
+    gps_time(uint16_t week, double seconds, TIME_STATUS status);
 
-	/// format the print the gps time
-	friend Debug& operator<<(Debug& dbg, const gps_time& gt);
+    /// format the print the gps time
+    friend Debug& operator<<(Debug& dbg, const gps_time& gt);
 
-	/// assignment operator to copy gps_time
-	gps_time& operator=(const gps_time& rhs);
+    /// assignment operator to copy gps_time
+    gps_time& operator=(const gps_time& rhs);
 
-	/// get the week
-	inline uint16_t get_week() const {return week;}
-	/// get the seconds
-	inline double get_seconds() const {return seconds;}
-	/// get the string version of the status
-	std::string get_status_string() const;
+    /// get the week
+    inline uint16_t get_week() const
+    {
+        return week;
+    }
+    /// get the seconds
+    inline double get_seconds() const
+    {
+        return seconds;
+    }
+    /// get the string version of the status
+    std::string get_status_string() const;
 
 
 
 private:
-	/// GPS Week Number
-	uint16_t week;
-	/// GPS Time of Week scaled into seconds
-	double seconds;
-	/// GPS time status
-	TIME_STATUS status;
+    /// GPS Week Number
+    uint16_t week;
+    /// GPS Time of Week scaled into seconds
+    double seconds;
+    /// GPS time status
+    TIME_STATUS status;
 
 };
 

@@ -28,23 +28,24 @@
 
 /// A threadsafe queue
 template<class T>
-class ThreadQueue {
+class ThreadQueue
+{
 private:
-	/// the queue
-	std::queue<T> _queue;
+    /// the queue
+    std::queue<T> _queue;
 
-	/// mutex for the queue
-	mutable std::mutex _queue_lock;
+    /// mutex for the queue
+    mutable std::mutex _queue_lock;
 
 public:
 
-	ThreadQueue();
-	virtual ~ThreadQueue();
+    ThreadQueue();
+    virtual ~ThreadQueue();
 
-	void push(T val);
-	T pop();
-	bool empty();
-	int size();
+    void push(T val);
+    T pop();
+    bool empty();
+    int size();
 };
 
 template<class T>
@@ -61,31 +62,31 @@ ThreadQueue<T>::~ThreadQueue()
 template<class T>
 T ThreadQueue<T>::pop()
 {
-	std::lock_guard<std::mutex> lock(_queue_lock);
-	T value = _queue.front();
-	_queue.pop();
-	return value;
+    std::lock_guard<std::mutex> lock(_queue_lock);
+    T value = _queue.front();
+    _queue.pop();
+    return value;
 }
 
 template<class T>
 void ThreadQueue<T>::push(T value)
 {
-	std::lock_guard<std::mutex> lock(_queue_lock);
-	_queue.push(value);
+    std::lock_guard<std::mutex> lock(_queue_lock);
+    _queue.push(value);
 }
 
 template<class T>
 bool ThreadQueue<T>::empty()
 {
-	std::lock_guard<std::mutex> lock(_queue_lock);
-	return _queue.empty();
+    std::lock_guard<std::mutex> lock(_queue_lock);
+    return _queue.empty();
 }
 
 template<class T>
 int ThreadQueue<T>::size()
 {
-	std::lock_guard<std::mutex> lock(_queue_lock);
-	return _queue.size();
+    std::lock_guard<std::mutex> lock(_queue_lock);
+    return _queue.size();
 }
 
 

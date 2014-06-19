@@ -40,111 +40,118 @@
 class Driver : public Logger, public ConfigurationSubTree
 {
 private:
-	/// store whether to terminate the thread
-	std::atomic_bool _terminate;
+    /// store whether to terminate the thread
+    std::atomic_bool _terminate;
 
-	/// stores the prefix for the driver
-	std::string _config_prefix;
+    /// stores the prefix for the driver
+    std::string _config_prefix;
 
-	/// Keeps the human readable name for the current driver.
-	std::string _name;
+    /// Keeps the human readable name for the current driver.
+    std::string _name;
 
-	/// stores if the driver is going to do big debugging.
-	bool _debug;
+    /// stores if the driver is going to do big debugging.
+    bool _debug;
 
-	/// Locks the all_drivers list
-	static std::mutex _all_drivers_lock;
-	
-	/// Keeps a list of all drivers so we can iterate over them later.
-	static std::list<Driver*> all_drivers;
-	
-	/// Keeps the value of the read property on a particular device.
-	int _readDeviceType;
-	
-	/// Keeps the time that the driver was initiated
-	std::chrono::time_point<std::chrono::system_clock> _driverInit;
+    /// Locks the all_drivers list
+    static std::mutex _all_drivers_lock;
+
+    /// Keeps a list of all drivers so we can iterate over them later.
+    static std::list<Driver*> all_drivers;
+
+    /// Keeps the value of the read property on a particular device.
+    int _readDeviceType;
+
+    /// Keeps the time that the driver was initiated
+    std::chrono::time_point<std::chrono::system_clock> _driverInit;
 
 
 public:
-	Driver(std::string name, std::string config_prefix);
-	virtual ~Driver();
-	
-	/// calls terminate() on all drivers
-	static void terminateAll();
-	
-	/// Returns the human-readable name of this driver
-	inline const std::string getName(){return _name;};
-	
-	/** Checks if terminate() has been called for this driver
-	 * 
-	 * @return true if terminate() has been called, false otherwise
-	 **/
-	inline bool terminateRequested() {return _terminate;};
-	inline void terminate() {
-		debug() << "Driver Terminating: " << getName();
-		_terminate = true;
-	};
-	
-	/**
-	 * Gets a vector with all drivers contained in it.
-	 **/
-	static std::vector<Driver*> getDrivers();
+    Driver(std::string name, std::string config_prefix);
+    virtual ~Driver();
+
+    /// calls terminate() on all drivers
+    static void terminateAll();
+
+    /// Returns the human-readable name of this driver
+    inline const std::string getName()
+    {
+        return _name;
+    };
+
+    /** Checks if terminate() has been called for this driver
+     *
+     * @return true if terminate() has been called, false otherwise
+     **/
+    inline bool terminateRequested()
+    {
+        return _terminate;
+    };
+    inline void terminate()
+    {
+        debug() << "Driver Terminating: " << getName();
+        _terminate = true;
+    };
+
+    /**
+     * Gets a vector with all drivers contained in it.
+     **/
+    static std::vector<Driver*> getDrivers();
 
 
-	/// Traces an item to the debugging output of the software if debugging has been set up in the config file.
-	Debug trace();
+    /// Traces an item to the debugging output of the software if debugging has been set up in the config file.
+    Debug trace();
 
-	/**
-	 * Reads a fd in to the given buffer with a minimum of n bytes
-	 **/
-	int readDevice(int fd, void * buf, int n);
+    /**
+     * Reads a fd in to the given buffer with a minimum of n bytes
+     **/
+    int readDevice(int fd, void * buf, int n);
 
-	/**
-	 * Sets the given terminal configuration on the given fd and saves them
-	 * with name. If name already exists in the configuration file, those
-	 * settings will overwrite these.
-	 */
-	bool namedTerminalSettings(	std::string name,
-								int fd,
-								int baudrate,
-								std::string parity,
-								bool enableHwFlow,
-								bool enableRawMode);
+    /**
+     * Sets the given terminal configuration on the given fd and saves them
+     * with name. If name already exists in the configuration file, those
+     * settings will overwrite these.
+     */
+    bool namedTerminalSettings(	std::string name,
+                                int fd,
+                                int baudrate,
+                                std::string parity,
+                                bool enableHwFlow,
+                                bool enableRawMode);
 
 
-	/**
-	 * Sets up the terminal at the given fd with the given baudrate,
-	 * parity (one of: [8N1, 7E1, 701, 7M1, 7S1])
-	 * hw flow control
-	 * and raw mode
-	 */
-	bool terminalSettings(	int fd,
-							int baudrate,
-							std::string parity,
-							bool enableHwFlow,
-							bool enableRawMode);
-	
-	/**
-	 * Override this method to send out your own MavLink messages from
-	 * your driver.
-	 * 
-	 * @param msg - the message to populate.
-	 * @param uasId - the identifier of this system
-	 * @param sendRateHz - the number of messages sent/sec.
-	 * @param msgNumber - the number of messages sent thus far
-	 * 
-	 * Returns true if the message is populated, false otherwise.
-	 **/
-	virtual bool sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
-	{
-		return false;
-	};
-	
-	
-	/**
-	 * Gets the number of milliseconds since this driver was instnatiated.
-	 **/
-	 long getMsSinceInit();
+    /**
+     * Sets up the terminal at the given fd with the given baudrate,
+     * parity (one of: [8N1, 7E1, 701, 7M1, 7S1])
+     * hw flow control
+     * and raw mode
+     */
+    bool terminalSettings(	int fd,
+                            int baudrate,
+                            std::string parity,
+                            bool enableHwFlow,
+                            bool enableRawMode);
+
+    /**
+     * Override this method to send out your own MavLink messages from
+     * your driver.
+     *
+     * @param msg - the message to populate.
+     * @param uasId - the identifier of this system
+     * @param sendRateHz - the number of messages sent/sec.
+     * @param msgNumber - the number of messages sent thus far
+     *
+     * Returns true if the message is populated, false otherwise.
+     **/
+    virtual bool sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+    {
+        return false;
+    };
+
+
+    /**
+     * Gets the number of milliseconds since this driver was instnatiated.
+     **/
+    long getMsSinceInit();
 };
 
 #endif /* DRIVER_H_ */

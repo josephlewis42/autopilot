@@ -46,35 +46,35 @@ std::string GPS::LOG_NOVATEL_GPS_ALL = "Novatel GPS (All Measurements)";
 bool GPS::GPS_ENABLED_DEFAULT = true;
 
 const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
-		"V-sol_status vel_type V-X V-Y V-Z V-X_stddev V-Y_stddev V-Z_stddev "
-		"#obs";
+                                       "V-sol_status vel_type V-X V-Y V-Z V-X_stddev V-Y_stddev V-Z_stddev "
+                                       "#obs";
 
 const std::string READ_GPS_THREAD_NAME = "Novatel GPS";
 
 
 GPS* GPS::getInstance()
 {
-	std::lock_guard<std::mutex> lock(_instance_lock);
+    std::lock_guard<std::mutex> lock(_instance_lock);
 
-	if (!_instance)
-	{
-		_instance = new GPS();
-	}
+    if (!_instance)
+    {
+        _instance = new GPS();
+    }
 
-	return _instance;
+    return _instance;
 }
 
 
 GPS::GPS()
-:Driver("NovAtel GPS","novatel"),
- read_serial_thread(ReadSerial()),
- llh_position(blas::vector<double>(0,3)),
- ned_velocity(blas::vector<double>(0,3)),
- pos_sigma(blas::vector<double>(0,3)),
- vel_sigma(blas::vector<double>(0,3))
+    :Driver("NovAtel GPS","novatel"),
+     read_serial_thread(ReadSerial()),
+     llh_position(blas::vector<double>(0,3)),
+     ned_velocity(blas::vector<double>(0,3)),
+     pos_sigma(blas::vector<double>(0,3)),
+     vel_sigma(blas::vector<double>(0,3))
 {
-	trace() << "Generating log headers";
-	LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
+    trace() << "Generating log headers";
+    LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 }
 
 

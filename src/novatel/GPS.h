@@ -57,187 +57,270 @@ namespace blas = boost::numeric::ublas;
 class GPS : public Driver
 {
 public:
-	virtual ~GPS();
+    virtual ~GPS();
 
-	static GPS* getInstance();
+    static GPS* getInstance();
 
-	class ReadSerial;
+    class ReadSerial;
 
-	/// threadsafe get llh_position
-	inline blas::vector<double> get_llh_position() {std::lock_guard<std::mutex> lock(llh_position_lock); return llh_position;}
-	/// threadsafe get ned_velocity
-	inline blas::vector<double> get_ned_velocity() {std::lock_guard<std::mutex> lock(ned_velocity_lock); return ned_velocity;}
-	/// threadafe get position error std dev
-	inline blas::vector<double> get_pos_sigma() {std::lock_guard<std::mutex> lock(pos_sigma_lock); return pos_sigma;}
-	/// threadsafe get vel error std dev
-	inline blas::vector<double> get_vel_sigma() {std::lock_guard<std::mutex> lock(vel_sigma_lock); return vel_sigma;}
-	/// threadsafe get gps time
-	inline gps_time get_gps_time() {std::lock_guard<std::mutex> lock(_gps_time_lock); return _gps_time;}
+    /// threadsafe get llh_position
+    inline blas::vector<double> get_llh_position()
+    {
+        std::lock_guard<std::mutex> lock(llh_position_lock);
+        return llh_position;
+    }
+    /// threadsafe get ned_velocity
+    inline blas::vector<double> get_ned_velocity()
+    {
+        std::lock_guard<std::mutex> lock(ned_velocity_lock);
+        return ned_velocity;
+    }
+    /// threadafe get position error std dev
+    inline blas::vector<double> get_pos_sigma()
+    {
+        std::lock_guard<std::mutex> lock(pos_sigma_lock);
+        return pos_sigma;
+    }
+    /// threadsafe get vel error std dev
+    inline blas::vector<double> get_vel_sigma()
+    {
+        std::lock_guard<std::mutex> lock(vel_sigma_lock);
+        return vel_sigma;
+    }
+    /// threadsafe get gps time
+    inline gps_time get_gps_time()
+    {
+        std::lock_guard<std::mutex> lock(_gps_time_lock);
+        return _gps_time;
+    }
 
-	inline uint get_position_type() {std::lock_guard<std::mutex> lock(position_type_lock); return position_type;}
+    inline uint get_position_type()
+    {
+        std::lock_guard<std::mutex> lock(position_type_lock);
+        return position_type;
+    }
 
-	inline uint get_position_status() {std::lock_guard<std::mutex> lock(position_status_lock); return position_status;}
+    inline uint get_position_status()
+    {
+        std::lock_guard<std::mutex> lock(position_status_lock);
+        return position_status;
+    }
 
-	inline uint get_velocity_type() {std::lock_guard<std::mutex> lock(velocity_type_lock); return velocity_type;}
+    inline uint get_velocity_type()
+    {
+        std::lock_guard<std::mutex> lock(velocity_type_lock);
+        return velocity_type;
+    }
 
-	inline uint get_velocity_status() {std::lock_guard<std::mutex> lock(velocity_status_lock); return velocity_status;}
+    inline uint get_velocity_status()
+    {
+        std::lock_guard<std::mutex> lock(velocity_status_lock);
+        return velocity_status;
+    }
 
-	inline uint8_t get_num_sats() {std::lock_guard<std::mutex> lock(num_sats_lock); return num_sats;}
+    inline uint8_t get_num_sats()
+    {
+        std::lock_guard<std::mutex> lock(num_sats_lock);
+        return num_sats;
+    }
 
-	/// signal when gps measurement is updated
-	boost::signals2::signal<void ()> gps_updated;
+    /// signal when gps measurement is updated
+    boost::signals2::signal<void ()> gps_updated;
 
-	static std::string GPS_SERIAL_PORT_CONFIGURATION_NAME;
-	static std::string GPS_SERIAL_PORT_CONFIGURATION_DEFAULT;
-	static std::string GPS_ENABLED;
-	static bool GPS_ENABLED_DEFAULT;
-	static std::string LOG_NOVATEL_GPS;
-	static std::string LOG_NOVATEL_GPS_ALL;
+    static std::string GPS_SERIAL_PORT_CONFIGURATION_NAME;
+    static std::string GPS_SERIAL_PORT_CONFIGURATION_DEFAULT;
+    static std::string GPS_ENABLED;
+    static bool GPS_ENABLED_DEFAULT;
+    static std::string LOG_NOVATEL_GPS;
+    static std::string LOG_NOVATEL_GPS_ALL;
 
 
 private:
 
 
-	/// default constructor
-	GPS();
-	/// pointer to <em> the </em> instance of GPS
-	static GPS* _instance;
-	/// serialize access to _instance
-	static std::mutex _instance_lock;
+    /// default constructor
+    GPS();
+    /// pointer to <em> the </em> instance of GPS
+    static GPS* _instance;
+    /// serialize access to _instance
+    static std::mutex _instance_lock;
 
-	/// thread used to communicate with the GPS
-	boost::thread read_serial_thread;
+    /// thread used to communicate with the GPS
+    boost::thread read_serial_thread;
 
-	/// container for llh_position
-	blas::vector<double> llh_position;
-	/// serialize access to llh_position
-	std::mutex llh_position_lock;
-	/// threadsafe set llh_position
-	inline void set_llh_position(const blas::vector<double>& llh) {std::lock_guard<std::mutex> lock(llh_position_lock); llh_position = llh;}
+    /// container for llh_position
+    blas::vector<double> llh_position;
+    /// serialize access to llh_position
+    std::mutex llh_position_lock;
+    /// threadsafe set llh_position
+    inline void set_llh_position(const blas::vector<double>& llh)
+    {
+        std::lock_guard<std::mutex> lock(llh_position_lock);
+        llh_position = llh;
+    }
 
 
-	/// container for ned_velocity
-	blas::vector<double> ned_velocity;
-	/// serialize access to ned_velocity
-	std::mutex ned_velocity_lock;
-	/// threadsafe set ned_velocity
-	inline void set_ned_velocity(const blas::vector<double>& ned_vel) {std::lock_guard<std::mutex> lock(ned_velocity_lock); ned_velocity = ned_vel;}
+    /// container for ned_velocity
+    blas::vector<double> ned_velocity;
+    /// serialize access to ned_velocity
+    std::mutex ned_velocity_lock;
+    /// threadsafe set ned_velocity
+    inline void set_ned_velocity(const blas::vector<double>& ned_vel)
+    {
+        std::lock_guard<std::mutex> lock(ned_velocity_lock);
+        ned_velocity = ned_vel;
+    }
 
-	/// container for pos error std dev
-	blas::vector<double> pos_sigma;
-	/// serialize access to pos_sigma
-	std::mutex pos_sigma_lock;
-	/// threadsafe set pos_sigma
-	inline void set_pos_sigma(const blas::vector<double>& pos_error) {std::lock_guard<std::mutex> lock(pos_sigma_lock); pos_sigma = pos_error;}
+    /// container for pos error std dev
+    blas::vector<double> pos_sigma;
+    /// serialize access to pos_sigma
+    std::mutex pos_sigma_lock;
+    /// threadsafe set pos_sigma
+    inline void set_pos_sigma(const blas::vector<double>& pos_error)
+    {
+        std::lock_guard<std::mutex> lock(pos_sigma_lock);
+        pos_sigma = pos_error;
+    }
 
-	/// container for velocity error std dev
-	blas::vector<double> vel_sigma;
-	/// serialize access to vel_sigma
-	std::mutex vel_sigma_lock;
-	/// threadsafe set vel sigma
-	inline void set_vel_sigma(const blas::vector<double>& vel_error) {std::lock_guard<std::mutex> lock(vel_sigma_lock); vel_sigma = vel_error;}
+    /// container for velocity error std dev
+    blas::vector<double> vel_sigma;
+    /// serialize access to vel_sigma
+    std::mutex vel_sigma_lock;
+    /// threadsafe set vel sigma
+    inline void set_vel_sigma(const blas::vector<double>& vel_error)
+    {
+        std::lock_guard<std::mutex> lock(vel_sigma_lock);
+        vel_sigma = vel_error;
+    }
 
-	/// container for gps_time
-	gps_time _gps_time;
-	/// serialize access to gps_time
-	std::mutex _gps_time_lock;
-	/// threadsafe set gps_time
-	inline void set_gps_time(const gps_time& time) {std::lock_guard<std::mutex> lock(_gps_time_lock); _gps_time = time;}
+    /// container for gps_time
+    gps_time _gps_time;
+    /// serialize access to gps_time
+    std::mutex _gps_time_lock;
+    /// threadsafe set gps_time
+    inline void set_gps_time(const gps_time& time)
+    {
+        std::lock_guard<std::mutex> lock(_gps_time_lock);
+        _gps_time = time;
+    }
 
-	uint position_status;
-	std::mutex position_status_lock;
-	inline void set_position_status(const uint status) {std::lock_guard<std::mutex> lock(position_status_lock); position_status = status;}
+    uint position_status;
+    std::mutex position_status_lock;
+    inline void set_position_status(const uint status)
+    {
+        std::lock_guard<std::mutex> lock(position_status_lock);
+        position_status = status;
+    }
 
-	uint position_type;
-	std::mutex position_type_lock;
-	inline void set_position_type(const uint type) {std::lock_guard<std::mutex> lock(position_type_lock); position_type = type;}
+    uint position_type;
+    std::mutex position_type_lock;
+    inline void set_position_type(const uint type)
+    {
+        std::lock_guard<std::mutex> lock(position_type_lock);
+        position_type = type;
+    }
 
-	uint velocity_status;
-	std::mutex velocity_status_lock;
-	inline void set_velocity_status(const uint status) {std::lock_guard<std::mutex> lock(velocity_status_lock); velocity_status = status;}
+    uint velocity_status;
+    std::mutex velocity_status_lock;
+    inline void set_velocity_status(const uint status)
+    {
+        std::lock_guard<std::mutex> lock(velocity_status_lock);
+        velocity_status = status;
+    }
 
-	uint velocity_type;
-	std::mutex velocity_type_lock;
-	inline void set_velocity_type(const uint type) {std::lock_guard<std::mutex> lock(velocity_type_lock); velocity_type = type;}
+    uint velocity_type;
+    std::mutex velocity_type_lock;
+    inline void set_velocity_type(const uint type)
+    {
+        std::lock_guard<std::mutex> lock(velocity_type_lock);
+        velocity_type = type;
+    }
 
-	uint8_t num_sats;
-	std::mutex num_sats_lock;
-	inline void set_num_sats(const uint8_t num) {std::lock_guard<std::mutex> lock(num_sats_lock); num_sats = num;}
+    uint8_t num_sats;
+    std::mutex num_sats_lock;
+    inline void set_num_sats(const uint8_t num)
+    {
+        std::lock_guard<std::mutex> lock(num_sats_lock);
+        num_sats = num;
+    }
 
-	/// convert a raw string of bytes to a signed integer
-	template <typename ReturnType, typename IteratorType>
-	static ReturnType raw_to_int(IteratorType first, IteratorType last);
+    /// convert a raw string of bytes to a signed integer
+    template <typename ReturnType, typename IteratorType>
+    static ReturnType raw_to_int(IteratorType first, IteratorType last);
 
-	/**
-	 * @code
-	 * uint16_t message_id = raw_to_int<uint16_t>(header.begin() + 1);
-	 * @endcode
-	 */
-	template <typename ReturnType, typename IteratorType>
-	static inline ReturnType raw_to_int(IteratorType first) {return raw_to_int<ReturnType>(first, first + sizeof(ReturnType));}
+    /**
+     * @code
+     * uint16_t message_id = raw_to_int<uint16_t>(header.begin() + 1);
+     * @endcode
+     */
+    template <typename ReturnType, typename IteratorType>
+    static inline ReturnType raw_to_int(IteratorType first)
+    {
+        return raw_to_int<ReturnType>(first, first + sizeof(ReturnType));
+    }
 
-	template <typename FloatingType, typename IteratorType>
-	static FloatingType raw_to_float(IteratorType first, IteratorType last);
+    template <typename FloatingType, typename IteratorType>
+    static FloatingType raw_to_float(IteratorType first, IteratorType last);
 
-	/// convert an integer type (signed or unsigned) to raw
-	template <typename IntegerType>
-	static std::vector<uint8_t> int_to_raw(const IntegerType i);
+    /// convert an integer type (signed or unsigned) to raw
+    template <typename IntegerType>
+    static std::vector<uint8_t> int_to_raw(const IntegerType i);
 
-	/// convert a floating point type to raw
-	template <typename FloatingType>
-	static std::vector<uint8_t> float_to_raw(const FloatingType f);
+    /// convert a floating point type to raw
+    template <typename FloatingType>
+    static std::vector<uint8_t> float_to_raw(const FloatingType f);
 };
 
 template <typename ReturnType, typename IteratorType>
 ReturnType GPS::raw_to_int(IteratorType first, IteratorType last)
 {
-	uint32_t data = 0; // int is largest int type from novatel
-	for (IteratorType it = last - 1; it != first - 1; --it)
-	{
-		data <<= 8;
-		data += *it;
-	}
-	return *reinterpret_cast<ReturnType*>(&data);
+    uint32_t data = 0; // int is largest int type from novatel
+    for (IteratorType it = last - 1; it != first - 1; --it)
+    {
+        data <<= 8;
+        data += *it;
+    }
+    return *reinterpret_cast<ReturnType*>(&data);
 
 }
 
 template <typename FloatingType, typename IteratorType>
 FloatingType GPS::raw_to_float(IteratorType first, IteratorType last)
 {
-	uint64_t result = 0;
-		for (IteratorType it = last - 1; it != first - 1; --it)
-		{
-			result <<= 8;
-			result += *it;
-		}
-		if (last - first == 8)
-			return *reinterpret_cast<double*>(&result);
-		else
-			return *reinterpret_cast<float*>(&result);
+    uint64_t result = 0;
+    for (IteratorType it = last - 1; it != first - 1; --it)
+    {
+        result <<= 8;
+        result += *it;
+    }
+    if (last - first == 8)
+        return *reinterpret_cast<double*>(&result);
+    else
+        return *reinterpret_cast<float*>(&result);
 
 }
 
 template <typename IntegerType>
 std::vector<uint8_t> GPS::int_to_raw(const IntegerType i)
 {
-	std::vector<uint8_t> result(sizeof(IntegerType));
-	const uint8_t* byte = reinterpret_cast<const uint8_t*>(&i);
-	for (uint32_t i=0; i<sizeof(IntegerType); i++)
-	{
-		result[i] = byte[i];
-	}
-	return result;
+    std::vector<uint8_t> result(sizeof(IntegerType));
+    const uint8_t* byte = reinterpret_cast<const uint8_t*>(&i);
+    for (uint32_t i=0; i<sizeof(IntegerType); i++)
+    {
+        result[i] = byte[i];
+    }
+    return result;
 }
 
 template <typename FloatingType>
 std::vector<uint8_t> GPS::float_to_raw(const FloatingType f)
 
 {
-	std::vector<uint8_t> result(sizeof(FloatingType));
-	const uint8_t* byte = reinterpret_cast<const uint8_t*>(&f);
-	for (size_t i = 0; i< sizeof(FloatingType); i++)
-		result[i] = byte[i];
-	return result;
+    std::vector<uint8_t> result(sizeof(FloatingType));
+    const uint8_t* byte = reinterpret_cast<const uint8_t*>(&f);
+    for (size_t i = 0; i< sizeof(FloatingType); i++)
+        result[i] = byte[i];
+    return result;
 }
 
 #endif

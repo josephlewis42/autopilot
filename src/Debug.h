@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -83,79 +83,118 @@ namespace blas = boost::numeric::ublas;
 class Debug
 {
 public:
-	enum DEBUG_LEVEL
-	{
-		DEBUG,
-		WARNING,
-		CRITICAL,
-		MESSAGE,
-		IGNORE
-	};
-	explicit Debug(DEBUG_LEVEL debug_level = DEBUG, std::string prefix = "");
-	Debug(const Debug& other);
-	~Debug();
-	Debug& operator<<(const std::string& s);
-	Debug& operator<<(const char* c);
-	Debug& operator<<(const int i);
-	Debug& operator<<(const unsigned int i);
-	Debug& operator<<(const unsigned long i);
-	Debug& operator<<(const double d);
-	Debug& operator<<(const void* ptr);
+    enum DEBUG_LEVEL
+    {
+        DEBUG,
+        WARNING,
+        CRITICAL,
+        MESSAGE,
+        IGNORE
+    };
+    explicit Debug(DEBUG_LEVEL debug_level = DEBUG, std::string prefix = "");
+    Debug(const Debug& other);
+    ~Debug();
+    Debug& operator<<(const std::string& s);
+    Debug& operator<<(const char* c);
+    Debug& operator<<(const int i);
+    Debug& operator<<(const unsigned int i);
+    Debug& operator<<(const unsigned long i);
+    Debug& operator<<(const double d);
+    Debug& operator<<(const void* ptr);
 
-	template <typename T, size_t N>
-	Debug& operator<<(const boost::array<T,N>& a);
-	template <typename T>
-	Debug& operator<<(const std::vector<T>& v);
-	Debug& operator<<(const std::vector<uint8_t>& v);
-	Debug& operator<<(std::ios_base& (*pf)(std::ios_base&));
-	Debug& operator<<(std::ostream& (*pf)(std::ostream&));
-	template <typename T>
-	Debug& operator<<(const blas::vector<T>& v);
-	template <typename T>
-	Debug& operator<<(const blas::matrix<T>& m);
+    template <typename T, size_t N>
+    Debug& operator<<(const boost::array<T,N>& a);
+    template <typename T>
+    Debug& operator<<(const std::vector<T>& v);
+    Debug& operator<<(const std::vector<uint8_t>& v);
+    Debug& operator<<(std::ios_base& (*pf)(std::ios_base&));
+    Debug& operator<<(std::ostream& (*pf)(std::ostream&));
+    template <typename T>
+    Debug& operator<<(const blas::vector<T>& v);
+    template <typename T>
+    Debug& operator<<(const blas::matrix<T>& m);
 
-	/// emitted when a warning message is created
-	static boost::signals2::signal<void (std::string)> warningSignal;
-	/// emitted when a critical message is created
-	static boost::signals2::signal<void (std::string)> criticalSignal;
+    /// emitted when a warning message is created
+    static boost::signals2::signal<void (std::string)> warningSignal;
+    /// emitted when a critical message is created
+    static boost::signals2::signal<void (std::string)> criticalSignal;
 
 private:
-	static std::mutex cerr_lock;
-	static int message_count;
-	static std::string last_message;
+    static std::mutex cerr_lock;
+    static int message_count;
+    static std::string last_message;
 
-	std::stringstream ss;
-	DEBUG_LEVEL debug_level;
+    std::stringstream ss;
+    DEBUG_LEVEL debug_level;
 
-	/// appends the string version of the current level to the start of the message.
-	void appendLevel();
+    /// appends the string version of the current level to the start of the message.
+    void appendLevel();
 };
 
-static inline Debug debug() {return Debug(Debug::DEBUG);}
-static inline Debug message() {return Debug(Debug::MESSAGE);}
-static inline Debug warning() {return Debug(Debug::WARNING);}
-static inline Debug critical() {return Debug(Debug::CRITICAL);}
+static inline Debug debug()
+{
+    return Debug(Debug::DEBUG);
+}
+static inline Debug message()
+{
+    return Debug(Debug::MESSAGE);
+}
+static inline Debug warning()
+{
+    return Debug(Debug::WARNING);
+}
+static inline Debug critical()
+{
+    return Debug(Debug::CRITICAL);
+}
 
 class Logger
 {
 private:
-	std::string _prefix;
+    std::string _prefix;
 
 public:
-	Logger(std::string prefix)
-	:_prefix(prefix){}
+    Logger(std::string prefix)
+        :_prefix(prefix) {}
 
-	Debug ignore() const {return Debug(Debug::IGNORE, _prefix);}
-	Debug debug() const {return Debug(Debug::DEBUG,  _prefix);}
-	Debug message() const {return Debug(Debug::MESSAGE, _prefix);}
-	Debug warning() const {return Debug(Debug::WARNING, _prefix);}
-	Debug critical() const {return Debug(Debug::CRITICAL, _prefix);}
+    Debug ignore() const
+    {
+        return Debug(Debug::IGNORE, _prefix);
+    }
+    Debug debug() const
+    {
+        return Debug(Debug::DEBUG,  _prefix);
+    }
+    Debug message() const
+    {
+        return Debug(Debug::MESSAGE, _prefix);
+    }
+    Debug warning() const
+    {
+        return Debug(Debug::WARNING, _prefix);
+    }
+    Debug critical() const
+    {
+        return Debug(Debug::CRITICAL, _prefix);
+    }
 
-	void ignore(std::string value) const {}
-	void debug(std::string value) const {Debug(Debug::DEBUG,  _prefix) << value;}
-	void message(std::string value) const {Debug(Debug::MESSAGE, _prefix) << value;}
-	void warning(std::string value) const {Debug(Debug::WARNING, _prefix) << value;}
-	void critical(std::string value) const {Debug(Debug::CRITICAL, _prefix) << value;}
+    void ignore(std::string value) const {}
+    void debug(std::string value) const
+    {
+        Debug(Debug::DEBUG,  _prefix) << value;
+    }
+    void message(std::string value) const
+    {
+        Debug(Debug::MESSAGE, _prefix) << value;
+    }
+    void warning(std::string value) const
+    {
+        Debug(Debug::WARNING, _prefix) << value;
+    }
+    void critical(std::string value) const
+    {
+        Debug(Debug::CRITICAL, _prefix) << value;
+    }
 
 };
 
@@ -163,42 +202,42 @@ public:
 template <typename T, size_t N>
 Debug& Debug::operator<<(const boost::array<T,N>& a)
 {
-	ss << "[";
-	for (size_t i=0; i<a.size(); i++)
-	{
-		ss << a[i];
-		if (i < a.size()-1)
-			ss << ", ";
-	}
-	ss << "]";
-	return *this;
+    ss << "[";
+    for (size_t i=0; i<a.size(); i++)
+    {
+        ss << a[i];
+        if (i < a.size()-1)
+            ss << ", ";
+    }
+    ss << "]";
+    return *this;
 }
 
 template <typename T>
 Debug& Debug::operator<<(const std::vector<T>& v)
 {
-	ss << "[";
-	for (size_t i = 0; i<v.size(); i++)
-	{
-		ss << v[i];
-		if (i < v.size() - 1)
-			ss << ", ";
-	}
-	ss << "]";
-	return *this;
+    ss << "[";
+    for (size_t i = 0; i<v.size(); i++)
+    {
+        ss << v[i];
+        if (i < v.size() - 1)
+            ss << ", ";
+    }
+    ss << "]";
+    return *this;
 }
 
 template <typename T>
 Debug& Debug::operator<<(const blas::vector<T>& v)
 {
-	ss << v;
-	return *this;
+    ss << v;
+    return *this;
 }
 
 template <typename T>
 Debug& Debug::operator<<(const blas::matrix<T>& m)
 {
-	ss << m;
-	return *this;
+    ss << m;
+    return *this;
 }
 #endif

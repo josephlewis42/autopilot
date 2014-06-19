@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
  * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -111,65 +111,71 @@
 
 class LogFile
 {
- public:
-  /// Destructor: frees memory used by the internal data structures
-  ~LogFile();
+public:
+    /// Destructor: frees memory used by the internal data structures
+    ~LogFile();
 
-  /** Returns the instance of the LogFile object using the singleton
-      design pattern
-  */
-  static LogFile* getInstance();
+    /** Returns the instance of the LogFile object using the singleton
+        design pattern
+    */
+    static LogFile* getInstance();
 
-  /**
-     Assigns a header to a log file
-     \param name log file to assign a name to
-     \param header string to be written at the head of the log file
-     This function must be called before the first call to logData in order to have an effect.
-  */
-  void logHeader(const std::string& name, const std::string& header);
+    /**
+       Assigns a header to a log file
+       \param name log file to assign a name to
+       \param header string to be written at the head of the log file
+       This function must be called before the first call to logData in order to have an effect.
+    */
+    void logHeader(const std::string& name, const std::string& header);
 
-  /**
-   * Template log function which logs any data container that supports
-   * const iterators
-   */
-  template<typename DataContainer>
-  void logData(const std::string& name, const DataContainer& data);
-  /**
-   * Allows message logging by appending msg to the log, name
-   * @param name log file to append message to
-   * @param msg message to append to name
-   */
-  void logMessage(const std::string& name, const std::string& msg);
+    /**
+     * Template log function which logs any data container that supports
+     * const iterators
+     */
+    template<typename DataContainer>
+    void logData(const std::string& name, const DataContainer& data);
+    /**
+     * Allows message logging by appending msg to the log, name
+     * @param name log file to append message to
+     * @param msg message to append to name
+     */
+    void logMessage(const std::string& name, const std::string& msg);
 
-  boost::posix_time::ptime getStartTime(){return startTime;}
-  boost::filesystem::path getLogFolder(){return log_folder;}
- private:
-  /// Singleton constructor: allocates memory for internal data structures
-  LogFile();
-  /// stores a pointer to the instance of this class
-  static LogFile* _instance;
-  /// Mutex to make class instantiation threadsafe
-  static std::mutex _instance_lock;
+    boost::posix_time::ptime getStartTime()
+    {
+        return startTime;
+    }
+    boost::filesystem::path getLogFolder()
+    {
+        return log_folder;
+    }
+private:
+    /// Singleton constructor: allocates memory for internal data structures
+    LogFile();
+    /// stores a pointer to the instance of this class
+    static LogFile* _instance;
+    /// Mutex to make class instantiation threadsafe
+    static std::mutex _instance_lock;
 
-  /// Stores the time when the class is instantiated (i.e., the program starts)
-  boost::posix_time::ptime startTime;
-  /// Stores the folder name to store the log files in
-  boost::filesystem::path log_folder;
+    /// Stores the time when the class is instantiated (i.e., the program starts)
+    boost::posix_time::ptime startTime;
+    /// Stores the folder name to store the log files in
+    boost::filesystem::path log_folder;
 };
 
 
 template<typename DataContainer>
 void LogFile::logData(const std::string& name, const DataContainer& data)
 {
-	std::stringstream output;
+    std::stringstream output;
 
-	for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
-	{
-		output << boost::lexical_cast<std::string>(*it);
-		output << '\t';
-	}
+    for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
+    {
+        output << boost::lexical_cast<std::string>(*it);
+        output << '\t';
+    }
 
-	logMessage(name, output.str()); // adds timestamp, endline
+    logMessage(name, output.str()); // adds timestamp, endline
 };
 
 

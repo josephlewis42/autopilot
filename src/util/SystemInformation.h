@@ -22,9 +22,9 @@
 
 class SystemInformation
 {
-	public:
-		// Provides a uname like dump of the system information available.
-		static std::string uname_like();
+public:
+    // Provides a uname like dump of the system information available.
+    static std::string uname_like();
 };
 
 #endif /* SYSTEMINFORMATION_H_ */

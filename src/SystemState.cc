@@ -18,7 +18,8 @@
 
 #include "SystemState.h"
 
-SystemState::SystemState() {
+SystemState::SystemState()
+{
 
 }
 
@@ -26,8 +27,8 @@ SystemState* SystemState::_instance = NULL;
 
 SystemState* SystemState::getInstance()
 {
-	if(!_instance)
-		_instance = new SystemState;
+    if(!_instance)
+        _instance = new SystemState;
 
-	return _instance;
+    return _instance;
 }

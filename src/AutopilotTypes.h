@@ -10,16 +10,18 @@
 #define AUTOPILOTTYPES_H_
 
 
-struct LatLonHeight{
-	double latDD;
-	double lonDD;
-	double heightM;
+struct LatLonHeight
+{
+    double latDD;
+    double lonDD;
+    double heightM;
 };
 
-struct EulerAngles{
-	double rollRad;
-	double pitchRad;
-	double yawRad;
+struct EulerAngles
+{
+    double rollRad;
+    double pitchRad;
+    double yawRad;
 };
 
 

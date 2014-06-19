@@ -11,18 +11,19 @@
 
 #include "Driver.h"
 
-class TCPSerial: public Driver {
+class TCPSerial: public Driver
+{
 public:
-	TCPSerial();
-	virtual ~TCPSerial();
+    TCPSerial();
+    virtual ~TCPSerial();
 
 private:
-	void tcpToSer();
-	void serToTcp();
-	static void tcpListen(TCPSerial*);
+    void tcpToSer();
+    void serToTcp();
+    static void tcpListen(TCPSerial*);
 
-	std::atomic_int tcp_fd;
-	std::atomic_int ser_fd;
+    std::atomic_int tcp_fd;
+    std::atomic_int ser_fd;
 };
 
 #endif /* TCPSERIAL_H_ */

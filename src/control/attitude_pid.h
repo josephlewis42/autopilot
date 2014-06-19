@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
  * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -49,147 +49,176 @@ namespace blas = boost::numeric::ublas;
 class attitude_pid : public ControllerInterface
 {
 public:
-	attitude_pid();
-	attitude_pid(const attitude_pid& other);
-	/**
-	 * @brief Performs the control computation.  The control attempts to
-	 * regulate the reference orientation with zero angular velocity.
-	 * @param reference roll pitch reference values in radians.
-	 */
-	void operator()(const blas::vector<double>& reference) throw(bad_control);
+    attitude_pid();
+    attitude_pid(const attitude_pid& other);
+    /**
+     * @brief Performs the control computation.  The control attempts to
+     * regulate the reference orientation with zero angular velocity.
+     * @param reference roll pitch reference values in radians.
+     */
+    void operator()(const blas::vector<double>& reference) throw(bad_control);
 
-	/// threadsafe get control_effort
-	inline blas::vector<double> get_control_effort() const {std::lock_guard<std::mutex> lock(control_effort_lock); return control_effort;}
+    /// threadsafe get control_effort
+    inline blas::vector<double> get_control_effort() const
+    {
+        std::lock_guard<std::mutex> lock(control_effort_lock);
+        return control_effort;
+    }
 
-	/// reset the integrator error states
-	void reset();
+    /// reset the integrator error states
+    void reset();
 
-	/**
-	 * Return a list of parameters for transmission to QGC.  These parameters are only the ones
-	 * specific to this controller.
-	 */
-	std::vector<Parameter> getParameters();
-	/* Define some constants for parameter names */
-	static const std::string PARAM_ROLL_KP;
-	static const std::string PARAM_ROLL_KD;
-	static const std::string PARAM_ROLL_KI;
-	static const std::string PARAM_PITCH_KP;
-	static const std::string PARAM_PITCH_KD;
-	static const std::string PARAM_PITCH_KI;
+    /**
+     * Return a list of parameters for transmission to QGC.  These parameters are only the ones
+     * specific to this controller.
+     */
+    std::vector<Parameter> getParameters();
+    /* Define some constants for parameter names */
+    static const std::string PARAM_ROLL_KP;
+    static const std::string PARAM_ROLL_KD;
+    static const std::string PARAM_ROLL_KI;
+    static const std::string PARAM_PITCH_KP;
+    static const std::string PARAM_PITCH_KD;
+    static const std::string PARAM_PITCH_KI;
 
-	static const std::string PARAM_ROLL_TRIM;
-	static const std::string PARAM_PITCH_TRIM;
+    static const std::string PARAM_ROLL_TRIM;
+    static const std::string PARAM_PITCH_TRIM;
 
-	/** Set the roll channel proportional gain
-	 * @param kp new proportional gain value
-	 * This function is threadsafe.
-	 */
-	void set_roll_proportional(double kp);
-	/** set the roll channel derivative gain
-	 * @param kd new derivative gain value
-	 * This function is threadsafe.
-	 */
-	void set_roll_derivative(double kd);
-	/** set the roll channel integral gain
-	 * @param ki new integral channel gain value
-	 * This function is threadsafe.
-	 */
-	void set_roll_integral(double ki);
-	/** Set the pitch channel proportional gain
-	 * @param kp new proportional gain value
-	 * This function is threadsafe.
-	 */
-	void set_pitch_proportional(double kp);
-	/** Set the pitch channel derivative gain
-	 * @param kd new derivative gain value
-	 * This function is threadsafe.
-	 */
-	void set_pitch_derivative(double kd);
-	/**
-	 * Set the pitch channel integral gain
-	 * @param ki new integral gain value
-	 * This function is threadsafe.
-	 */
-	void set_pitch_integral(double ki);
+    /** Set the roll channel proportional gain
+     * @param kp new proportional gain value
+     * This function is threadsafe.
+     */
+    void set_roll_proportional(double kp);
+    /** set the roll channel derivative gain
+     * @param kd new derivative gain value
+     * This function is threadsafe.
+     */
+    void set_roll_derivative(double kd);
+    /** set the roll channel integral gain
+     * @param ki new integral channel gain value
+     * This function is threadsafe.
+     */
+    void set_roll_integral(double ki);
+    /** Set the pitch channel proportional gain
+     * @param kp new proportional gain value
+     * This function is threadsafe.
+     */
+    void set_pitch_proportional(double kp);
+    /** Set the pitch channel derivative gain
+     * @param kd new derivative gain value
+     * This function is threadsafe.
+     */
+    void set_pitch_derivative(double kd);
+    /**
+     * Set the pitch channel integral gain
+     * @param ki new integral gain value
+     * This function is threadsafe.
+     */
+    void set_pitch_integral(double ki);
 
-	/**
-	 * Saves the controller parameters to the configuration file
-	 */
-	void get_xml_node();
+    /**
+     * Saves the controller parameters to the configuration file
+     */
+    void get_xml_node();
 
-	/**
-	 * Loads the configuratino
-	 */
-	void parse_pid();
+    /**
+     * Loads the configuratino
+     */
+    void parse_pid();
 
-	/** set the roll trim point.  threadsafe
-	 * @param trim roll trim in radians
-	 */
-	inline void set_roll_trim_radians(double trim) {roll_trim = trim;}
-	/** get the roll trim point.  threadsafe
-	 * @returns roll trim in radians
-	 */
-	inline double get_roll_trim_radians() {return roll_trim;}
-	/** set the roll trim point.  threadsafe
-	 * @param trim roll trim in degrees
-	 */
-	void set_roll_trim_degrees(double trim_degrees);
-	/** get the roll trim point.  threadsafe
-	 * @returns roll trim in degress
-	 */
-	inline double get_roll_trim_degrees() {return AutopilotMath::radiansToDegrees(roll_trim.load());}
-	/** set the pitch trim point.  threadsafe
-	 * @param trim pitch trim in radians
-	 */
-	inline void set_pitch_trim_radians(double trim) {pitch_trim = trim;}
-	/** get the pitch trim point.  threadsafe
-	 * @returns pitch trim in radians
-	 */
-	inline double get_pitch_trim_radians() {return pitch_trim;}
-	/** set the pitch trim point.  threadsafe
-	 * @param trim pitch trim in degrees
-	 */
-	void set_pitch_trim_degrees(double trim_degrees);
-	/** get the pitch trim point.  threadsafe
-	 * @returns pitch trim in degress
-	 */
-	inline double get_pitch_trim_degrees() {return AutopilotMath::radiansToDegrees(pitch_trim);}
-	/// threadsafe get runnable
-	inline bool runnable() const {return _runnable;}
+    /** set the roll trim point.  threadsafe
+     * @param trim roll trim in radians
+     */
+    inline void set_roll_trim_radians(double trim)
+    {
+        roll_trim = trim;
+    }
+    /** get the roll trim point.  threadsafe
+     * @returns roll trim in radians
+     */
+    inline double get_roll_trim_radians()
+    {
+        return roll_trim;
+    }
+    /** set the roll trim point.  threadsafe
+     * @param trim roll trim in degrees
+     */
+    void set_roll_trim_degrees(double trim_degrees);
+    /** get the roll trim point.  threadsafe
+     * @returns roll trim in degress
+     */
+    inline double get_roll_trim_degrees()
+    {
+        return AutopilotMath::radiansToDegrees(roll_trim.load());
+    }
+    /** set the pitch trim point.  threadsafe
+     * @param trim pitch trim in radians
+     */
+    inline void set_pitch_trim_radians(double trim)
+    {
+        pitch_trim = trim;
+    }
+    /** get the pitch trim point.  threadsafe
+     * @returns pitch trim in radians
+     */
+    inline double get_pitch_trim_radians()
+    {
+        return pitch_trim;
+    }
+    /** set the pitch trim point.  threadsafe
+     * @param trim pitch trim in degrees
+     */
+    void set_pitch_trim_degrees(double trim_degrees);
+    /** get the pitch trim point.  threadsafe
+     * @returns pitch trim in degress
+     */
+    inline double get_pitch_trim_degrees()
+    {
+        return AutopilotMath::radiansToDegrees(pitch_trim);
+    }
+    /// threadsafe get runnable
+    inline bool runnable() const
+    {
+        return _runnable;
+    }
 
 
-	double get_roll_proportional();
-	double get_roll_derivative();
-	double get_roll_integral();
-	double get_pitch_proportional();
-	double get_pitch_derivative();
-	double get_pitch_integral();
+    double get_roll_proportional();
+    double get_roll_derivative();
+    double get_roll_integral();
+    double get_pitch_proportional();
+    double get_pitch_derivative();
+    double get_pitch_integral();
 
 private:
-	static const std::string LOG_ATTITUDE_ERROR;
-	static const std::string LOG_ATTITUDE_REFERENCE;
-	static const std::string LOG_ATTITUDE_CONTROL_EFFORT;
+    static const std::string LOG_ATTITUDE_ERROR;
+    static const std::string LOG_ATTITUDE_REFERENCE;
+    static const std::string LOG_ATTITUDE_CONTROL_EFFORT;
 
 
-	pid_channel roll;
-	mutable std::mutex roll_lock;
-	pid_channel pitch;
-	mutable std::mutex pitch_lock;
+    pid_channel roll;
+    mutable std::mutex roll_lock;
+    pid_channel pitch;
+    mutable std::mutex pitch_lock;
 
-	/// store the current normalized servo commands
-	blas::vector<double> control_effort;
-	/// serialize access to control_effort
-	mutable std::mutex control_effort_lock;
-	/// threadsafe set control_effort
-	inline void set_control_effort(const blas::vector<double>& control_effort) {std::lock_guard<std::mutex> lock(control_effort_lock); this->control_effort = control_effort;}
+    /// store the current normalized servo commands
+    blas::vector<double> control_effort;
+    /// serialize access to control_effort
+    mutable std::mutex control_effort_lock;
+    /// threadsafe set control_effort
+    inline void set_control_effort(const blas::vector<double>& control_effort)
+    {
+        std::lock_guard<std::mutex> lock(control_effort_lock);
+        this->control_effort = control_effort;
+    }
 
-	/// trim point regulated by the controller.  it is stored in radians
-	std::atomic<double> roll_trim;
-	/// trim point regulated by the control.  stored in radians
-	std::atomic<double> pitch_trim;
+    /// trim point regulated by the controller.  it is stored in radians
+    std::atomic<double> roll_trim;
+    /// trim point regulated by the control.  stored in radians
+    std::atomic<double> pitch_trim;
 
-	/// is this controller runnable?
-	std::atomic_bool _runnable;
+    /// is this controller runnable?
+    std::atomic_bool _runnable;
 
 };
 #endif

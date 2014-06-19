@@ -22,22 +22,22 @@
 
 std::string SystemInformation::uname_like()
 {
-	std::string output;
-	struct utsname name;
+    std::string output;
+    struct utsname name;
 
-	if(uname(&name) == -1)
-	{
-		return std::string("Error fetching system information.");
-	}
+    if(uname(&name) == -1)
+    {
+        return std::string("Error fetching system information.");
+    }
 
-	output += name.sysname;
-	output += " ";
-	output += name.release;
-	output += " (";
-	output += name.version;
-	output += ") ";
-	output += name.nodename;
-	output += " ";
-	output += name.machine;
-	return output;
+    output += name.sysname;
+    output += " ";
+    output += name.release;
+    output += " (";
+    output += name.version;
+    output += ") ";
+    output += name.nodename;
+    output += " ";
+    output += name.machine;
+    return output;
 }

@@ -48,85 +48,111 @@ namespace blas = boost::numeric::ublas;
 class circle
 {
 public:
-	circle();
-	/// return the reference position for the current time
-	blas::vector<double> get_reference_position() const;
-	/// reset the trajectory to begin from the current location
-	void reset();
+    circle();
+    /// return the reference position for the current time
+    blas::vector<double> get_reference_position() const;
+    /// reset the trajectory to begin from the current location
+    void reset();
 
-	/// set the speed
-	void set_speed(const double speed);
-	/// get the speed
-	double get_speed() const;
+    /// set the speed
+    void set_speed(const double speed);
+    /// get the speed
+    double get_speed() const;
 
-	/// set the radius
-	void set_radius(const double radius);
-	/// get the radius
-	double get_radius() const;
+    /// set the radius
+    void set_radius(const double radius);
+    /// get the radius
+    double get_radius() const;
 
-	/// set the initial hover time before trajectory begins
-	void set_hover_time(const double hover_time);
-	/// get the hover time
-	double get_hover_time() const;
+    /// set the initial hover time before trajectory begins
+    void set_hover_time(const double hover_time);
+    /// get the hover time
+    double get_hover_time() const;
 
-	/// return the parameter list to send to qgc
-	std::vector<Parameter> getParameters() const;
+    /// return the parameter list to send to qgc
+    std::vector<Parameter> getParameters() const;
 
-	/// save the controller parameters
-	void get_xml_node();
-	/// populate the values based on the config
-	void parse_xml_node();
+    /// save the controller parameters
+    void get_xml_node();
+    /// populate the values based on the config
+    void parse_xml_node();
 
-	static const std::string PARAM_RADIUS;
-	static const std::string PARAM_HOVER_TIME;
-	static const std::string PARAM_SPEED;
+    static const std::string PARAM_RADIUS;
+    static const std::string PARAM_HOVER_TIME;
+    static const std::string PARAM_SPEED;
 protected:
-	/// radius of circular trajectory
-	std::atomic<double> radius;
+    /// radius of circular trajectory
+    std::atomic<double> radius;
 
-	/// position to begin trajectory in NED frame
-	blas::vector<double> start_location;
-	/// serialzie access to start_location
-	mutable std::mutex start_location_lock;
-	/// set the start_location
-	void set_start_location(const blas::vector<double>& start_location) {{std::lock_guard<std::mutex>  lock(start_location_lock); this->start_location = start_location;} message() << "Circle: start location set to " << start_location;}
-	/// get the start_location
-	blas::vector<double> get_start_location() const {std::lock_guard<std::mutex>  lock(start_location_lock); return start_location;}
+    /// position to begin trajectory in NED frame
+    blas::vector<double> start_location;
+    /// serialzie access to start_location
+    mutable std::mutex start_location_lock;
+    /// set the start_location
+    void set_start_location(const blas::vector<double>& start_location)
+    {
+        {
+            std::lock_guard<std::mutex>  lock(start_location_lock);
+            this->start_location = start_location;
+        }
+        message() << "Circle: start location set to " << start_location;
+    }
+    /// get the start_location
+    blas::vector<double> get_start_location() const
+    {
+        std::lock_guard<std::mutex>  lock(start_location_lock);
+        return start_location;
+    }
 
-	/// position of center of circle
-	blas::vector<double> center_location;
-	/// serialize access to center_location
-	mutable std::mutex center_location_lock;
-	/// set the center location based on the current start_location, radius, and heading
-	void set_center_location();
-	/// get the center location
-	blas::vector<double> get_center_location() const {std::lock_guard<std::mutex> lock(center_location_lock); return center_location;}
+    /// position of center of circle
+    blas::vector<double> center_location;
+    /// serialize access to center_location
+    mutable std::mutex center_location_lock;
+    /// set the center location based on the current start_location, radius, and heading
+    void set_center_location();
+    /// get the center location
+    blas::vector<double> get_center_location() const
+    {
+        std::lock_guard<std::mutex> lock(center_location_lock);
+        return center_location;
+    }
 
-	/// average speed to fly trajectory in m/s
-	std::atomic<double> speed;
+    /// average speed to fly trajectory in m/s
+    std::atomic<double> speed;
 
-	/// time to hover before manouever in seconds
-	std::atomic<double> hover_time;
+    /// time to hover before manouever in seconds
+    std::atomic<double> hover_time;
 
-	/// time the trajectory started
-	boost::posix_time::ptime start_time;
-	/// serialize access to start_time
-	mutable std::mutex start_time_lock;
-	/// set the start_time to the current time
-	void set_start_time() {{std::lock_guard<std::mutex>  lock(start_time_lock); start_time = boost::posix_time::microsec_clock::local_time();} message() << "Circle Trajectory Started";}
-	/// get the start_Time
-	boost::posix_time::ptime get_start_time() const {std::lock_guard<std::mutex>  lock(start_time_lock); return start_time;}
+    /// time the trajectory started
+    boost::posix_time::ptime start_time;
+    /// serialize access to start_time
+    mutable std::mutex start_time_lock;
+    /// set the start_time to the current time
+    void set_start_time()
+    {
+        {
+            std::lock_guard<std::mutex>  lock(start_time_lock);
+            start_time = boost::posix_time::microsec_clock::local_time();
+        }
+        message() << "Circle Trajectory Started";
+    }
+    /// get the start_Time
+    boost::posix_time::ptime get_start_time() const
+    {
+        std::lock_guard<std::mutex>  lock(start_time_lock);
+        return start_time;
+    }
 
-	/// initial angle (where the helicopter started in polar)
-	std::atomic<double> initial_angle;
+    /// initial angle (where the helicopter started in polar)
+    std::atomic<double> initial_angle;
 
-	/// set the initial angle
-	void set_initial_angle(const double angle);
-	/// get the initial angle
-	double get_initial_angle() const;
+    /// set the initial angle
+    void set_initial_angle(const double angle);
+    /// get the initial angle
+    double get_initial_angle() const;
 
-	/// return circumference of the circular trajectory
-	double get_circumference() const;
+    /// return circumference of the circular trajectory
+    double get_circumference() const;
 };
 
 #endif /* CIRCLE_H_ */

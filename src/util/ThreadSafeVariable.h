@@ -27,17 +27,21 @@ template<typename T>
 class ThreadSafeVariable
 {
 private:
-	mutable std::mutex _mutex;
-	T _value;
+    mutable std::mutex _mutex;
+    T _value;
 public:
-	operator T() const {std::lock_guard<std::mutex> lock(_mutex); return _value;}
+    operator T() const
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return _value;
+    }
 
-	ThreadSafeVariable<T>& operator =(const T& newValue)
-	{
-		std::lock_guard<std::mutex> lock(_mutex);
-		_value = newValue;
-		return *this;
-	}
+    ThreadSafeVariable<T>& operator =(const T& newValue)
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _value = newValue;
+        return *this;
+    }
 };
 
 #endif /* THREADSAFEVARIABLE_H_ */

@@ -28,44 +28,47 @@
 #define NDEBUG
 
 RateLimiter::RateLimiter(int hz)
-:_msToWait(1000 / hz),
- _io(),
- _timer(_io),
- _nextTime()
+    :_msToWait(1000 / hz),
+     _io(),
+     _timer(_io),
+     _nextTime()
 {
-	_nextTime = boost::posix_time::microsec_clock::universal_time();
-	_nextTime = _nextTime + _msToWait;
-	_timer.expires_at(_nextTime);
-	_io.run();
+    _nextTime = boost::posix_time::microsec_clock::universal_time();
+    _nextTime = _nextTime + _msToWait;
+    _timer.expires_at(_nextTime);
+    _io.run();
 }
 
 RateLimiter::~RateLimiter()
 {
-	_io.stop();
+    _io.stop();
 }
 
 void RateLimiter::wait()
 {
-	try{
-		_timer.wait();
-	}catch(boost::system::system_error err){
-		return;
-	}
-	
-	_nextTime += _msToWait;
+    try
+    {
+        _timer.wait();
+    }
+    catch(boost::system::system_error err)
+    {
+        return;
+    }
+
+    _nextTime += _msToWait;
 
 #ifndef NDEBUG
-	if(boost::posix_time::microsec_clock::universal_time() > _nextTime)
-	{
-		debug() << "RateLimiter: Fallen behind!";
-	}
+    if(boost::posix_time::microsec_clock::universal_time() > _nextTime)
+    {
+        debug() << "RateLimiter: Fallen behind!";
+    }
 #endif
 
-	_timer.expires_at(_nextTime);
+    _timer.expires_at(_nextTime);
 }
 
 void RateLimiter::finishedCriticalSection()
 {
-	// yield the thread so others can execute now.
-	boost::thread::yield();
+    // yield the thread so others can execute now.
+    boost::thread::yield();
 }

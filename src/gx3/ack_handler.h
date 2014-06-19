@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -56,38 +56,44 @@
 class IMU::ack_handler
 {
 public:
-	/// construct ack_handler to wait for a particular ack/nack
-	explicit ack_handler(uint8_t command = 0);
-	/// copy constructor to handle noncopyable mutex
-	ack_handler(const ack_handler& other);
-	/// assignment operator to handle noncopyable mutex
-	const ack_handler& operator=(const ack_handler& other);
-	/// used as slot to wait for ack
-	void operator()(std::vector<uint8_t> message);
-	/// timeout in ms
-	void wait_for_ack(int timeout = 0);
-	/// extract error code byte from ack/nack message - not valid until ack received (returns 255 if ack nor received)
-	uint8_t get_error_code();
+    /// construct ack_handler to wait for a particular ack/nack
+    explicit ack_handler(uint8_t command = 0);
+    /// copy constructor to handle noncopyable mutex
+    ack_handler(const ack_handler& other);
+    /// assignment operator to handle noncopyable mutex
+    const ack_handler& operator=(const ack_handler& other);
+    /// used as slot to wait for ack
+    void operator()(std::vector<uint8_t> message);
+    /// timeout in ms
+    void wait_for_ack(int timeout = 0);
+    /// extract error code byte from ack/nack message - not valid until ack received (returns 255 if ack nor received)
+    uint8_t get_error_code();
 private:
-	class spin
-	{
-	public:
-		explicit spin(ack_handler* parent);
-		void operator()();
-	private:
-		ack_handler* parent;
-	};
-	/// flag to tell when ack is received
-	std::atomic_bool ack_received;
-	/// threadsafe set ack_received
-	void set_ack_received() {ack_received = true;}
-	/// threadsafe get ack_received
-	bool get_ack_received() {return ack_received;}
-	/// store the command code to wait for
-	uint8_t command;
-	/// store the ack/nack message
-	std::vector<uint8_t> message;
+    class spin
+    {
+    public:
+        explicit spin(ack_handler* parent);
+        void operator()();
+    private:
+        ack_handler* parent;
+    };
+    /// flag to tell when ack is received
+    std::atomic_bool ack_received;
+    /// threadsafe set ack_received
+    void set_ack_received()
+    {
+        ack_received = true;
+    }
+    /// threadsafe get ack_received
+    bool get_ack_received()
+    {
+        return ack_received;
+    }
+    /// store the command code to wait for
+    uint8_t command;
+    /// store the ack/nack message
+    std::vector<uint8_t> message;
 
-	boost::signals2::scoped_connection ack_connection;
+    boost::signals2::scoped_connection ack_connection;
 };
 #endif
