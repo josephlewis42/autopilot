@@ -28,7 +28,6 @@
 
 /* Project Headers */
 #include "Debug.h"
-#include "qnx2linux.h"
 #include "gx3_send_serial.h"
 
 /**
@@ -43,12 +42,8 @@ static const int CHECKSUM_LENGTH_BYTES = 2;
 
 int IMU::read_serial::read_ser(int fd, void * buf, int n)
 {
-#ifdef __QNX__
-	return readcond(fd, buf, n, n, 10, 10);
-#else
 	IMU* imu = IMU::getInstance();
 	return imu->readDevice(fd, buf, n);
-#endif
 }
 
 

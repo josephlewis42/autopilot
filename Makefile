@@ -30,7 +30,7 @@ all: builddir gtest mavlink $(SOURCES) $(EXECUTABLE) ser2net documentation
 	
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o ${BUILD_DIR}/$@ $(LDFLAGS) 
-	cd $(BUILD_DIR) && ./autopilot &
+	cd $(BUILD_DIR) && ./autopilot test &
 	
 $(BUILD_DIR)/%.o:%.cc
 	mkdir -p $(dir $@)
