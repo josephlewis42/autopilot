@@ -59,14 +59,14 @@ public:
 	MainApp();
 
 	/// thread safe copy constructor
-	MainApp(const MainApp& other);
+	MainApp(const MainApp& other) = delete;
 
 	/// thread safe assignment operator
-	const MainApp& operator=(const MainApp& other);
+	const MainApp& operator=(const MainApp& other) = delete;
 
-	/// functor to create thread
-	void operator()(){run();}
-
+	/// Function in which to place main program logic (replaces main()).
+	void run();
+	
 	/// Append a thread to a list so that MainApp can wait for it after sending terminate signal
 	static void add_thread(boost::thread *thread, std::string name);
 	/// Terminate signal used to tell other threads the program is about to terminate
@@ -90,8 +90,7 @@ public:
 private:
 	static const std::string LOG_SCALED_INPUTS ;
 
-	/// Function in which to place main program logic (replaces main()).
-	void run();
+
 
 	/// List of other threads in the program which should be allowed to terminate before the main program exits
 	static std::vector<ThreadName> threads;

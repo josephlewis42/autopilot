@@ -43,7 +43,6 @@ const std::string Control::LOG_POSITION_REFERENCE = "Position Reference Nav Fram
 const std::string Control::LOG_PID_TRANS_ATTITUDE_REF = "Translation PID Attitude Reference";
 const std::string Control::LOG_SBF_TRANS_ATTITUDE_REF = "Translation SBF Attitude Reference";
 
-
 Control::Control()
 :pilot_mix(6,1), // fill pilot_mix with 1s
  config_file_buffer(NULL),

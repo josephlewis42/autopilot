@@ -106,7 +106,7 @@ public:
 	static const std::string PARAM_MIX_PITCH;
 	/// string representation of controller mode parameter
 	static const std::string CONTROL_MODE;
-
+	
 	/// @returns a reference to the pid contoller used for roll-pitch
 	attitude_pid& attitude_pid_controller() {return roll_pitch_pid_controller;}
 

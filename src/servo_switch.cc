@@ -125,8 +125,6 @@ bool servo_switch::init_port()
 	if(fd_ser1 == -1)
 	{
 		critical() << "Unable to open port " << port;
-		heli::shutdown(1);
-
 		return false;
 	}
 

@@ -88,8 +88,7 @@ int main(int argc, char* argv[])
 
 	// Start up the main application.
 	MainApp m;
-	boost::thread main_app(m);
-	main_app.join();
-
+	m.run();
+	
 	return 0;
 }

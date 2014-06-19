@@ -27,8 +27,6 @@
 
 namespace heli
 {
-void shutdown(int signumber);
-
 
 enum PILOT_MODE
 {

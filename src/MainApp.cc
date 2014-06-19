@@ -47,24 +47,6 @@ MainApp::MainApp()
 	this->_terminate = false;
 }
 
-MainApp::MainApp(const MainApp& other)
-{
-	_terminate = other._terminate.load();
-	autopilot_mode = other.autopilot_mode.load();
-}
-
-const MainApp& MainApp::operator=(const MainApp& other)
-{
-	if (this == &other){
-		return *this;
-	}
-
-	_terminate = other._terminate.load();
-
-	return *this;
-}
-
-
 void MainApp::run()
 {
 	boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
@@ -76,7 +58,8 @@ void MainApp::run()
 
 	request_mode.connect(change_mode(this));
 
-	signal(SIGINT, heli::shutdown);             // Shutdown program by sending a SIGINT.
+	// temporary
+	//signal(SIGINT, terminate_slot); // Shutdown program by sending a SIGINT.
 
 	/* Construct components of the autopilot */
 	message() << "Settnig up servo board";
