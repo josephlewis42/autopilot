@@ -38,6 +38,10 @@
 #include "TCPSerial.h"
 #include "Linux.h"
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time.hpp>
+
+
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
 
@@ -201,39 +205,11 @@ void MainApp::run()
 		rl.finishedCriticalSection();
 	}
 	
-	cleanup();
-}
-
-std::vector<MainApp::ThreadName> MainApp::threads;
-
-void MainApp::add_thread(boost::thread *thread, std::string name)
-{
-	threads.push_back(MainApp::ThreadName(thread, name));
-}
-
-MainApp::ThreadName::ThreadName(boost::thread *thread, std::string name)
-{
-	this->thread = thread;
-	this->name = name;
+	Driver::terminateAll();
 }
 
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::mode_changed;
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::request_mode;
-
-void MainApp::cleanup()
-{
-	Driver::terminateAll();
-
-    int n = (int)boost::posix_time::time_duration::ticks_per_second() * 1;
-    boost::posix_time::time_duration delay(0,0,0,n);
-
-    for(ThreadName t : MainApp::threads)
-	{
-		debug() << "MainApp: Waiting for " << (t.name.empty()?"Unknown Thread":t.name);
-		t.thread->timed_join(delay);
-	}
-	message() << "All registered threads ended.";
-}
 
 void MainApp::change_mode(heli::AUTOPILOT_MODE mode)
 {

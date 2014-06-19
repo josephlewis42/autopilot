@@ -75,9 +75,6 @@ GPS::GPS()
 {
 	trace() << "Generating log headers";
 	LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
-
-	trace() << "Adding read serial thread";
-	MainApp::add_thread(&read_serial_thread, READ_GPS_THREAD_NAME);
 }
 
 

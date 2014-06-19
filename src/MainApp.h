@@ -22,9 +22,7 @@
 #define MAINAPP_H_
 
 /* STL Headers */
-#include <iostream> // used only while quick debugging to print to screen.
 #include <string>
-#include <vector>
 #include <mutex>
 #include <atomic>
 
@@ -32,10 +30,7 @@
 #include "heli.h"
 
 /* Boost Headers */
-#include <boost/date_time.hpp>
-#include <boost/thread.hpp>
 #include <boost/signals2.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 /**
  * \brief This class replaces the standard main function and implements the main program logic.
@@ -62,24 +57,12 @@ public:
 	
 	/// Function in which to place main program logic (replaces main()).
 	void run();
-	
-	/// Append a thread to a list so that MainApp can wait for it after sending terminate signal
-	static void add_thread(boost::thread *thread, std::string name);
 
 	/// signal send by main app to notify other threads of a mode change (in particular qgclink::qgcsend)
 	static boost::signals2::signal<void (heli::AUTOPILOT_MODE)> mode_changed;
 
 	/// signal to request a mode change from other threads
 	static boost::signals2::signal<void (heli::AUTOPILOT_MODE)> request_mode;
-
-	/// Data structure for storing a boost::thread*, thread name pair
-	class ThreadName
-	{
-	public:
-		ThreadName(boost::thread * = new boost::thread(), std::string name = std::string());
-		boost::thread *thread;
-		std::string name;
-	};
 	
 	/// terminates the signal
 	static void terminate(){MainApp::getInstance()->_terminate = true;};
@@ -100,14 +83,8 @@ private:
 	/// thread safe assignment operator
 	const MainApp& operator=(const MainApp& other) = delete;
 
-	/// List of other threads in the program which should be allowed to terminate before the main program exits
-	static std::vector<ThreadName> threads;
-
 	/// controls whether the main loop continues to execute
 	std::atomic_bool _terminate;
-
-	/// Send terminate signal and then wait for other threads when run() finishes
-	void cleanup();
 
 	/// stores the current operating mode of the autopilot
 	std::atomic<heli::AUTOPILOT_MODE> autopilot_mode;
