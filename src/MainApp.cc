@@ -138,6 +138,7 @@ void MainApp::run()
 
     while(! _terminate.load())
     {
+
         /* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
         rl.wait();
 

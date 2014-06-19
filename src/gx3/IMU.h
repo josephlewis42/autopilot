@@ -175,6 +175,8 @@ public:
 
     virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
 
+    virtual void writeToSystemState() override;
+
     void setMessageSendRate(int hz)
     {
         _positionSendRateHz = hz;

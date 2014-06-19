@@ -128,6 +128,7 @@ void MdlAltimeter::mainLoop()
             has_new_distance = true;
             sum = 0;
             averagedThusFar = 0;
+            writeToSystemState();
         }
         first = '\0';
         second = '\0';
