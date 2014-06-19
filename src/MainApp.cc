@@ -37,6 +37,7 @@
 #include "RateLimiter.h"
 #include "TCPSerial.h"
 #include "Linux.h"
+#include "SystemState.h"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time.hpp>
@@ -82,7 +83,10 @@ void MainApp::run()
 
 
 	/* Construct components of the autopilot */
-	message() << "Settnig up servo board";
+	message() << "Setting up system state object";
+	SystemState *system_state = SystemState::getInstance();
+
+	message() << "Setting up servo board";
 	servo_switch* servo_board = servo_switch::getInstance();
 
 	message() << "Setting up LogFile";
@@ -91,7 +95,7 @@ void MainApp::run()
 	message() << "Setting up IMU";
 	IMU::getInstance();
 
-	message() << "Setting up altimeter";
+	message() << "Setting up Altimeter";
 	MdlAltimeter::getInstance();
 
 	message() << "Setting up TCP";
@@ -107,7 +111,6 @@ void MainApp::run()
 
 	message() << "Setting up control";
 	Control* control = Control::getInstance();
-	
 	
 	message() << "Setting up Linux CPU Reader";
 	Linux::getInstance();
