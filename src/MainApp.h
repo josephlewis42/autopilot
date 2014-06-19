@@ -89,14 +89,8 @@ private:
 	/// stores the current operating mode of the autopilot
 	std::atomic<heli::AUTOPILOT_MODE> autopilot_mode;
 
-	/// @returns the value of MainApp::autopilot_mode using MainApp::autopilot_mode_lock
-	int getMode();
-
 	/// @returns the string representation of the current mode
 	std::string getModeString();
-
-	/// @returns the string representation of mode
-	static std::string getModeString(heli::AUTOPILOT_MODE mode);
 
 	/// slot connected to MainApp::request_mode to change the value of MainApp::autopilot_mode
 	void change_mode(heli::AUTOPILOT_MODE mode);
