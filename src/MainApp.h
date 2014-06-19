@@ -35,16 +35,11 @@
 /**
  * \brief This class replaces the standard main function and implements the main program logic.
  * \author Bryan Godbolt <godbolt@ece.ualberta.ca>
+ * \author Joseph Lewis <joseph@josephlewis.net>
  * \date June 15, 2011 Class created
  * @date January 20, 2012 Added pilot mode switch from new takeover
- *
- * This class is necessary in order to facilitate thread cleanup.  In particular, when this object
- * is destroyed (because the main function is about to return) boost::this_thread::at_thread_exit()
- * is used to call a cleanup routine which sends a terminate signal to other threads in the program
- * then waits for them to terminate.  The signal is sent using the (thread safe) boost::signals2 library.
- * In order for the cleanup class to wait on a thread, the thread must have identified itself at some point
- * by calling the MainApp::add_thread function and passing a pointer to itself and its name (the latter is
- * used for printing messages to the user).
+ * \date 2014-06-19 - Removed the main signaling and thread tracking done
+ * by this class as it now is handled internally by all drivers
  */
 
 class MainApp {
@@ -95,6 +90,9 @@ private:
 	/// slot connected to MainApp::request_mode to change the value of MainApp::autopilot_mode
 	void change_mode(heli::AUTOPILOT_MODE mode);
 
+	/** Changes the pilot mode and sends a signal out that it has been changed.
+	 * 
+	 **/
 	void change_pilot_mode(heli::PILOT_MODE mode);
 
 
