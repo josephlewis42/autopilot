@@ -41,6 +41,21 @@
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
 
+MainApp* MainApp::_instance = NULL;
+std::mutex MainApp::_instance_lock;
+
+MainApp* MainApp::getInstance()
+{
+	std::lock_guard<std::mutex> lock(_instance_lock);
+	if (_instance == NULL)
+	{
+		_instance = new MainApp;
+	}
+	return _instance;
+}
+
+
+
 MainApp::MainApp()
 :autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
 {
@@ -50,16 +65,23 @@ MainApp::MainApp()
 void MainApp::run()
 {
 	boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
-	boost::this_thread::at_thread_exit(cleanup());
 
+	/**
+	terminate.connect([]()
+		{
+			MainApp::getInstance()->do_terminate();
+		}); // Shutdown program by sending a SIGINT.
+	**/
+	signal(SIGINT, [](int signum)
+		{
+			MainApp::getInstance()->terminate();
+		}); // Shutdown program by sending a SIGINT.
 
-	do_terminate terminate_slot(this);
-	terminate.connect(terminate_slot);
+	request_mode.connect([](heli::AUTOPILOT_MODE mode)
+		{
+			MainApp::getInstance()->change_mode(mode);
+		});
 
-	request_mode.connect(change_mode(this));
-
-	// temporary
-	//signal(SIGINT, terminate_slot); // Shutdown program by sending a SIGINT.
 
 	/* Construct components of the autopilot */
 	message() << "Settnig up servo board";
@@ -79,7 +101,7 @@ void MainApp::run()
 
 	message() << "Setting up QGCLink";
 	QGCLink* qgc = QGCLink::getInstance();
-	qgc->shutdown.connect(this->terminate);
+	qgc->shutdown.connect(MainApp::terminate);
 	qgc->servo_source.connect(this->request_mode);
 
 	message() << "Setting up Helicopter";
@@ -114,7 +136,7 @@ void MainApp::run()
 	message() << "Started main loop";
 	RateLimiter rl(100);
 
-	while(check_terminate())
+	while(! _terminate.load())
 	{
 		/* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
 		rl.wait();
@@ -178,6 +200,8 @@ void MainApp::run()
 
 		rl.finishedCriticalSection();
 	}
+	
+	cleanup();
 }
 
 std::vector<MainApp::ThreadName> MainApp::threads;
@@ -193,16 +217,10 @@ MainApp::ThreadName::ThreadName(boost::thread *thread, std::string name)
 	this->name = name;
 }
 
-bool MainApp::check_terminate()
-{
-	return ! _terminate;
-}
-
-boost::signals2::signal<void ()> MainApp::terminate;
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::mode_changed;
 boost::signals2::signal<void (heli::AUTOPILOT_MODE)> MainApp::request_mode;
 
-void MainApp::cleanup::operator()()
+void MainApp::cleanup()
 {
 	Driver::terminateAll();
 
@@ -217,21 +235,11 @@ void MainApp::cleanup::operator()()
 	message() << "All registered threads ended.";
 }
 
-void MainApp::do_terminate::operator()()
+void MainApp::change_mode(heli::AUTOPILOT_MODE mode)
 {
-
-	if (!parent->_terminate)
-	{
-		parent->_terminate = true;
-		message() << "MainApp: Received terminate signal.  Shutting down.";
-	}
-}
-
-void MainApp::change_mode::operator()(heli::AUTOPILOT_MODE mode)
-{
-	debug() << "Switching autopilot mode out of " << MainApp::getModeString(parent->autopilot_mode);
-	parent->autopilot_mode = mode;
-	message() << "Switched autopilot mode into " << MainApp::getModeString(parent->autopilot_mode);
+	debug() << "Switching autopilot mode out of " << MainApp::getModeString();
+	autopilot_mode = mode;
+	message() << "Switched autopilot mode into " << MainApp::getModeString();
 	MainApp::mode_changed(mode);
 }
 

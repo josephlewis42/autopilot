@@ -55,22 +55,16 @@
 class MainApp {
 public:
 
-	/// default constructor (initializes terminate to false)
-	MainApp();
-
-	/// thread safe copy constructor
-	MainApp(const MainApp& other) = delete;
-
-	/// thread safe assignment operator
-	const MainApp& operator=(const MainApp& other) = delete;
-
+	/**
+	Returns the one allowed instance of this Driver
+	**/
+	static MainApp* getInstance();
+	
 	/// Function in which to place main program logic (replaces main()).
 	void run();
 	
 	/// Append a thread to a list so that MainApp can wait for it after sending terminate signal
 	static void add_thread(boost::thread *thread, std::string name);
-	/// Terminate signal used to tell other threads the program is about to terminate
-	static boost::signals2::signal<void ()> terminate;
 
 	/// signal send by main app to notify other threads of a mode change (in particular qgclink::qgcsend)
 	static boost::signals2::signal<void (heli::AUTOPILOT_MODE)> mode_changed;
@@ -86,11 +80,25 @@ public:
 		boost::thread *thread;
 		std::string name;
 	};
+	
+	/// terminates the signal
+	static void terminate(){MainApp::getInstance()->_terminate = true;};
+
 
 private:
 	static const std::string LOG_SCALED_INPUTS ;
+	static MainApp* _instance; 
+	static std::mutex _instance_lock;
 
 
+	/// default constructor (initializes terminate to false)
+	MainApp();
+
+	/// thread safe copy constructor
+	MainApp(const MainApp& other) = delete;
+
+	/// thread safe assignment operator
+	const MainApp& operator=(const MainApp& other) = delete;
 
 	/// List of other threads in the program which should be allowed to terminate before the main program exits
 	static std::vector<ThreadName> threads;
@@ -98,27 +106,8 @@ private:
 	/// controls whether the main loop continues to execute
 	std::atomic_bool _terminate;
 
-	/// returns the value of _terminate using MainApp::terminate_lock for synchronization
-	bool check_terminate();
-
-	/// class to send terminate signal and then wait for other threads when run() finishes
-	class cleanup
-	{
-	public:
-		void operator()();
-	};
-
-	/// slot connected to MainApp::terminate which sets MainApp::_terminate to true
-	class do_terminate
-	{
-	public:
-		do_terminate(MainApp* parent=NULL) {this->parent=parent;}
-		void operator()();
-	private:
-		MainApp *parent;
-	};
-
-
+	/// Send terminate signal and then wait for other threads when run() finishes
+	void cleanup();
 
 	/// stores the current operating mode of the autopilot
 	std::atomic<heli::AUTOPILOT_MODE> autopilot_mode;
@@ -133,14 +122,7 @@ private:
 	static std::string getModeString(heli::AUTOPILOT_MODE mode);
 
 	/// slot connected to MainApp::request_mode to change the value of MainApp::autopilot_mode
-	class change_mode
-	{
-	public:
-		change_mode(MainApp *parent = NULL) {this->parent = parent;}
-		void operator()(heli::AUTOPILOT_MODE mode);
-	private:
-		MainApp *parent;
-	};
+	void change_mode(heli::AUTOPILOT_MODE mode);
 
 	void change_pilot_mode(heli::PILOT_MODE mode);
 

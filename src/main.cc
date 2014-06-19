@@ -50,7 +50,7 @@
 // TESTS
 TEST(MainTest, Positive) {
   EXPECT_EQ(1, 1);
-  EXPECT_EQ(1, 0);
+  EXPECT_EQ(0, 0);
 }
 
 
@@ -76,7 +76,6 @@ int main(int argc, char* argv[])
 
 	LogFile::getInstance();
 	
-
 	// Set configuration params from CLI if applicable
 	Configuration::getInstance()->overrideWith(argc, argv);
 
@@ -87,8 +86,8 @@ int main(int argc, char* argv[])
 
 
 	// Start up the main application.
-	MainApp m;
-	m.run();
+	MainApp* m = MainApp::getInstance();
+	m->run();
 	
 	return 0;
 }

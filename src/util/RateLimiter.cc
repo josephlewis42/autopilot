@@ -46,7 +46,12 @@ RateLimiter::~RateLimiter()
 
 void RateLimiter::wait()
 {
-	_timer.wait();
+	try{
+		_timer.wait();
+	}catch(boost::system::system_error err){
+		return;
+	}
+	
 	_nextTime += _msToWait;
 
 #ifndef NDEBUG
