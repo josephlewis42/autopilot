@@ -271,6 +271,8 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
   {
+     trace() << "Sending mavlink_msg_global_position_int_pack";
+
     // send the default mavlink message
      mavlink_message_t msg;
      blas::vector<double> _llh_pos(get_llh_position());
@@ -295,7 +297,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
     if(msgNumber % (sendRateHz/_positionSendRateHz) == 0)
     {
-        debug() << "Sending IMU message1";
+        trace() << "Sending mavlink_msg_ualberta_position_pack";
 
         // get llh pos
         blas::vector<double> _llh_pos(get_llh_position());
@@ -343,7 +345,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
     if(msgNumber % (sendRateHz / _attitudeSendRateHz) == 0)
     {
-        debug() << "Sending mavlink_msg_ualberta_attitude";
+        trace() << "Sending mavlink_msg_ualberta_attitude";
 
         blas::vector<double> _nav_euler(get_nav_euler());
         std::vector<float> nav_euler(_nav_euler.begin(), _nav_euler.end());

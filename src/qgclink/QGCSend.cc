@@ -446,6 +446,7 @@ void QGCLink::QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)
 
 void QGCLink::QGCSend::send_rc_channels(std::queue<std::vector<uint8_t> > *sendq)
 {
+  qgc->trace() << "Sending RC Channels";
     {
         std::vector<uint16_t> raw(servo_switch::getInstance()->getRaw());
         mavlink_message_t msg;
