@@ -270,6 +270,26 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 
 void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
+  {
+    // send the default mavlink message
+     mavlink_message_t msg;
+     blas::vector<double> _llh_pos(get_llh_position());
+
+     mavlink_msg_global_position_int_pack(uasId,
+                                           heli::GX3_ID,
+                                           &msg,
+                                           getMsSinceInit(),
+                                           _llh_pos[0] * 1E7,
+                                           _llh_pos[1] * 1E7,
+                                           _llh_pos[2] * 1000,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0);
+    msgs.push_back(msg);
+  }
+
 	// send despite being disabled/enabled because this is
 	// a franken-message composed of control as well.
 
@@ -325,7 +345,6 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
     {
         debug() << "Sending mavlink_msg_ualberta_attitude";
 
-        IMU* imu = IMU::getInstance();
         blas::vector<double> _nav_euler(get_nav_euler());
         std::vector<float> nav_euler(_nav_euler.begin(), _nav_euler.end());
 

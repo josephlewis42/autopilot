@@ -29,6 +29,7 @@
 #include "Helicopter.h"
 #include "RateLimiter.h"
 #include "Debug.h"
+#include "SystemState.h"
 
 /* MAVLink Headers */
 //#include <mavlink.h>
@@ -198,7 +199,7 @@ void QGCLink::QGCSend::send()
         }
 
         // send a fake global position message
-
+  /**
       int seconds = loop_count;
       seconds %= 360;
       mavlink_message_t msg;
@@ -209,7 +210,7 @@ void QGCLink::QGCSend::send()
                                2,
                                39.7392,
                                -104.9847,
-                               5280, 0,0,0,seconds);
+                               5280, 0,0,0,seconds);**/
       /**
       mavlink_msg_global_position_int_pack(qgc->uasId,
                                            heli::HELICOPTER_ID,
@@ -225,7 +226,7 @@ void QGCLink::QGCSend::send()
                                            seconds * 100);**/
 
 
-      messages.push_back(msg);
+      //messages.push_back(msg);
 
         for(mavlink_message_t &msg : messages)
         {
