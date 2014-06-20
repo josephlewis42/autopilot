@@ -173,7 +173,7 @@ public:
 
     static blas::matrix<double> euler_to_rotation(const blas::vector<double>& euler);
 
-    virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
+	virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
 
     void setMessageSendRate(int hz)
     {
@@ -275,14 +275,11 @@ private:
     }
 
     /// use nav attitude measurements if true, ahrs if false
-    bool use_nav_attitude;
-    /// serialize access to use_nav_attitude
-    mutable std::mutex use_nav_attitude_lock;
+    std::atomic_bool use_nav_attitude;
     /// threadsafe get use_nav_attitude
     inline bool get_use_nav_attitude() const
     {
-        std::lock_guard<std::mutex> lock(use_nav_attitude_lock);
-        return use_nav_attitude;
+        return use_nav_attitude.load();
     }
     /// threadsafe set use_nav_attitude
     void set_use_nav_attitude(bool attitude_source);
@@ -374,6 +371,7 @@ private:
 
 
     std::atomic_int _positionSendRateHz;
+    std::atomic_int _attitudeSendRateHz;
 };
 
 #endif /* IMU_H_ */

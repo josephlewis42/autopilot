@@ -135,16 +135,14 @@ public:
      * Override this method to send out your own MavLink messages from
      * your driver.
      *
-     * @param msg - the message to populate.
+     * @param msgs - append your message to this vector to send it
      * @param uasId - the identifier of this system
      * @param sendRateHz - the number of messages sent/sec.
      * @param msgNumber - the number of messages sent thus far
      *
-     * Returns true if the message is populated, false otherwise.
      **/
-    virtual bool sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+    virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
     {
-        return false;
     };
 
 

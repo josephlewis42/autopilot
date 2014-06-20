@@ -82,6 +82,7 @@ IMU::IMU()
 {
     isEnabled = configGetb(IMU_ENABLED, IMU_ENABLED_DEFAULT);
     _positionSendRateHz = configGeti("position_message_rate_hz", 10);
+    _attitudeSendRateHz = configGeti("attitude_message_rate_hz", 10);
 
     if(! isEnabled)
     {
@@ -218,7 +219,6 @@ blas::vector<double> IMU::llh2ecef(const blas::vector<double>& llh_deg)
 
 void IMU::set_use_nav_attitude(bool attitude_source)
 {
-    std::lock_guard<std::mutex> lock(use_nav_attitude_lock);
     use_nav_attitude = attitude_source;
     message() << "Attitude source changed to " << (attitude_source?"nav filter":"ahrs") << ".";
 }
@@ -266,13 +266,14 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 }
 
 
-bool IMU::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    if(! isEnabled) return false;
+	// send despite being disabled/enabled because this is
+	// a franken-message composed of control as well.
 
     if(msgNumber % (sendRateHz/_positionSendRateHz) == 0)
     {
-        debug() << "Sending IMU message";
+        debug() << "Sending IMU message1";
 
         // get llh pos
         blas::vector<double> _llh_pos(get_llh_position());
@@ -304,7 +305,6 @@ bool IMU::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int 
         std::vector<float> ned_error(_ned_error.begin(), _ned_error.end());
 
         mavlink_message_t msg;
-        std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
 
         mavlink_msg_ualberta_position_pack(
             uasId,
@@ -314,7 +314,36 @@ bool IMU::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int 
             &ref_pos[0], &body_error[0], &ned_error[0],
             getMsSinceInit());
 
-        return true;
+        msgs.push_back(msg);
     }
-    return false;
+
+
+    if(msgNumber % (sendRateHz / _attitudeSendRateHz) == 0)
+    {
+        debug() << "Sending mavlink_msg_ualberta_attitude";
+
+        IMU* imu = IMU::getInstance();
+        blas::vector<double> _nav_euler(get_nav_euler());
+        std::vector<float> nav_euler(_nav_euler.begin(), _nav_euler.end());
+
+        blas::vector<double> _nav_ang_rate(get_nav_angular_rate());
+        std::vector<float> nav_ang_rate(_nav_ang_rate.begin(), _nav_ang_rate.end());
+
+        blas::vector<double> _ahrs_euler(get_ahrs_euler());
+        std::vector<float> ahrs_euler(_ahrs_euler.begin(), _ahrs_euler.end());
+
+        blas::vector<double> _ahrs_ang_rate(get_ahrs_angular_rate());
+        std::vector<float> ahrs_ang_rate(_ahrs_ang_rate.begin(), _ahrs_ang_rate.end());
+
+        blas::vector<double> _attitude_reference(Control::getInstance()->get_reference_attitude());
+        std::vector<float> attitude_reference(_attitude_reference.begin(), _attitude_reference.end());
+
+        mavlink_message_t msg;
+        mavlink_msg_ualberta_attitude_pack(uasId, heli::GX3_ID, &msg,
+                &nav_euler[0], &nav_ang_rate[0], &ahrs_euler[0], &ahrs_ang_rate[0], &attitude_reference[0],
+                getMsSinceInit());
+
+        msgs.push_back(msg);
+    }
 };
+

@@ -107,16 +107,17 @@ void Linux::cpuInfo(Linux* instance)
     cpufile.close();
 }
 
-bool Linux::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+void Linux::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    if(! isEnabled) return false;
+    if(! isEnabled) return;
 
     if(msgNumber % sendRateHz == 0) // do this once a second.
     {
         debug() << "Sending CPU Utilization";
-        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, msg, getCpuUtilization(), totalram.load(), freeram.load());
-        return true;
+        
+        mavlink_message_t msg;
+        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, getCpuUtilization(), totalram.load(), freeram.load());
+        msgs.push_back(msg);
     }
-    return false;
 };
 

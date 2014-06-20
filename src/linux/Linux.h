@@ -43,8 +43,7 @@ public:
         return cpu_utilization.load();
     }
 
-    virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
-
+    virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
 
 private:
     static Linux* _instance;

@@ -196,11 +196,11 @@ void MainApp::run()
             break;
         }
 
-        default:
-            critical() << "MainApp: The given mode is not defined!";
-            critical() << "MainApp: Switching to Direct Manual Mode.";
-            request_mode(heli::MODE_DIRECT_MANUAL);
-            break;
+        //default:
+        //    critical() << "MainApp: The given mode is not defined!";
+        //    critical() << "MainApp: Switching to Direct Manual Mode.";
+        //    request_mode(heli::MODE_DIRECT_MANUAL);
+        //    break;
         }
 
         rl.finishedCriticalSection();

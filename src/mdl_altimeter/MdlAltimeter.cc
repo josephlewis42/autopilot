@@ -2,7 +2,7 @@
  * MdlAltimeter.cpp
  *
  *  Created on: May 16, 2014
- *      Author: joseph
+ *      Author: Andrew Hannum
  */
 
 #include "MdlAltimeter.h"
@@ -133,16 +133,18 @@ void MdlAltimeter::mainLoop()
     }
 }
 
-bool MdlAltimeter::sendMavlinkMsg(mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber)
+void MdlAltimeter::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    if(! isEnabled) return false;
+    if(! isEnabled) return;
 
     if(has_new_distance) // only send message for new distance
     {
-        mavlink_msg_ualberta_altimeter_pack(uasId, heli::ALTIMETER_ID, msg, distance);
-        //debug() << "Sending altimeter distance: " << distance << "\n";
+		debug() << "Sending altimeter distance: " << distance << "\n";
+		
+		mavlink_message_t msg;
+        mavlink_msg_ualberta_altimeter_pack(uasId, heli::ALTIMETER_ID, &msg, distance);
         has_new_distance = false;
-        return true;
+        
+        msgs.push_back(msg);
     }
-    return false;
 };

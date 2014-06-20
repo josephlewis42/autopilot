@@ -190,16 +190,48 @@ void QGCLink::QGCSend::send()
         }
 
         // Do bulk allocation of messages for drivers.
+
+        std::vector<mavlink_message_t> messages;
         for(Driver* driver : Driver::getDrivers())
         {
-            mavlink_message_t msg;
+            driver->sendMavlinkMsg(messages, qgc->uasId, send_rate, loop_count);
+        }
 
-            if(driver->sendMavlinkMsg(&msg, qgc->uasId, send_rate, loop_count))
-            {
-                std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-                buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-                send_queue->push(buf);
-            }
+        // send a fake global position message
+
+      int seconds = loop_count;
+      seconds %= 360;
+      mavlink_message_t msg;
+      mavlink_msg_gps_raw_pack(qgc->uasId,
+                               heli::HELICOPTER_ID,
+                               &msg,
+                               (boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds(),
+                               2,
+                               39.7392,
+                               -104.9847,
+                               5280, 0,0,0,seconds);
+      /**
+      mavlink_msg_global_position_int_pack(qgc->uasId,
+                                           heli::HELICOPTER_ID,
+                                           &msg,
+                                          (boost::posix_time::microsec_clock::local_time() - startTime).total_milliseconds(),
+                                           39.7392 * 1E7,
+                                           -104.9847 * 1E7,
+                                           5280 * 1000,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           seconds * 100);**/
+
+
+      messages.push_back(msg);
+
+        for(mavlink_message_t &msg : messages)
+        {
+			std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
+			buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
+			send_queue->push(buf);
         }
 
 
@@ -324,6 +356,7 @@ void QGCLink::QGCSend::send_param(std::queue<std::vector<uint8_t> > *sendq)
 
 void QGCLink::QGCSend::send_attitude(std::queue<std::vector<uint8_t> > *sendq)
 {
+    /**
     IMU* imu = IMU::getInstance();
     blas::vector<double> _nav_euler(imu->get_nav_euler());
     std::vector<float> nav_euler(_nav_euler.begin(), _nav_euler.end());
@@ -350,6 +383,7 @@ void QGCLink::QGCSend::send_attitude(std::queue<std::vector<uint8_t> > *sendq)
 
     buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
     sendq->push(buf);
+    **/
 }
 
 void QGCLink::QGCSend::send_requested_params(std::queue<std::vector<uint8_t> > *sendq)

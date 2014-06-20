@@ -2,7 +2,7 @@
  * MdlAltimeter.h
  *
  *  Created on: May 16, 2014
- *      Author: joseph
+ *      Author: Andrew Hannum
  */
 
 #ifndef MDLALTIMETER_H_
@@ -19,7 +19,7 @@ public:
     static MdlAltimeter* getInstance();
     float distance;
     void mainLoop();
-    virtual bool sendMavlinkMsg (mavlink_message_t* msg, int uasId, int sendRateHz, int msgNumber) override;
+    virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
 
 private:
     static MdlAltimeter* _instance; /// pointer to the instance of Alitimiter
