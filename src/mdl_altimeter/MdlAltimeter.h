@@ -20,7 +20,7 @@ public:
     float distance;
     void mainLoop();
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
-
+    virtual void writeToSystemState() override;
 private:
     static MdlAltimeter* _instance; /// pointer to the instance of Alitimiter
     static std::mutex _instance_lock; /// serialize access to _instance

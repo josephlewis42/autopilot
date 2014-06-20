@@ -30,6 +30,7 @@
 #include "QGCLink.h"
 #include "util/AutopilotMath.hpp"
 #include "Control.h"
+#include "SystemState.h"
 
 /* File Handling Headers */
 #include <sys/types.h>
@@ -219,6 +220,7 @@ blas::vector<double> IMU::llh2ecef(const blas::vector<double>& llh_deg)
 
 void IMU::set_use_nav_attitude(bool attitude_source)
 {
+
     use_nav_attitude = attitude_source;
     message() << "Attitude source changed to " << (attitude_source?"nav filter":"ahrs") << ".";
 }
@@ -306,6 +308,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
         mavlink_message_t msg;
 
+
         mavlink_msg_ualberta_position_pack(
             uasId,
             heli::GX3_ID,
@@ -347,3 +350,19 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
     }
 };
 
+void IMU::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->gx3_position = position;
+    state->gx3_ned_origin = ned_origin;
+    state->gx3_velocity = velocity;
+    state->gx3_nav_euler = nav_euler;
+    state->gx3_ahrs_euler = ahrs_euler;
+    state->gx3_nav_rotation = nav_rotation;
+    state->gx3_nav_angular_rate = nav_angular_rate;
+    state->gx3_ahrs_angular_rate = ahrs_angular_rate;
+    state->gx3_use_nav_attitude = use_nav_attitude;
+    state->gx3_mode = gx3_mode;
+    state->state_lock.unlock();
+}

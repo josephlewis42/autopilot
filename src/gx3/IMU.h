@@ -175,6 +175,8 @@ public:
 
 	virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
 
+    virtual void writeToSystemState() override;
+
     void setMessageSendRate(int hz)
     {
         _positionSendRateHz = hz;

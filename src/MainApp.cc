@@ -81,7 +81,6 @@ void MainApp::run()
         MainApp::getInstance()->change_mode(mode);
     });
 
-
     /* Construct components of the autopilot */
     message() << "Setting up system state object";
     SystemState *system_state = SystemState::getInstance();
@@ -139,6 +138,7 @@ void MainApp::run()
 
     while(! _terminate.load())
     {
+
         /* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
         rl.wait();
 

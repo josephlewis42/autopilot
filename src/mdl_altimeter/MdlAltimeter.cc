@@ -28,6 +28,7 @@
 #include "ack_handler.h"
 #include "gx3_send_serial.h"
 #include "QGCLink.h"
+#include "SystemState.h"
 
 
 
@@ -127,6 +128,7 @@ void MdlAltimeter::mainLoop()
             has_new_distance = true;
             sum = 0;
             averagedThusFar = 0;
+            writeToSystemState();
         }
         first = '\0';
         second = '\0';
@@ -139,12 +141,18 @@ void MdlAltimeter::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasI
 
     if(has_new_distance) // only send message for new distance
     {
-		debug() << "Sending altimeter distance: " << distance << "\n";
-		
 		mavlink_message_t msg;
         mavlink_msg_ualberta_altimeter_pack(uasId, heli::ALTIMETER_ID, &msg, distance);
         has_new_distance = false;
         
         msgs.push_back(msg);
     }
+};
+
+void MdlAltimeter::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->altimeter_height = distance;
+    state->state_lock.unlock();
 };
