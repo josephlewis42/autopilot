@@ -65,7 +65,7 @@ enum ServoMessageID
 
 // path to serial device connected to gx3
 const std::string SERVO_SERIAL_PORT_CONFIG_NAME = "servo.serial_port";
-const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser3";
+const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ttyS0";
 
 const std::string SERVO_SWITCH_ENABLED = "servo.enabled";
 const bool SERVO_SWITCH_ENABLED_DEFAULT = true;
