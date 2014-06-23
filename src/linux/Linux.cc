@@ -43,8 +43,6 @@ Linux* Linux::getInstance()
 Linux::Linux()
     :Driver("Linux CPU Info","linux_cpu_info")
 {
-    isEnabled = configGetb("enabled", true);
-
     // If the system wants to halt, don't start running.
     if(terminateRequested())
     {
@@ -52,7 +50,7 @@ Linux::Linux()
     }
 
     // If the user has disabled this component, don't start running
-    if(! isEnabled)
+    if(! isEnabled())
     {
         return;
     }
@@ -109,12 +107,12 @@ void Linux::cpuInfo(Linux* instance)
 
 void Linux::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    if(! isEnabled) return;
+    if(! isEnabled()) return;
 
     if(msgNumber % sendRateHz == 0) // do this once a second.
     {
         debug() << "Sending CPU Utilization";
-        
+
         mavlink_message_t msg;
         mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, getCpuUtilization(), totalram.load(), freeram.load());
         msgs.push_back(msg);

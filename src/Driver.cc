@@ -14,17 +14,19 @@
 #include "qnx2linux.h"
 
 #include <mavlink.h>
-
+#include "MainApp.h"
 
 
 std::mutex Driver::_all_drivers_lock;
 std::list<Driver*> Driver::all_drivers;
+std::atomic_bool Driver::_all_drivers_terminate(false);
+
 
 
 Driver::Driver(std::string name, std::string config_prefix)
     : Logger(name + ": "),
       ConfigurationSubTree(config_prefix),
-      _terminate(false),
+      _terminate(_all_drivers_terminate.load()),
       _config_prefix(config_prefix),
       _name(name),
       _driverInit(std::chrono::system_clock::now())
@@ -33,12 +35,12 @@ Driver::Driver(std::string name, std::string config_prefix)
         std::lock_guard<std::mutex> lock(_all_drivers_lock);
         all_drivers.push_front(this);
     }
+    _debug = configGetb("debug", false);
+    _readDeviceType = configGeti("read_style", 2);
+    _enabled = configGetb("enable", true);
+    _terminate_if_init_failed = configGetb("terminate_if_init_failed", true);
 
-    Configuration* config = Configuration::getInstance();
-    _debug = config->getb(config_prefix + ".debug", false);
-    _readDeviceType = config->geti(config_prefix + ".read_style", 2);
-
-    config->gets(config_prefix + ".read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
+    configGets("read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
 }
 
 Driver::~Driver()
@@ -49,6 +51,8 @@ Driver::~Driver()
 
 void Driver::terminateAll()
 {
+    _all_drivers_terminate = true;
+
     {
         std::lock_guard<std::mutex> lock(_all_drivers_lock);
         for(Driver* d : all_drivers)
@@ -272,4 +276,34 @@ long Driver::getMsSinceInit()
 {
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _driverInit;
     return (long)(elapsed_seconds.count() * 1000);
+}
+
+
+ /**
+    * Alerts the user and system that the initialization of this driver failed, if
+    * terminate_on_init_fail is set to true, terminates the platform.
+    *
+    * @param why - the reason for the initialization failure.
+    **/
+void Driver::initFailed(std::string why)
+{
+    std::string msg =  getName() + " initialization failed with message: " + why;
+
+    if(_terminate_if_init_failed.load() == true)
+    {
+        critical() << msg;
+        critical() << "CALLING TERMIANTE";
+        _all_drivers_terminate = true;
+        MainApp::terminate();
+    }
+    else
+    {
+        warning() << msg;
+    }
+}
+
+
+bool Driver::isEnabled()
+{
+    return _enabled.load();
 }

@@ -91,7 +91,7 @@ servo_switch::servo_switch()
       raw_outputs(9, 0),
       pilot_mode(heli::PILOT_UNKNOWN)
 {
-    if(!Configuration::getInstance()->getb(SERVO_SWITCH_ENABLED, SERVO_SWITCH_ENABLED_DEFAULT))
+    if(!isEnabled())
     {
         warning() << "Servo switch disabled!";
         return;
@@ -105,6 +105,10 @@ servo_switch::servo_switch()
         log->logHeader(LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
         log->logHeader(LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
         log->logHeader(LOG_INPUT_RPM, "RPM");
+    }
+    else
+    {
+        initFailed("Could not init serial port");
     }
 }
 

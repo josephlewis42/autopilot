@@ -58,8 +58,6 @@ private:
     std::atomic<long> uptime_seconds;
     std::atomic<long> load1, load5, load15, totalram, freeram;
     std::atomic<short> procs;
-
-    bool isEnabled;
 };
 
 #endif /* LINUX_H */

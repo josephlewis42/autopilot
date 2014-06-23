@@ -55,14 +55,12 @@ MdlAltimeter* MdlAltimeter::getInstance()
 MdlAltimeter::MdlAltimeter()
     :Driver("MDL Altimeter", "mdl_altimeter")
 {
-    isEnabled = configGetb("enabled", true);
-
     if(terminateRequested())
     {
         return;
     }
 
-    if(!isEnabled)
+    if(!isEnabled())
     {
         warning() << "MDL Altimeter disabled!";
         return;
@@ -75,7 +73,7 @@ MdlAltimeter::MdlAltimeter()
     // Set up the terminal.
     if(!namedTerminalSettings("Altimeter1", _serialFd, 38400, "8N1", false, true))
     {
-        warning() << "Could not setup serial!";
+        initFailed("could not set up serial");
     }
     else
     {
@@ -137,14 +135,14 @@ void MdlAltimeter::mainLoop()
 
 void MdlAltimeter::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    if(! isEnabled) return;
+    if(! isEnabled()) return;
 
     if(has_new_distance) // only send message for new distance
     {
 		mavlink_message_t msg;
         mavlink_msg_ualberta_altimeter_pack(uasId, heli::ALTIMETER_ID, &msg, distance);
         has_new_distance = false;
-        
+
         msgs.push_back(msg);
     }
 };

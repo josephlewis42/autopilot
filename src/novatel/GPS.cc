@@ -37,7 +37,6 @@ std::mutex GPS::_instance_lock;
 /// path to serial device connected to Novatel
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
 std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT = "/dev/ser1";
-std::string GPS::GPS_ENABLED = "novatel.enabled";
 
 std::string GPS::LOG_NOVATEL_GPS = "Novatel GPS (Invalid Solutions Removed)";
 std::string GPS::LOG_NOVATEL_GPS_ALL = "Novatel GPS (All Measurements)";
