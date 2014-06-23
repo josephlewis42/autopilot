@@ -265,33 +265,31 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 
 void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-  {
-     trace() << "Sending mavlink_msg_global_position_int_pack";
+    // Global position (mavlink common message)
+    {
+        trace() << "Sending mavlink_msg_global_position_int_pack";
 
-    // send the default mavlink message
-     mavlink_message_t msg;
-     blas::vector<double> _llh_pos(get_llh_position());
+        // send the default mavlink message
+        mavlink_message_t msg;
+        blas::vector<double> _llh_pos(get_llh_position());
 
-     mavlink_msg_global_position_int_pack(uasId,
-                                           heli::GX3_ID,
-                                           &msg,
-                                           getMsSinceInit(),
-                                           _llh_pos[0] * 1E7,
-                                           _llh_pos[1] * 1E7,
-                                           _llh_pos[2] * 1000,
-                                           0,
-                                           0,
-                                           0,
-                                           0,
-                                           0);
-    msgs.push_back(msg);
-  }
-  return;
+        mavlink_msg_global_position_int_pack(uasId,
+                                             heli::GX3_ID,
+                                             &msg,
+                                             getMsSinceInit(),
+                                             _llh_pos[0] * 1E7,
+                                             _llh_pos[1] * 1E7,
+                                             _llh_pos[2] * 1000,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0);
+        msgs.push_back(msg);
+    }
 
-	// send despite being disabled/enabled because this is
-	// a franken-message composed of control as well.
-
-    if(msgNumber % (sendRateHz/_positionSendRateHz) == 0)
+    
+    // UAlberta Position
     {
         trace() << "Sending mavlink_msg_ualberta_position_pack";
 
@@ -338,8 +336,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
         msgs.push_back(msg);
     }
 
-
-    if(msgNumber % (sendRateHz / _attitudeSendRateHz) == 0)
+    // UAlberta Attitude
     {
         trace() << "Sending mavlink_msg_ualberta_attitude";
 
@@ -360,8 +357,8 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
         mavlink_message_t msg;
         mavlink_msg_ualberta_attitude_pack(uasId, heli::GX3_ID, &msg,
-                &nav_euler[0], &nav_ang_rate[0], &ahrs_euler[0], &ahrs_ang_rate[0], &attitude_reference[0],
-                getMsSinceInit());
+                                           &nav_euler[0], &nav_ang_rate[0], &ahrs_euler[0], &ahrs_ang_rate[0], &attitude_reference[0],
+                                           getMsSinceInit());
 
         msgs.push_back(msg);
     }
