@@ -9,7 +9,7 @@
 	</servo>
 	<gx3>
 		<debug>true</debug>
-		<enabled>false</enabled>
+		<enabled>true</enabled>
 		<serial_port>/dev/ttyACM0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -29,6 +29,7 @@
 		<antenna_offset_z_meters>-0.473</antenna_offset_z_meters>
 		<use_external_gps>false</use_external_gps>
 		<position_message_rate_hz>10</position_message_rate_hz>
+		<attitude_message_rate_hz>10</attitude_message_rate_hz>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>

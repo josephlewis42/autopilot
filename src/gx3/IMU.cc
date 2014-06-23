@@ -291,6 +291,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
                                            0);
     msgs.push_back(msg);
   }
+  return;
 
 	// send despite being disabled/enabled because this is
 	// a franken-message composed of control as well.
