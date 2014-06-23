@@ -15,8 +15,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-#ifndef SYSTEMSTATE_H
-#define SYSTEMSTATE_H
+#ifndef SYSTEMSTATE_H_
+#define SYSTEMSTATE_H_
 
 #include <vector>
 #include <boost/numeric/ublas/vector.hpp>
@@ -100,11 +100,6 @@ public:
     blas::vector<double> 	control_effort;
     heli::Trajectory_Type 	control_trajectory_type;
     std::vector<double> 	control_pilot_mix;
-    attitude_pid 			control_roll_pitch_pid_controller;
-    translation_outer_pid 	control_x_y_pid_controller;
-    tail_sbf 				control_x_y_sbf_controller;
-    line 					control_line_trajectory;
-    circle 					control_circle_trajectory;
 
 private:
     SystemState();
@@ -112,4 +107,4 @@ private:
 
 };
 
-#endif //RADIOCALIBRATION_H
+#endif //SYSTEMSTATE_H_

@@ -103,11 +103,13 @@ public:
     void setRaw(const std::vector<uint16_t>& raw_outputs)
     {
         set_raw_outputs(raw_outputs);
+        writeToSystemState();
     }
     inline void setRaw(heli::Channel ch, uint16_t pulse_width)
     {
         std::lock_guard<std::mutex> lock(raw_outputs_lock);
         raw_outputs[ch] = pulse_width;
+        writeToSystemState();
     }
 
     /// signal with new mode as argument

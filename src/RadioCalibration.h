@@ -60,6 +60,8 @@ public:
     /// Construct the class
     static RadioCalibration* getInstance();
 
+    void writeToSystemState();
+
     boost::array<uint16_t, 3> getAileron();
     boost::array<uint16_t, 3> getElevator();
     boost::array<uint16_t, 5> getThrottle();

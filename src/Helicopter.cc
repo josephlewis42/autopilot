@@ -19,6 +19,7 @@
 
 #include "Helicopter.h"
 #include "Configuration.h"
+#include "SystemState.h"
 
 /* Boost Headers */
 #include <boost/lexical_cast.hpp>
@@ -77,6 +78,8 @@ Helicopter::Helicopter()
     set_inertia_x(config->getd(XML_INERTIA_X, 0.36));
     set_inertia_y(config->getd(XML_INERTIA_Y, 1.48));
     set_inertia_z(config->getd(XML_INERTIA_Z, 1.21));
+
+    writeToSystemState();
 }
 
 Helicopter* Helicopter::_instance = NULL;
@@ -156,6 +159,7 @@ void Helicopter::setParameter(Parameter p)
         debug() << "Helicopter: Received unknown parameter.";
 
     saveFile();
+    writeToSystemState();
 }
 
 void Helicopter::saveFile()
@@ -178,6 +182,18 @@ void Helicopter::saveFile()
     config->set(XML_INERTIA_X, boost::lexical_cast<std::string>(inertia(0,0)));
     config->set(XML_INERTIA_Y, boost::lexical_cast<std::string>(inertia(1,1)));
     config->set(XML_INERTIA_Z, boost::lexical_cast<std::string>(inertia(2,2)));
+}
+
+void Helicopter::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->helicopter_mass = mass;
+    state->helicopter_gravity = gravity;
+    state->helicopter_main_hub_offset = main_hub_offset;
+    state->helicopter_tail_hub_offset = tail_hub_offset;
+    state->helicopter_inertia = inertia;
+    state->state_lock.unlock();
 }
 
 uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 3> setpoint)

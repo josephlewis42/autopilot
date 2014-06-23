@@ -20,6 +20,7 @@
 #include "RadioCalibration.h"
 #include "Configuration.h"
 #include "Helicopter.h"
+#include "SystemState.h"
 
 RadioCalibration::RadioCalibration()
 {
@@ -79,6 +80,7 @@ void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >&
     populateVector(calibration_data[5], pitch);
 
     saveFile();
+    writeToSystemState();
 }
 
 boost::array<uint16_t, 3> RadioCalibration::getAileron()
@@ -202,6 +204,8 @@ void RadioCalibration::loadFile()
     parseDelimiter(config->gets("channels.five.pitch.value","1000, 1250, 1500, 1750, 2000"), setpoints);
     populateVector(setpoints, pitch);
     setpoints.clear();
+
+    writeToSystemState();
 }
 
 /**
@@ -247,3 +251,16 @@ void RadioCalibration::saveFile()
     config->set("channels.five.pitch.value", "6");
 }
 
+void RadioCalibration::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->radio_calibration_gyro = getGyro();
+    state->radio_calibration_aileron = getAileron();
+    state->radio_calibration_elevator = getElevator();
+    state->radio_calibration_rudder = getRudder();
+    state->radio_calibration_throttle = getThrottle();
+    state->radio_calibration_pitch = getPitch();
+    state->radio_calibration_flightMode = getFlightMode();
+    state->state_lock.unlock();
+}
