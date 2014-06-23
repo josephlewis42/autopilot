@@ -51,8 +51,6 @@ std::mutex IMU::_instance_lock;
 // path to serial device connected to gx3
 const std::string IMU_SERIAL_PORT_CONFIG_NAME = "serial_port";
 const std::string IMU_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser2";
-const std::string IMU_ENABLED = "enabled";
-const bool IMU_ENABLED_DEFAULT = true;
 
 IMU* IMU::getInstance()
 {
@@ -73,19 +71,18 @@ IMU::IMU()
      ned_origin(blas::zero_vector<double>(3)),
      velocity(blas::zero_vector<double>(3)),
      use_nav_attitude(true),
-     attitude_source_connection(QGCLink::getInstance()->attitude_source.connect(
-                                    boost::bind(&IMU::set_use_nav_attitude, this, _1))),
      nav_euler(blas::zero_vector<double>(3)),
      ahrs_euler(blas::zero_vector<double>(3)),
      nav_rotation(blas::identity_matrix<double>(3)),
      nav_angular_rate(blas::zero_vector<double>(3)),
-     ahrs_angular_rate(blas::zero_vector<double>(3))
+     ahrs_angular_rate(blas::zero_vector<double>(3)),
+    attitude_source_connection(QGCLink::getInstance()->attitude_source.connect(
+                                    boost::bind(&IMU::set_use_nav_attitude, this, _1)))
 {
-    isEnabled = configGetb(IMU_ENABLED, IMU_ENABLED_DEFAULT);
     _positionSendRateHz = configGeti("position_message_rate_hz", 10);
     _attitudeSendRateHz = configGeti("attitude_message_rate_hz", 10);
 
-    if(! isEnabled)
+    if(! isEnabled())
     {
         warning() << "GX3 disabled!";
         return;
@@ -93,8 +90,7 @@ IMU::IMU()
 
     if(!init_serial())
     {
-        critical() << "Failed to open serial port for GX3.  Attempting to terminate autopilot.";
-        MainApp::terminate();
+        initFailed("could not open serial port");
         return;
     }
 
@@ -122,7 +118,6 @@ bool IMU::init_serial()
 
     if(-1 == fd_ser)
     {
-        critical() << "Could not initialize imu serial port";
         return false;
     }
 

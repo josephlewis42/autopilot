@@ -58,12 +58,20 @@ private:
     /// Keeps a list of all drivers so we can iterate over them later.
     static std::list<Driver*> all_drivers;
 
+    /// Keeps the global value of terminate
+    static std::atomic_bool _all_drivers_terminate;
+
     /// Keeps the value of the read property on a particular device.
     int _readDeviceType;
 
     /// Keeps the time that the driver was initiated
     std::chrono::time_point<std::chrono::system_clock> _driverInit;
 
+    /// True if the driver is enabled, false if it is not.
+    std::atomic_bool _enabled;
+
+    /// Holds the property of whether or not to terminate if init failed.
+    std::atomic_bool _terminate_if_init_failed;
 
 public:
     Driver(std::string name, std::string config_prefix);
@@ -86,11 +94,13 @@ public:
     {
         return _terminate;
     };
+
     inline void terminate()
     {
         debug() << "Driver Terminating: " << getName();
         _terminate = true;
     };
+
 
     /**
      * Gets a vector with all drivers contained in it.
@@ -155,6 +165,21 @@ public:
      * Gets the number of milliseconds since this driver was instnatiated.
      **/
     long getMsSinceInit();
+
+    /**
+    * Alerts the user and system that the initialization of this driver failed, if
+    * terminate_on_init_fail is set to true, terminates the platform.
+    *
+    * @param why - the reason for the initialization failure.
+    **/
+    void initFailed(std::string why="");
+
+    /**
+     * Checks to see if this driver should be run.
+     *
+     * @return true if the driver is enabled, false if it is not.
+     **/
+    bool isEnabled();
 };
 
 #endif /* DRIVER_H_ */

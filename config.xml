@@ -6,10 +6,11 @@
 		<serial_port>/dev/ttyS0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</servo>
 	<gx3>
-		<debug>false</debug>
-		<enabled>false</enabled>
+		<debug>true</debug>
 		<serial_port>/dev/ttyACM0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -30,6 +31,8 @@
 		<use_external_gps>false</use_external_gps>
 		<position_message_rate_hz>10</position_message_rate_hz>
 		<attitude_message_rate_hz>10</attitude_message_rate_hz>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>
@@ -40,6 +43,8 @@
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<UASidentifier>100</UASidentifier>
+		<enable>true</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</qgroundcontrol>
 	<channels>
 		<two>
@@ -156,11 +161,15 @@
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<enable_fallback_gps>true</enable_fallback_gps>
 		<log_fallback_gps>false</log_fallback_gps>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</novatel>
 	<log>
 		<debug>false</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<enable>true</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</log>
 	<mdl_altimeter>
 		<debug>true</debug>
@@ -176,6 +185,8 @@
 				<raw_mode>true</raw_mode>
 			</Altimeter1>
 		</terminal>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</mdl_altimeter>
 	<tcpserial>
 		<debug>false</debug>
@@ -193,11 +204,14 @@
 		</terminal>
 		<TCP_Port>5000</TCP_Port>
 		<TCP_backlog>10</TCP_backlog>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</tcpserial>
 	<linux_cpu_info>
 		<debug>false</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
-		<enabled>true</enabled>
+		<enable>false</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</linux_cpu_info>
 </configuration>

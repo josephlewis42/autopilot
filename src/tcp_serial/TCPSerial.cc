@@ -53,7 +53,7 @@ TCPSerial::TCPSerial()
         return;
     }
 
-    if(! configGetb("enabled", false))
+    if(! isEnabled())
     {
         return;
     }
@@ -65,7 +65,7 @@ TCPSerial::TCPSerial()
 
     if(ser_fd == -1)
     {
-        warning() << "Could not open serial port";
+        initFailed("could not open serial port");
     }
 
 

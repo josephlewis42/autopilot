@@ -65,7 +65,7 @@ GPS::ReadSerial::ReadSerial()
 void GPS::ReadSerial::operator()()
 {
     GPS* gps = GPS::getInstance();
-    if(!Configuration::getInstance()->getb(GPS::GPS_ENABLED, GPS::GPS_ENABLED_DEFAULT))
+    if(!gps->isEnabled())
     {
         gps->warning() << "NovAtel disabled!";
         return;
@@ -81,8 +81,7 @@ void GPS::ReadSerial::operator()()
     }
     else
     {
-        gps->warning() << "Could not init NovAtel";
-        MainApp::terminate();
+        gps->initFailed("could not init serial");
     }
 
     send_unlog_command();

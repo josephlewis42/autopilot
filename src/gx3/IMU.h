@@ -183,7 +183,6 @@ public:
     };
 
 private:
-    bool isEnabled;
 
     IMU();
     static IMU* _instance;
@@ -285,8 +284,6 @@ private:
     }
     /// threadsafe set use_nav_attitude
     void set_use_nav_attitude(bool attitude_source);
-    /// connection to allow use_nav_attitude to be set from qgc
-    boost::signals2::scoped_connection attitude_source_connection;
 
     /// store the current euler angle estimate from the nav filter
     blas::vector<double> nav_euler;
@@ -374,6 +371,9 @@ private:
 
     std::atomic_int _positionSendRateHz;
     std::atomic_int _attitudeSendRateHz;
+
+    /// connection to allow use_nav_attitude to be set from qgc
+    boost::signals2::scoped_connection attitude_source_connection;
 };
 
 #endif /* IMU_H_ */

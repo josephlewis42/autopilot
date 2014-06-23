@@ -25,7 +25,6 @@ private:
     static MdlAltimeter* _instance; /// pointer to the instance of Alitimiter
     static std::mutex _instance_lock; /// serialize access to _instance
     int _serialFd;
-    bool isEnabled;
     bool has_new_distance;
 
 };
