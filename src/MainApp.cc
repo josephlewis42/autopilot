@@ -83,7 +83,7 @@ void MainApp::run()
 
     /* Construct components of the autopilot */
     message() << "Setting up system state object";
-    SystemState *system_state = SystemState::getInstance();
+    SystemState::getInstance();
 
     message() << "Setting up servo board";
     servo_switch* servo_board = servo_switch::getInstance();
@@ -196,11 +196,11 @@ void MainApp::run()
             break;
         }
 
-        //default:
-        //    critical() << "MainApp: The given mode is not defined!";
-        //    critical() << "MainApp: Switching to Direct Manual Mode.";
-        //    request_mode(heli::MODE_DIRECT_MANUAL);
-        //    break;
+        default:
+            critical() << "MainApp: The given mode is not defined!";
+            critical() << "MainApp: Switching to Direct Manual Mode.";
+            request_mode(heli::MODE_DIRECT_MANUAL);
+            break;
         }
 
         rl.finishedCriticalSection();

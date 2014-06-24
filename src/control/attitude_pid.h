@@ -141,7 +141,7 @@ public:
         return roll_trim;
     }
     /** set the roll trim point.  threadsafe
-     * @param trim roll trim in degrees
+     * @param trim_degrees - trim roll in degrees
      */
     void set_roll_trim_degrees(double trim_degrees);
     /** get the roll trim point.  threadsafe
@@ -166,7 +166,7 @@ public:
         return pitch_trim;
     }
     /** set the pitch trim point.  threadsafe
-     * @param trim pitch trim in degrees
+     * @param trim_degrees - trim pitch in degrees
      */
     void set_pitch_trim_degrees(double trim_degrees);
     /** get the pitch trim point.  threadsafe
