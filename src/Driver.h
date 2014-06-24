@@ -31,7 +31,6 @@
 #include <chrono>
 #include <ctime>
 
-
 /**
  * The driver class is the base class for all the extension points in the program.
  *

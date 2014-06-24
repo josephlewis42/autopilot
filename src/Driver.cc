@@ -16,6 +16,9 @@
 #include <mavlink.h>
 #include "MainApp.h"
 
+#include "Debug.h"
+#include "Configuration.h"
+
 
 std::mutex Driver::_all_drivers_lock;
 std::list<Driver*> Driver::all_drivers;

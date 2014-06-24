@@ -19,8 +19,8 @@
 #include "SystemState.h"
 
 SystemState::SystemState()
+:batteryVoltage(0)
 {
-
 }
 
 SystemState* SystemState::_instance = NULL;
