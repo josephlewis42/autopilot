@@ -21,6 +21,7 @@
 #include "Control.h"
 
 /* Project Headers */
+#include "SystemState.h"
 #include "servo_switch.h"
 #include "bad_control.h"
 #include "RCTrans.h"
@@ -29,7 +30,6 @@
 #include "heli.h"
 #include "Configuration.h"
 #include "LogFile.h"
-
 
 /* Boost Headers */
 #include <boost/bind.hpp>
@@ -72,6 +72,19 @@ Control* Control::getInstance()
 const std::string Control::PARAM_MIX_ROLL = "MIX_ROLL";
 const std::string Control::PARAM_MIX_PITCH = "MIX_PITCH";
 const std::string Control::CONTROL_MODE = "MODE_CONTROL";
+
+void Control::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->control_mode = controller_mode;
+    state->control_reference_position = reference_position;
+    state->control_reference_attitude = reference_attitude;
+    state->control_effort = attitude_pid_controller().get_control_effort();
+    state->control_trajectory_type = trajectory_type;
+    state->control_pilot_mix = pilot_mix;
+    state->state_lock.unlock();
+}
 
 std::vector<Parameter> Control::getParameters()
 {
@@ -184,6 +197,7 @@ void Control::setParameter(Parameter p)
         return;
     }
     saveFile();
+    writeToSystemState();
 }
 
 blas::vector<double> Control::get_control_effort() const
@@ -431,6 +445,7 @@ void Control::set_controller_mode(heli::Controller_Mode mode)
         this->mode_changed(mode);
         warning() << "Controller mode changed to: " << getModeString(mode);
         saveFile();
+        writeToSystemState();
     }
 }
 
@@ -482,5 +497,6 @@ void Control::set_trajectory_type(const heli::Trajectory_Type trajectory_type)
     {
         warning() << "Trajectory type changed to: " << getTrajectoryString(trajectory_type);
         saveFile();
+        writeToSystemState();
     }
 }

@@ -62,6 +62,8 @@ public:
 
     static Control* getInstance();
 
+    void writeToSystemState();
+
     /**
      * Creates a list of all control related parameters.  In other words the list will include
      * the parameters stored in the class (which are general to all controls e.g., pilot mix) as well

@@ -372,6 +372,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
             break;
         }
     }
+    IMU::getInstance()->writeToSystemState();
 }
 
 void IMU::message_parser::parse_command_message(const std::vector<uint8_t>& message)

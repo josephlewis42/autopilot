@@ -61,6 +61,8 @@ public:
 
     static GPS* getInstance();
 
+    virtual void writeToSystemState() override;
+
     class ReadSerial;
 
     /// threadsafe get llh_position

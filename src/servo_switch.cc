@@ -299,6 +299,8 @@ void servo_switch::read_serial::parse_pulse_inputs(const std::vector<uint8_t>& p
     getInstance()->set_raw_inputs(pulse_inputs);
     LogFile *log = LogFile::getInstance();
     log->logData(LOG_INPUT_PULSE_WIDTHS, pulse_inputs);
+    getInstance()->writeToSystemState();
+
 }
 
 void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& payload)
@@ -331,6 +333,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
 
     LogFile *log = LogFile::getInstance();
     log->logData(LOG_INPUT_RPM, speeds);
+    getInstance()->writeToSystemState();
 }
 
 

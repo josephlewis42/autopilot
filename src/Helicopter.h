@@ -56,6 +56,8 @@ class Helicopter
 public:
     static Helicopter* getInstance();
 
+    void writeToSystemState();
+
     /** Returns Aileron channel pulse value derived from scaled pulse
     	@param norm scaled value of pulse
     	@return pulse pulse value from value scaled with respect to Radio calibration end-points.

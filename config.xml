@@ -2,6 +2,7 @@
 <configuration>
 	<servo>
 		<debug>false</debug>
+		<enabled>false</enabled>
 		<serial_port>/dev/ttyS0</serial_port>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -154,6 +155,7 @@
 	</physical_params>
 	<novatel>
 		<debug>true</debug>
+		<enabled>false</enabled>
 		<serial_port>/dev/ttyS0</serial_port>
 		<read_style>1</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
@@ -173,6 +175,7 @@
 		<debug>true</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<enabled>false</enabled>
 		<device>/dev/ttyUSB0</device>
 		<terminal>
 			<Altimeter1>
@@ -189,6 +192,7 @@
 		<debug>false</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<enabled>false</enabled>
 		<serial_path>/dev/ttyS0</serial_path>
 		<terminal>
 			<serial_settings>

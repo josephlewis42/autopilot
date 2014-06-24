@@ -24,6 +24,7 @@
 #include "novatel_read_serial.h"
 #include "MainApp.h"
 #include "LogFile.h"
+#include "SystemState.h"
 
 #include <mutex>
 
@@ -79,4 +80,21 @@ GPS::GPS()
 
 GPS::~GPS()
 {
+}
+
+void GPS::writeToSystemState()
+{
+    SystemState *state = SystemState::getInstance();
+    state->state_lock.lock();
+    state->novatel_llh_position = llh_position;
+    state->novatel_ned_velocity = ned_velocity;
+    state->novatel_pos_sigma = pos_sigma;
+    state->novatel_vel_sigma = vel_sigma;
+    state->novatel_position_status = position_status;
+    state->novatel_position_type = position_type;
+    state->novatel_velocity_status = velocity_status;
+    state->novatel_velocity_type = velocity_type;
+    state->novatel_num_sats = num_sats;
+    state->novatel_gps_time = _gps_time;
+    state->state_lock.unlock();
 }
