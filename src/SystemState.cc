@@ -19,7 +19,7 @@
 #include "SystemState.h"
 
 SystemState::SystemState()
-:batteryVoltage(0)
+:batteryVoltage_mV(0)
 {
 }
 

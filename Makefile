@@ -19,7 +19,7 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/extern/gtest/include \
 		-I$(BUILD_DIR)
 
-CFLAGS:=  -std=c++11 -static ${INCLUDE} -c -g -Wall -Werror
+CFLAGS:=  -pipe -std=c++11 -static ${INCLUDE} -c -g -Wall -Werror 
 LDFLAGS:=  -std=c++11 -static -g -L$(BUILD_DIR) -L/usr/lib -L/usr/include/boost  -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem -lgtest -lpthread
 
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )

@@ -103,7 +103,7 @@ public:
     std::vector<double> 	control_pilot_mix;
 
     // Data from the helicopter.
-    SystemStateParam<uint16_t> batteryVoltage;
+    SystemStateParam<uint16_t> batteryVoltage_mV;
 
     /** Sets the voltage of the battery onboard the helicopter.
      *
@@ -120,9 +120,6 @@ public:
 private:
     SystemState();
     static SystemState* _instance;
-
-    std::atomic<uint16_t> _batteryVoltage_mV;
-
 };
 
 #endif //SYSTEMSTATE_H_

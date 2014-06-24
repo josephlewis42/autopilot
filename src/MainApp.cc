@@ -38,6 +38,7 @@
 #include "TCPSerial.h"
 #include "Linux.h"
 #include "SystemState.h"
+#include "CommonMessages.h"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time.hpp>
@@ -84,6 +85,9 @@ void MainApp::run()
     /* Construct components of the autopilot */
     message() << "Setting up system state object";
     SystemState::getInstance();
+
+    message() << "Setting up common messages";
+    CommonMessages::getInstance();
 
     message() << "Setting up servo board";
     servo_switch* servo_board = servo_switch::getInstance();
