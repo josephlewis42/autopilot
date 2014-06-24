@@ -52,6 +52,28 @@ class GPSPosition
          **/
         ublas::vector<double> ecef() const;
 
+        /// Returns the latitude in decimal degrees
+        const double getLatitudeDD(){return _latitudeDD;};
+
+        /// Returns the longitude in decimal degrees
+        const double getLongitudeDD(){return _longitudeDD;};
+
+        /// Returns the height in meters
+        const double getHeightM(){return _heightM;};
+
+        /// Returns the acuracy in meters
+        const double getAccuracyM(){return _accuracyM;};
+
+        /** Calculates and returns the distance between the two points in meters
+         * uses the haversine formula.
+         * @param other - the point to get the distance to
+         * @param useCurrentAltitude - whether or not to add in the current altitude
+         * to the radius of Earth.
+         *
+         * @return the number of meters between the two points.
+         **/
+        double distanceTo(GPSPosition* other, bool useCurrentAltitude=true);
+
 
     private:
         double _latitudeDD, _longitudeDD, _heightM, _accuracyM;

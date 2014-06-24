@@ -81,22 +81,22 @@ public:
     /// get position in local ned frame (origin must be set)
     blas::vector<double> get_ned_position() const;
     /// get llh position
-    inline blas::vector<double> get_llh_position() const
+    inline blas::vector<double> get_llh_position() const // 2014-06-23 -- now only used internally
     {
         return get_position();
     }
     /// get ecef position
-    inline blas::vector<double> get_ecef_position() const
+    inline blas::vector<double> get_ecef_position() const // 2014-06-23 -- now only used internally
     {
         return llh2ecef(get_position());
     }
     /// get llh ned origin
-    inline blas::vector<double> get_llh_origin() const
+    inline blas::vector<double> get_llh_origin() const // 2014-06-23 -- now only used internally
     {
         return get_ned_origin();
     }
     /// get ecef ned origin
-    inline blas::vector<double> get_ecef_origin() const
+    inline blas::vector<double> get_ecef_origin() const // 2014-06-23 -- now only used internally
     {
         return llh2ecef(get_ned_origin());
     }
@@ -111,7 +111,7 @@ public:
         return get_velocity();
     }
     /// threadsafe get velocity (ned)
-    inline blas::vector<double> get_velocity() const
+    inline blas::vector<double> get_velocity() const // 2014-06-23 -- now only used internally
     {
         std::lock_guard<std::mutex> lock(velocity_lock);
         return velocity;
@@ -124,7 +124,7 @@ public:
     /// get the rotation matrix for the heading angle only (body->navigation)
     blas::matrix<double> get_heading_rotation() const;
     /// threadsafe get rotation
-    inline blas::matrix<double> get_nav_rotation() const
+    inline blas::matrix<double> get_nav_rotation() const // 2014-06-23 -- not used
     {
         std::lock_guard<std::mutex> lock(nav_rotation_lock);
         return nav_rotation;
@@ -135,36 +135,42 @@ public:
         return (get_use_nav_attitude()?get_nav_euler():get_ahrs_euler());
     }
     /// threadsafe get nav_euler
-    inline blas::vector<double> get_nav_euler() const
+    inline blas::vector<double> get_nav_euler() const // 2014-06-23 -- now only used internally
     {
         std::lock_guard<std::mutex> lock(nav_euler_lock);
         return nav_euler;
     }
     /// threadsafe get ahrs_euler
-    inline blas::vector<double> get_ahrs_euler() const
+    inline blas::vector<double> get_ahrs_euler() const // 2014-06-23 -- now only used internally
     {
         std::lock_guard<std::mutex> lock(ahrs_euler_lock);
         return ahrs_euler;
     }
+    /**
     /// get nav or ahrs angular rate according to use_nav_attitude
-    inline blas::vector<double> get_angular_rate() const
+    inline blas::vector<double> get_angular_rate() const // 2014-06-23 -- used in one location
     {
         return (get_use_nav_attitude()?get_nav_angular_rate():get_ahrs_angular_rate());
     }
+    **/
     /// threadsafe get nav angular_rate
-    inline blas::vector<double> get_nav_angular_rate() const
+    inline blas::vector<double> get_nav_angular_rate() const  // 2014-06-23 -- now only used internally
     {
         std::lock_guard<std::mutex> lock(nav_angular_rate_lock);
         return nav_angular_rate;
     }
     /// threadsafe get ahrs angular_rate
-    inline blas::vector<double> get_ahrs_angular_rate() const
+    inline blas::vector<double> get_ahrs_angular_rate() const  // 2014-06-23 -- now only used internally
     {
         std::lock_guard<std::mutex> lock(ahrs_angular_rate_lock);
         return ahrs_angular_rate;
     }
     /// get the euler angle derivatives
-    blas::vector<double> get_euler_rate() const;
+    blas::vector<double> get_euler_rate() const
+    {
+        // just return the angular rate since the yaw gyro measurement is not reliable
+        return (get_use_nav_attitude()?get_nav_angular_rate():get_ahrs_angular_rate());
+    }
 
     /// signal to notify when gx3 mode changes
     boost::signals2::signal<void (GX3_MODE)> gx3_mode_changed;

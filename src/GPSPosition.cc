@@ -19,6 +19,7 @@
 
 #include "GPSPosition.h"
 #include "AutopilotMath.hpp"
+#include <cmath>
 
 GPSPosition::GPSPosition(double latitudeDD, double longitudeDD, double heightM, double accuracyM)
 :_latitudeDD(latitudeDD),
@@ -52,3 +53,39 @@ ublas::vector<double> GPSPosition::ecef() const
 
     return ecef;
 }
+
+double GPSPosition::distanceTo(GPSPosition* other, bool useCurrentAltitude)
+{
+    double earthRadius = 6378137;
+
+    if(useCurrentAltitude)
+    {
+        earthRadius += _heightM;
+    }
+
+    double lat1Rad = AutopilotMath::degreesToRadians(_latitudeDD);
+    double lat2Rad = AutopilotMath::degreesToRadians(other->_latitudeDD);
+    double deltaLat = AutopilotMath::degreesToRadians(other->_latitudeDD - _latitudeDD);
+    double deltaLon = AutopilotMath::degreesToRadians(other->_longitudeDD - _longitudeDD);
+
+    double a = sin(deltaLat / 2) * sin(deltaLat / 2) +
+                cos(lat1Rad) * cos(lat2Rad) *
+                sin(deltaLon / 2) * sin(deltaLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c;
+    /**
+
+    http://www.movable-type.co.uk/scripts/latlong.html
+
+    var Δλ = (lon2-lon1).toRadians();
+
+    var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    var d = R * c;
+    **/
+}
+

@@ -163,12 +163,13 @@ void IMU::set_gx3_mode(IMU::GX3_MODE mode)
         gx3_mode_changed(mode);
     }
 }
-
+/**
 blas::vector<double> IMU::get_euler_rate() const
 {
     // just return the angular rate since the yaw gyro measurement is not reliable
     return get_angular_rate();
 }
+**/
 
 blas::vector<double> IMU::get_ned_position() const
 {
@@ -288,7 +289,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
         msgs.push_back(msg);
     }
 
-    
+
     // UAlberta Position
     {
         trace() << "Sending mavlink_msg_ualberta_position_pack";
