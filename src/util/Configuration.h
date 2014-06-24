@@ -12,15 +12,9 @@
 #define CONFIGURATION_H_
 
 #include <string>
-#include <map>
 #include <mutex>
-
-#include <boost/thread.hpp>
-#include <boost/signals2.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/property_tree/ptree.hpp>
-
+#include <boost/property_tree/ptree_fwd.hpp>
+#include <vector>
 
 class Configuration
 {
@@ -77,7 +71,7 @@ public:
 private:
     static Configuration* _instance;
     static std::mutex _instance_lock;
-    boost::property_tree::ptree _properties;
+    boost::property_tree::ptree* _properties;
     static std::mutex _propertiesLock;
 
     Configuration();

@@ -21,7 +21,7 @@
 #define DEBUG_H_
 
 /* STL Headers */
-#include <iostream>
+#include <iosfwd>
 #include <sstream>
 #include <string>
 #include <vector>

@@ -20,16 +20,17 @@
 #ifndef DRIVER_H_
 #define DRIVER_H_
 
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
 #include <string.h>
 #include <mutex>
 #include <atomic>
 #include "Debug.h"
 #include "Configuration.h"
 #include <vector>
-#include <mavlink.h>
 #include <chrono>
 #include <ctime>
+#include <mavlink.h>
+
 
 /**
  * The driver class is the base class for all the extension points in the program.

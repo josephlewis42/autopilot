@@ -13,6 +13,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 
 
@@ -21,6 +22,10 @@
 #include <string>
 #include <string.h>
 #include <utility>
+#include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
+#include <map>
 
 
 
@@ -39,11 +44,12 @@ const Logger LOG("Configuration: ");
 
 Configuration::Configuration()
 {
+    _properties = new boost::property_tree::ptree();
     _instance = this;
 
     try
     {
-        read_xml(DEFAULT_XML_FILE_PATH, _properties, boost::property_tree::xml_parser::trim_whitespace);
+        read_xml(DEFAULT_XML_FILE_PATH, *_properties, boost::property_tree::xml_parser::trim_whitespace);
     }
     catch(boost::exception const& e)
     {
@@ -107,11 +113,11 @@ std::string Configuration::gets(const std::string &key, const std::string &alt)
     std::lock_guard<std::mutex> lock(_propertiesLock);
     try
     {
-        return _properties.get<std::string>(ROOT_ELEMENT + key);
+        return _properties->get<std::string>(ROOT_ELEMENT + key);
     }
     catch(boost::exception const& e)
     {
-        _properties.put(ROOT_ELEMENT + key, alt);
+        _properties->put(ROOT_ELEMENT + key, alt);
         save();
         return alt;
     }
@@ -124,11 +130,11 @@ bool Configuration::getb(const std::string &key, bool alt)
 
     try
     {
-        return _properties.get<bool>(ROOT_ELEMENT + key);
+        return _properties->get<bool>(ROOT_ELEMENT + key);
     }
     catch(boost::exception const& e)
     {
-        _properties.put(ROOT_ELEMENT + key, alt);
+        _properties->put(ROOT_ELEMENT + key, alt);
         save();
         return alt;
     }
@@ -141,11 +147,11 @@ int Configuration::geti(const std::string &key, int alt)
 
     try
     {
-        return _properties.get<int>(ROOT_ELEMENT + key);
+        return _properties->get<int>(ROOT_ELEMENT + key);
     }
     catch(boost::exception const& e)
     {
-        _properties.put(ROOT_ELEMENT + key, alt);
+        _properties->put(ROOT_ELEMENT + key, alt);
         save();
         return alt;
     }
@@ -158,11 +164,11 @@ double Configuration::getd(const std::string &key, double alt)
 
     try
     {
-        return _properties.get<double>(ROOT_ELEMENT + key);
+        return _properties->get<double>(ROOT_ELEMENT + key);
     }
     catch(boost::exception const& e)
     {
-        _properties.put(ROOT_ELEMENT + key, alt);
+        _properties->put(ROOT_ELEMENT + key, alt);
         save();
         return alt;
     }
@@ -175,11 +181,11 @@ float Configuration::getf(const std::string &key, float alt)
 
     try
     {
-        return _properties.get<float>(ROOT_ELEMENT + key);
+        return _properties->get<float>(ROOT_ELEMENT + key);
     }
     catch(boost::exception const& e)
     {
-        _properties.put(ROOT_ELEMENT + key, alt);
+        _properties->put(ROOT_ELEMENT + key, alt);
         save();
         return alt;
     }
@@ -189,7 +195,7 @@ void Configuration::set(const std::string &key, const std::string& value)
 {
     std::lock_guard<std::mutex> lock(_propertiesLock);
 
-    _properties.put(ROOT_ELEMENT + key, value);
+    _properties->put(ROOT_ELEMENT + key, value);
     save();
 }
 
@@ -208,7 +214,7 @@ void Configuration::save()
     try
     {
         boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-        write_xml(DEFAULT_XML_FILE_PATH, _properties, std::locale(), settings);
+        write_xml(DEFAULT_XML_FILE_PATH, *_properties, std::locale(), settings);
     }
     catch(boost::exception const& ex)
     {

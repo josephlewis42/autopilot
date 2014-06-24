@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <mutex> // c++11
+#include <iostream>
 
 /* Project Headers */
 #include "Debug.h"
