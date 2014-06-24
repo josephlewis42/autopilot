@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <cstdlib>
 #include <math.h>
+#include <mavlink.h>
 
 
 /* Project Headers */

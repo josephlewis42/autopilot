@@ -31,7 +31,7 @@
 #include "Debug.h"
 
 /* MAVLink Headers */
-//#include <mavlink.h>
+#include <mavlink.h>
 
 /* STL Headers */
 #include <vector>

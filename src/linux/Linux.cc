@@ -22,7 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/sysinfo.h>
-
+#include <mavlink.h>
 
 #include "RateLimiter.h"
 

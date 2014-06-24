@@ -41,6 +41,8 @@
 #include <errno.h>
 #include <cstdlib>
 #include <math.h>
+#include <mavlink.h>
+
 
 /* Boost Headers */
 #include <boost/math/constants/constants.hpp>
