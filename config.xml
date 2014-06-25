@@ -43,7 +43,7 @@
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<UASidentifier>100</UASidentifier>
-		<enable>true</enable>
+		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</qgroundcontrol>
 	<channels>
@@ -211,7 +211,16 @@
 		<debug>false</debug>
 		<read_style>2</read_style>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
-		<enable>false</enable>
+		<enable>true</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 	</linux_cpu_info>
+	<common_messages>
+		<debug>false</debug>
+		<read_style>2</read_style>
+		<enable>true</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
+		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<send_system_status_message>true</send_system_status_message>
+		<message_send_rate_hz>10</message_send_rate_hz>
+	</common_messages>
 </configuration>

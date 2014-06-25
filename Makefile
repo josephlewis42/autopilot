@@ -13,6 +13,8 @@ GTEST_DIR:=$(PROJECT_ROOT)/extern/gtest
 
 INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/include/ualberta \
+		-I$(PROJECT_ROOT)/../UDenverMavlink/include/ \
+		-I$(PROJECT_ROOT)/../UDenverMavlink/missionlib \
 		-I/usr/include/boost \
 		-I$(PROJECT_ROOT)/extern \
 		-I$(PROJECT_ROOT)/extern/gtest/make \

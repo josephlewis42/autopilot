@@ -105,18 +105,6 @@ public:
     // Data from the helicopter.
     SystemStateParam<uint16_t> batteryVoltage_mV;
 
-    /** Sets the voltage of the battery onboard the helicopter.
-     *
-     * (1 = 1 millivolt)
-     *//**
-    void setBatteryVoltage(uint16_t voltage_mV, uint16_t error_mV) {_batteryVoltage_mV = voltage_mV;};
-    uint16_t getBatteryVoltage();
-
-                   <field type="uint16_t" name="voltage_battery">Battery voltage, in millivolts (1 = 1 millivolt)</field>
-               <field type="int16_t" name="current_battery">Battery current, in 10*milliamperes (1 = 10 milliampere), -1: autopilot does not measure the current</field>
-               <field type="int8_t" name="battery_remaining">Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery</field>
-   **/
-
 private:
     SystemState();
     static SystemState* _instance;

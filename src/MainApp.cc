@@ -39,6 +39,7 @@
 #include "Linux.h"
 #include "SystemState.h"
 #include "CommonMessages.h"
+#include "WaypointManager.h"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time.hpp>
@@ -83,6 +84,9 @@ void MainApp::run()
     });
 
     /* Construct components of the autopilot */
+    message() << "Setting up waypoint manager";
+    WaypointManager::getInstance();
+
     message() << "Setting up system state object";
     SystemState::getInstance();
 

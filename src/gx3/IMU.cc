@@ -270,7 +270,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 {
     // Global position (mavlink common message)
     {
-        trace() << "Sending mavlink_msg_global_position_int_pack";
+        //trace() << "Sending mavlink_msg_global_position_int_pack";
 
         // send the default mavlink message
         mavlink_message_t msg;
@@ -294,7 +294,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
     // UAlberta Position
     {
-        trace() << "Sending mavlink_msg_ualberta_position_pack";
+        //trace() << "Sending mavlink_msg_ualberta_position_pack";
 
         // get llh pos
         blas::vector<double> _llh_pos(get_llh_position());
@@ -341,7 +341,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
     // UAlberta Attitude
     {
-        trace() << "Sending mavlink_msg_ualberta_attitude";
+        //trace() << "Sending mavlink_msg_ualberta_attitude";
 
         blas::vector<double> _nav_euler(get_nav_euler());
         std::vector<float> nav_euler(_nav_euler.begin(), _nav_euler.end());

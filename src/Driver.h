@@ -156,6 +156,17 @@ public:
     };
 
     /**
+     * Override this method to get a copy of incoming mavlink messages.
+     *
+     * @param msg - the message to send
+     * @return - true if you processed this message, false otherwise.
+     **/
+    virtual bool recvMavlinkMsg(const mavlink_message_t& msg)
+    {
+        return false;
+    };
+
+    /**
      * Override this method to write any relevent values to the
      * SystemState object
     **/
