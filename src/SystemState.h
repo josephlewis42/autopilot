@@ -26,7 +26,7 @@
 #include <string.h>
 #include "IMU.h"
 #include <GPS.h>
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include <MdlAltimeter.h>
 #include "Helicopter.h"
 #include "RadioCalibration.h"

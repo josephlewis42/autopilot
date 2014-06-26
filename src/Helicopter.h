@@ -33,7 +33,7 @@ namespace blas = boost::numeric::ublas;
 #include <thread>
 
 /* Project Headers */
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include "RadioCalibration.h"
 #include "RCTrans.h"
 #include "heli.h"

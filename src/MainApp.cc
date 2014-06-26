@@ -21,7 +21,7 @@
 #include "MainApp.h"
 
 /* Project Headers */
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include "heli.h"
 #include "LogFile.h"
 #include "QGCLink.h"
