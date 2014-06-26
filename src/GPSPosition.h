@@ -74,6 +74,28 @@ class GPSPosition
          **/
         double distanceTo(GPSPosition* other, bool useCurrentAltitude=true);
 
+        /**
+        Overrides the subscription operator, returns:
+
+        0 - latitude
+        1 - longitude
+        2 - height
+        **/
+        double& operator[] (const int ind)
+        {
+            switch(ind)
+            {
+                case 0:
+                    return _latitudeDD;
+                case 1:
+                    return _longitudeDD;
+                case 2:
+                    return _heightM;
+                default:
+                    return 0;
+            }
+        }
+
 
     private:
         double _latitudeDD, _longitudeDD, _heightM, _accuracyM;

@@ -145,13 +145,33 @@ bool Driver::namedTerminalSettings(std::string name,
                                    bool enableHwFlow,
                                    bool enableRawMode)
 {
-    Configuration* config = Configuration::getInstance();
+    std::string prefix = _config_prefix + ".terminal";
 
-    std::string prefix = _config_prefix + ".terminal." + name;
-    baudrate = config->geti(prefix + ".baudrate", baudrate);
-    parity = config->gets(prefix + ".parity", parity);
-    enableHwFlow = config->getb(prefix + ".hardware_flow_control", enableHwFlow);
-    enableRawMode = config->getb(prefix + ".raw_mode", enableRawMode);
+    configDescribe("terminal.baudrate",
+                   "9600, 19200, 38400, 57600, 115200, (others if supported by operating system and chipset)",
+                   "Sets the baudrate trying to be used by the device");
+    baudrate = configGeti(prefix + "terminal.baudrate", baudrate);
+
+    configDescribe("terminal.parity",
+                   "8N1, 7E1, 7O1, 7M1, 7S1",
+                   "Sets the number of bits, parity check, and stop bits of the terminal",
+                   "",
+                   "Parity is: **N**one, **E**ven, **O**dd, **M**ark, **S**pace");
+    parity = configGets(prefix + "terminal.parity", parity);
+
+    configDescribe("termainl.hardware_flow_control",
+                   "true/false",
+                   "Enables/Disables hardware flow control for this device",
+                   "",
+                   "This should almost always be set to false. Must be set to false with three wire serial cables (only TX/RX/GND connected)");
+    enableHwFlow = configGetb("terminal.hardware_flow_control", enableHwFlow);
+
+    configDescribe("terminal.raw_mode",
+                   "true/false",
+                   "Enables/disables raw_mode for this device.",
+                   "",
+                   "Always set to True unless explicitly asked for non-raw mode");
+    enableRawMode = configGetb("terminal.raw_mode", enableRawMode);
 
     return terminalSettings(fd, baudrate, parity, enableHwFlow, enableRawMode);
 
@@ -300,13 +320,6 @@ long Driver::getMsSinceInit()
     return (long)(elapsed_seconds.count() * 1000);
 }
 
-
- /**
-    * Alerts the user and system that the initialization of this driver failed, if
-    * terminate_on_init_fail is set to true, terminates the platform.
-    *
-    * @param why - the reason for the initialization failure.
-    **/
 void Driver::initFailed(std::string why)
 {
     std::string msg =  getName() + " initialization failed with message: " + why;
