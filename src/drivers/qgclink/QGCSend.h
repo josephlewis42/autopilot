@@ -132,26 +132,6 @@ private:
 	inline heli::Controller_Mode get_control_mode() const {return control_mode;}
 	inline void set_control_mode(heli::Controller_Mode control_mode) {this->control_mode = control_mode;}
 
-	/// true if there is a new message from the gx3
-	std::atomic_bool gx3_new_message;
-	/// threadsafe clear gx3_new_message
-	inline void clear_gx3_new_message() {gx3_new_message = false;}
-	/// threadsafe set gx3_new_message
-	inline void set_gx3_new_message() {gx3_new_message = true;}
-	/// threadsafe get gx3_new_message
-	inline bool get_gx3_new_message() const {return gx3_new_message;}
-
-	/// string to store message from gx3
-	std::string gx3_message;
-	/// serialize access to gx3_message
-	mutable std::mutex gx3_message_lock;
-	/// threadsafe access gx3_message
-	inline std::string get_gx3_message() const {std::lock_guard<std::mutex> lock(gx3_message_lock); return gx3_message;}
-	/// threadsafe set gx3_messsage (can be slot)
-	inline void set_gx3_message(std::string message) {std::lock_guard<std::mutex> lock(gx3_message_lock); gx3_message = message; set_gx3_new_message();}
-	/// function to send the gx3_message to qgc
-	void send_gx3_message(std::queue<std::vector<uint8_t> > *sendq);
-
 	/// store the current attitude source (threadsafe)
 	std::atomic_bool attitude_source;
 	inline bool get_attitude_source() const {return attitude_source;}

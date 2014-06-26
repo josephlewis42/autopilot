@@ -113,8 +113,15 @@ public:
 
     /// signal to notify when gx3 mode changes
     boost::signals2::signal<void (GX3_MODE)> gx3_mode_changed;
-    /// signal with status message
-    boost::signals2::signal<void (std::string)> gx3_status_message;
+    
+    void set_gx3_status_message(std::string in)
+    {
+        status_message = in;
+        new_status_message = true;
+    }
+
+    std::string status_message;
+    std::atomic_bool new_status_message;
 
     static blas::matrix<double> euler_to_rotation(const blas::vector<double>& euler);
 

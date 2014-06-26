@@ -178,7 +178,7 @@ void IMU::send_serial::on_error_set_status(ack_handler& ack, std::string human_a
     {
         std::string message = "Error setting: " + human_ack_name;
         IMU::getInstance()->warning(message);
-        IMU::getInstance()->gx3_status_message(message);
+        IMU::getInstance()->set_gx3_status_message(message);
     }
 }
 
@@ -277,7 +277,7 @@ void IMU::send_serial::reset_filter()
 
     if(finish_packet_and_alert(reset, 0x01, "reset nav filter") != 0x00)
     {
-        IMU::getInstance()->gx3_status_message("Error resetting nav filter");
+        IMU::getInstance()->set_gx3_status_message("Error resetting nav filter");
     }
 }
 

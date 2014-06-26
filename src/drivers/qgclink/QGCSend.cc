@@ -118,8 +118,6 @@ void QGCLink::QGCSend::send()
                 boost::bind(&QGCLink::QGCSend::set_pilot_mode, this, _1)));
     boost::signals2::scoped_connection gx3_state_connection(IMU::getInstance()->gx3_mode_changed.connect(
                 boost::bind(&QGCLink::QGCSend::set_filter_state, this, _1)));
-    boost::signals2::scoped_connection gx3_message_connection(IMU::getInstance()->gx3_status_message.connect(
-                boost::bind(&QGCLink::QGCSend::set_gx3_message, this, _1)));
     attitude_source_connection = QGCLink::getInstance()->attitude_source.connect(
                                      boost::bind(&QGCLink::QGCSend::set_attitude_source, this, _1));
     boost::signals2::scoped_connection warning_connection(Debug::warningSignal.connect(
@@ -138,9 +136,6 @@ void QGCLink::QGCSend::send()
             send_heartbeat(send_queue);
             send_status(send_queue);
         }
-
-        if (get_gx3_new_message())
-            send_gx3_message(send_queue);
 
         /* Send parameters */
         qgc->param_recv_lock.lock();
@@ -468,21 +463,6 @@ void QGCLink::QGCSend::send_control_effort(std::queue<std::vector<uint8_t> > *se
 
 
     buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-    sendq->push(buf);
-}
-
-void QGCLink::QGCSend::send_gx3_message(std::queue<std::vector<uint8_t> > *sendq)
-{
-    std::string message(get_gx3_message());
-    clear_gx3_new_message();
-    message.resize(49); // leave room for \0
-    mavlink_message_t msg;
-    std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-    ::mavlink_msg_ualberta_gx3_message_pack(qgc->uasId, heli::GX3_ID, &msg, message.c_str());
-    buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-    // send twice
-    sendq->push(buf);
     sendq->push(buf);
 }
 
