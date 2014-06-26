@@ -39,12 +39,29 @@ Driver::Driver(std::string name, std::string config_prefix)
         std::lock_guard<std::mutex> lock(_all_drivers_lock);
         all_drivers.push_front(this);
     }
+
+    configDescribe("debug",
+                   "true/false",
+                   "Enable/disable the tracing of trace() messages to debug. **Warning**: enabling on all drivers may kill the system.");
     _debug = configGetb("debug", false);
+
+    configDescribe("read_style",
+                   "0, 1, 2, 3",
+                   "The way this driver reads it's data source (e.g. a serial port). "
+                   "**0**: read until the requested number of bytes is returned. "
+                   "**1**: read until a timeout is reached or enough bytes are read. "
+                   "**2**: system `read()` call"
+                   "**3**: delay based on the baud n characters then `read()`");
     _readDeviceType = configGeti("read_style", 2);
+
+    configDescribe("enable",
+                   "true/false",
+                   "Enables/Disables this driver",
+                   "",
+                   "Drivers are not required to follow this directive.");
+
     _enabled = configGetb("enable", true);
     _terminate_if_init_failed = configGetb("terminate_if_init_failed", true);
-
-    configGets("read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
 }
 
 Driver::~Driver()
