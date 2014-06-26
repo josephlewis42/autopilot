@@ -90,10 +90,10 @@ private:
     std::bitset<16> nav_status_flags;
 
     /// filters for the nav gyro measurements
-    boost::array<IMU_Filter, 3> nav_filters;
+    std::array<IMU_Filter, 3> nav_filters;
 
     /// filters for the ahrs gyro measurements
-    boost::array<IMU_Filter, 3> ahrs_filters;
+    std::array<IMU_Filter, 3> ahrs_filters;
 
 };
 

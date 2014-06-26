@@ -62,14 +62,14 @@ public:
 
     void writeToSystemState();
 
-    boost::array<uint16_t, 3> getAileron();
-    boost::array<uint16_t, 3> getElevator();
-    boost::array<uint16_t, 5> getThrottle();
-    boost::array<uint16_t, 3> getRudder();
-    boost::array<uint16_t, 2> getGyro();
-    boost::array<uint16_t, 5> getPitch();
+    std::array<uint16_t, 3> getAileron();
+    std::array<uint16_t, 3> getElevator();
+    std::array<uint16_t, 5> getThrottle();
+    std::array<uint16_t, 3> getRudder();
+    std::array<uint16_t, 2> getGyro();
+    std::array<uint16_t, 5> getPitch();
     /// Get position of flight mode switch
-    boost::array<uint16_t, 3> getFlightMode();
+    std::array<uint16_t, 3> getFlightMode();
 
     /**
      * This function is called to change the calibration data.  After update the internal values,
@@ -91,22 +91,22 @@ private:
      * @param toset - the vector to copy to
      * @param numvals - the quantity of numbers to copy over
      */
-    void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 2>& toset);
-    void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 3>& toset);
-    void populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 5>& toset);
+    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 2>& toset);
+    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 3>& toset);
+    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 5>& toset);
 
     std::recursive_mutex calibration_lock;
     std::mutex calibration_file_lock;
-    boost::array<uint16_t, 2> gyro;
+    std::array<uint16_t, 2> gyro;
 
-    boost::array<uint16_t, 3> aileron;
-    boost::array<uint16_t, 3> elevator;
-    boost::array<uint16_t, 3> rudder;
+    std::array<uint16_t, 3> aileron;
+    std::array<uint16_t, 3> elevator;
+    std::array<uint16_t, 3> rudder;
 
-    boost::array<uint16_t, 5> throttle;
-    boost::array<uint16_t, 5> pitch;
+    std::array<uint16_t, 5> throttle;
+    std::array<uint16_t, 5> pitch;
 
-    boost::array<uint16_t, 3> flightMode;
+    std::array<uint16_t, 3> flightMode;
 
     /// Read XML configuration file from heli::calibration_filename
     void loadFile();
@@ -118,7 +118,7 @@ private:
     void saveFile();
 
     /**
-     * Converts a boost::array or std::vector of setpoints to a comma separated list
+     * Converts a std::array or std::vector of setpoints to a comma separated list
      * @param setpoints array or vector of setpoints.  In fact any type can be used which
      * has size() and operator[](int) as members and whose contents have operator<<
      * defined.

@@ -50,7 +50,7 @@
    \author Bryan Godbolt <godbolt@ece.ualberta.ca>
    \date March 1, 2011: Creation of class
    \date June 18, 2011: Add separate writing thread
-   @date October 20, 2011: Add boost::array log function
+   @date October 20, 2011: Add std::array log function
 
    This class uses the singleton design pattern to enforce the user to only
    instantiate one object.  In order to get the instance of the class you can

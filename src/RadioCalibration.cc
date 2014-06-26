@@ -83,64 +83,64 @@ void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >&
     writeToSystemState();
 }
 
-boost::array<uint16_t, 3> RadioCalibration::getAileron()
+std::array<uint16_t, 3> RadioCalibration::getAileron()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 3> ail(aileron);
+    std::array<uint16_t, 3> ail(aileron);
     calibration_lock.unlock();
     return ail;
 }
 
-boost::array<uint16_t, 3> RadioCalibration::getElevator()
+std::array<uint16_t, 3> RadioCalibration::getElevator()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 3> ele(elevator);
+    std::array<uint16_t, 3> ele(elevator);
     calibration_lock.unlock();
     return ele;
 }
 
-boost::array<uint16_t, 3> RadioCalibration::getRudder()
+std::array<uint16_t, 3> RadioCalibration::getRudder()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 3> rud(rudder);
+    std::array<uint16_t, 3> rud(rudder);
     calibration_lock.unlock();
     return rud;
 }
 
 
-boost::array<uint16_t, 5> RadioCalibration::getThrottle()
+std::array<uint16_t, 5> RadioCalibration::getThrottle()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 5> thr(throttle);
+    std::array<uint16_t, 5> thr(throttle);
     calibration_lock.unlock();
     return thr;
 }
 
-boost::array<uint16_t, 5> RadioCalibration::getPitch()
+std::array<uint16_t, 5> RadioCalibration::getPitch()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 5> pit(pitch);
+    std::array<uint16_t, 5> pit(pitch);
     calibration_lock.unlock();
     return pit;
 }
 
-boost::array<uint16_t, 2> RadioCalibration::getGyro()
+std::array<uint16_t, 2> RadioCalibration::getGyro()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 2> gyr(gyro);
+    std::array<uint16_t, 2> gyr(gyro);
     calibration_lock.unlock();
     return gyr;
 }
 
-boost::array<uint16_t, 3> RadioCalibration::getFlightMode()
+std::array<uint16_t, 3> RadioCalibration::getFlightMode()
 {
     calibration_lock.lock();
-    boost::array<uint16_t, 3> flight_Mode(flightMode);
+    std::array<uint16_t, 3> flight_Mode(flightMode);
     calibration_lock.unlock();
     return flight_Mode;
 }
 
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 2>& toset)
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 2>& toset)
 {
     calibration_lock.lock();
     for(uint32_t i = 0; i < toset.size(); i++)
@@ -150,7 +150,7 @@ void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, bo
     calibration_lock.unlock();
 }
 
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 3>& toset)
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 3>& toset)
 {
     calibration_lock.lock();
     for(uint32_t i = 0; i < toset.size(); i++)
@@ -160,7 +160,7 @@ void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, bo
     calibration_lock.unlock();
 }
 
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, boost::array<uint16_t, 5>& toset)
+void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 5>& toset)
 {
     calibration_lock.lock();
     for(uint32_t i = 0; i < toset.size(); i++)

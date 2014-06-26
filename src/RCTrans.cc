@@ -24,7 +24,7 @@ RCTrans::RCTrans()
 
 }
 
-double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 2> setpoint)
+double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 2> setpoint)
 {
     double pulseMicros = pulse;
     double normalizedPulse = 0;
@@ -55,7 +55,7 @@ double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 2> setpoint)
     return normalizedPulse;
 }
 
-double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 3> setpoint)
+double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 3> setpoint)
 {
     double pulseMicros = pulse;
     double normalizedPulse = 0;
@@ -91,7 +91,7 @@ double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 3> setpoint)
     return normalizedPulse;
 }
 
-double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 5> setpoint)
+double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 5> setpoint)
 {
     double pulseMicros = pulse;
     double normalizedPulse = 0;
@@ -135,9 +135,9 @@ double RCTrans::pulse2norm(uint16_t pulse, boost::array<uint16_t, 5> setpoint)
     return normalizedPulse;
 }
 
-boost::array<double, 6> RCTrans::getScaledArray()
+std::array<double, 6> RCTrans::getScaledArray()
 {
-    boost::array<double, 6> norms;
+    std::array<double, 6> norms;
 
     norms[AILERON] = getAileron();
     norms[ELEVATOR] = getElevator();
@@ -163,7 +163,7 @@ std::vector<double> RCTrans::getScaledVector()
     return norms;
 }
 
-int RCTrans::flightMode(uint16_t pulse, boost::array<uint16_t, 3> setpoint)
+int RCTrans::flightMode(uint16_t pulse, std::array<uint16_t, 3> setpoint)
 {
     int flightMode = 0;
 
