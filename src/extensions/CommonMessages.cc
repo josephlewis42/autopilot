@@ -37,8 +37,17 @@ CommonMessages* CommonMessages::getInstance()
 CommonMessages::CommonMessages()
     :Driver("Mavlink Common Messages","common_messages")
 {
+    configDescribe("send_system_status_message",
+                   "true/false",
+                   "Enables/disables sending the status message which includes battery usage system load and enabled sensors.");
     _sendSysStatus = configGetb("send_system_status_message", true);
+
+    configDescribe("message_send_rate_hz",
+                   "0 - 200",
+                   "The rate at which the set of common messages are sent.",
+                   "hz");
     _frequencyHz = configGeti("message_send_rate_hz", 10);
+
     debug() << "Sending messages at: " << _frequencyHz.load();
 }
 
@@ -51,7 +60,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
 {
     if(! isEnabled()) return;
 
-    if(msgNumber % (sendRateHz / _frequencyHz.load()) != 0)
+    if(_frequencyHz.load() <= 0 || msgNumber % (sendRateHz / _frequencyHz.load()) != 0)
     {
         return;
     }

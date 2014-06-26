@@ -15,6 +15,7 @@
 #include <mutex>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <vector>
+#include <map>
 
 class Configuration
 {
@@ -68,11 +69,36 @@ public:
      */
     void seti(const std::string &key, const int value);
 
+    /**
+     * Sets a description for the given key. Note that basic markdown can be used
+     * when setting these descriptions.
+     *
+     * @param key - the key to set the description for
+     * @param domain - the domain of the key (e.g. 1-100 or non-negative integers)
+     * @param usage - how the key is used internally
+     * @param units - the units of this value (optional)
+     * @param note - a note about the key (optional)
+     **/
+    void describe(const std::string &key,
+                  const std::string &domain,
+                  const std::string &usage,
+                  const std::string &units="",
+                  const std::string &note="");
+
+
+    /**
+     * Returns the description for the whole configuration file.
+     **/
+    std::string getDescription();
+
 private:
     static Configuration* _instance;
     static std::mutex _instance_lock;
     boost::property_tree::ptree* _properties;
     static std::mutex _propertiesLock;
+    std::map<std::string, std::string> _descriptions;
+    std::mutex _descriptionsLock;
+
 
     Configuration();
     virtual ~Configuration();
@@ -156,6 +182,25 @@ public:
     void configSeti(const std::string &key, const int value)
     {
         Configuration::getInstance()->seti(_prefix + key, value);
+    }
+
+    /**
+     * Sets a description for the given key. Note that basic HTML can be used
+     * when setting these descriptions.
+     *
+     * @param key - the key to set the description for
+     * @param domain - the domain of the key (e.g. 1-100 or non-negative integers)
+     * @param usage - how the key is used internally
+     * @param units - the units of this value (optional)
+     * @param note - a note about the key (optional)
+     **/
+    void configDescribe(const std::string &key,
+                  const std::string &domain,
+                  const std::string &usage,
+                  const std::string &units="",
+                  const std::string &note="")
+    {
+        Configuration::getInstance()->describe(_prefix + key, domain, usage, units, note);
     }
 };
 

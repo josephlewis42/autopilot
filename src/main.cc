@@ -90,5 +90,7 @@ int main(int argc, char* argv[])
     MainApp* m = MainApp::getInstance();
     m->run();
 
+    printf("\n\n\n%s\n", Configuration::getInstance()->getDescription().c_str());
+
     return 0;
 }

@@ -221,3 +221,45 @@ void Configuration::save()
         LOG.warning() << "Can't save configuration";
     }
 }
+
+
+
+void Configuration::describe(const std::string &key,
+              const std::string &domain,
+              const std::string &usage,
+              const std::string &unit,
+              const std::string &note)
+{
+    std::lock_guard<std::mutex> lock(_descriptionsLock);
+
+    std::string value = "";
+    value += "* `" + key + "`\n";
+    value += "\t* **Domain:** " + domain + "\n";
+    value += "\t* **Usage:** " + usage + "\n";
+
+    if(! unit.empty())
+    {
+        value += "\t* **Units:** " + unit + "\n";
+    }
+
+    if(! note.empty())
+    {
+        value += "\t* **Notes:** " + note + "\n";
+    }
+
+    _descriptions.insert(make_pair(key, value));
+}
+
+std::string Configuration::getDescription()
+{
+    std::lock_guard<std::mutex> lock(_descriptionsLock);
+
+    std::string total = "";
+
+    for (auto& kv : _descriptions)
+    {
+        total += kv.second;
+    }
+
+    return total;
+}
