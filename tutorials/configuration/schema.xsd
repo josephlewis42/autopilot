@@ -1,0 +1,421 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="servo">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:boolean" name="debug"/>
+              <xs:element type="xs:string" name="serial_port"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:boolean" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="gx3">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:boolean" name="debug"/>
+              <xs:element type="xs:string" name="serial_port"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element name="terminal">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="IMU1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:int" name="baudrate"/>
+                          <xs:element type="xs:string" name="parity"/>
+                          <xs:element type="xs:string" name="hardware_flow_control"/>
+                          <xs:element type="xs:string" name="raw_mode"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:float" name="vehicle_offset_x_meters"/>
+              <xs:element type="xs:byte" name="vehicle_offset_y_meters"/>
+              <xs:element type="xs:float" name="vehicle_offset_z_meters"/>
+              <xs:element type="xs:float" name="antenna_offset_x_meters"/>
+              <xs:element type="xs:float" name="antenna_offset_y_meters"/>
+              <xs:element type="xs:float" name="antenna_offset_z_meters"/>
+              <xs:element type="xs:string" name="use_external_gps"/>
+              <xs:element type="xs:byte" name="position_message_rate_hz"/>
+              <xs:element type="xs:byte" name="attitude_message_rate_hz"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="qgroundcontrol">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element name="host">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="ip"/>
+                    <xs:element type="xs:short" name="port"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:byte" name="UASidentifier"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="channels">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="two">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="gyro">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="three">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="aileron">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="elevator">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="rudder">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="five">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="throttle">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="pitch">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="value"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="controller_params">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="mix">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:byte" name="roll"/>
+                    <xs:element type="xs:byte" name="pitch"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:byte" name="mode"/>
+              <xs:element type="xs:byte" name="trajectory"/>
+              <xs:element name="attitude_pid">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="roll">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="gain">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:byte" name="proportional"/>
+                                <xs:element type="xs:byte" name="derivative"/>
+                                <xs:element type="xs:byte" name="integral"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:byte" name="trim"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="pitch">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="gain">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:byte" name="proportional"/>
+                                <xs:element type="xs:byte" name="derivative"/>
+                                <xs:element type="xs:byte" name="integral"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:byte" name="trim"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="translation_outer_pid">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="x">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:byte" name="proportional"/>
+                          <xs:element type="xs:byte" name="derivative"/>
+                          <xs:element type="xs:byte" name="integral"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="y">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:byte" name="proportional"/>
+                          <xs:element type="xs:byte" name="derivative"/>
+                          <xs:element type="xs:byte" name="integral"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:byte" name="travel"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="translation_outer_sbf">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ned_x">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:byte" name="proportional"/>
+                          <xs:element type="xs:byte" name="derivative"/>
+                          <xs:element type="xs:byte" name="integral"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="ned_y">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:byte" name="proportional"/>
+                          <xs:element type="xs:byte" name="derivative"/>
+                          <xs:element type="xs:byte" name="integral"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:byte" name="travel"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="line">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:byte" name="xtravel"/>
+                    <xs:element type="xs:byte" name="ytravel"/>
+                    <xs:element type="xs:byte" name="hover"/>
+                    <xs:element type="xs:byte" name="speed"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="circle">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:byte" name="radius"/>
+                    <xs:element type="xs:byte" name="hover"/>
+                    <xs:element type="xs:float" name="speed"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="physical_params">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:float" name="mass"/>
+              <xs:element name="main_hub_offset">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:byte" name="x"/>
+                    <xs:element type="xs:byte" name="y"/>
+                    <xs:element type="xs:float" name="z"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="tail_hub_offset">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:float" name="x"/>
+                    <xs:element type="xs:byte" name="y"/>
+                    <xs:element type="xs:byte" name="z"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="inertia">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:float" name="x"/>
+                    <xs:element type="xs:float" name="y"/>
+                    <xs:element type="xs:float" name="z"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="novatel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:string" name="enabled"/>
+              <xs:element type="xs:string" name="serial_port"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="enable_fallback_gps"/>
+              <xs:element type="xs:string" name="log_fallback_gps"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="log">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="mdl_altimeter">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="enabled"/>
+              <xs:element type="xs:string" name="device"/>
+              <xs:element name="terminal">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Altimeter1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:int" name="baudrate"/>
+                          <xs:element type="xs:string" name="parity"/>
+                          <xs:element type="xs:string" name="hardware_flow_control"/>
+                          <xs:element type="xs:string" name="raw_mode"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="tcpserial">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="enabled"/>
+              <xs:element type="xs:string" name="serial_path"/>
+              <xs:element name="terminal">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="serial_settings">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:short" name="baudrate"/>
+                          <xs:element type="xs:string" name="parity"/>
+                          <xs:element type="xs:string" name="hardware_flow_control"/>
+                          <xs:element type="xs:string" name="raw_mode"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:short" name="TCP_Port"/>
+              <xs:element type="xs:byte" name="TCP_backlog"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="linux_cpu_info">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="common_messages">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+              <xs:element type="xs:string" name="send_system_status_message"/>
+              <xs:element type="xs:byte" name="message_send_rate_hz"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="waypoint_manager">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="debug"/>
+              <xs:element type="xs:byte" name="read_style"/>
+              <xs:element type="xs:string" name="enable"/>
+              <xs:element type="xs:string" name="terminate_if_init_failed"/>
+              <xs:element type="xs:string" name="read_style_COMMENT"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
