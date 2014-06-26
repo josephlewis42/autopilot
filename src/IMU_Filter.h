@@ -34,7 +34,7 @@ public:
 
     void reset();
 private:
-    boost::array<double, 64> numerator_coeffs;
+    std:array<double, 64> numerator_coeffs;
     boost::circular_buffer<double> inputs;
 };
 

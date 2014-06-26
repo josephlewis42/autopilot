@@ -44,7 +44,7 @@ void QGCLink::QGCReceive::receive()
 	if (qgc == NULL)
 		qgc = QGCLink::getInstance();
 
-	boost::array<char, 128> recv_buf;
+	std::array<char, 128> recv_buf;
 	for (;;)
 	{
 		// pull a datagram from the socket

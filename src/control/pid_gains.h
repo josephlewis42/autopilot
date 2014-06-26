@@ -103,7 +103,7 @@ public:
      */
     friend Debug& operator<<(Debug& dbg, const pid_gains& gains);
 private:
-    //boost::array<double, 3> gains;
+    //std::array<double, 3> gains;
 
     std::atomic<double> _proportional;
     std::atomic<double> _derivative;

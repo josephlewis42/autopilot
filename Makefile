@@ -16,6 +16,7 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/include/ \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/missionlib \
 		-I/usr/include/boost \
+		-I$(PROJECT_ROOT)/drivers \
 		-I$(PROJECT_ROOT)/extern \
 		-I$(PROJECT_ROOT)/extern/gtest/make \
 		-I$(PROJECT_ROOT)/extern/gtest/include \

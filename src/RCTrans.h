@@ -85,7 +85,7 @@ public:
                           RadioCalibration::getInstance()->getFlightMode());
     }
     /** function returns scaled values for all channels */
-    static boost::array<double, 6> getScaledArray();
+    static std::array<double, 6> getScaledArray();
     /** returns a vector of scaled valued for all channels */
     static std::vector<double> getScaledVector();
     /// List provides index to channel mapping for the RCTrans::getScaled function.
@@ -110,22 +110,22 @@ private:
         @param pulse the received pulse to be scaled
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return normalizedPulse a scaled value of the pulse with respect to end points */
-    static double pulse2norm(uint16_t pulse, boost::array<uint16_t, 2> setpoint);
+    static double pulse2norm(uint16_t pulse, std::array<uint16_t, 2> setpoint);
     /** Scales a pulse value to a normalized value between -1 and 1, based on calibrated end points
         @param pulse the received pulse to be scaled
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return normalizedPulse a scaled value of the pulse with respect to end points */
-    static double pulse2norm(uint16_t pulse, boost::array<uint16_t, 3> setpoint);
+    static double pulse2norm(uint16_t pulse, std::array<uint16_t, 3> setpoint);
     /** Scales a pulse value to a normalized value 0 or 1, based on calibrated set points
         @param pulse the received pulse to be scaled
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return normalizedPulse a scaled value of the pulse with respect to end points */
-    static double pulse2norm(uint16_t pulse, boost::array<uint16_t, 5> setpoint);
+    static double pulse2norm(uint16_t pulse, std::array<uint16_t, 5> setpoint);
     /** Determine state of Pilot ready signal
         @param pulse CH8 pulse from TX
         @param setpoint set points to interpret mode state.
         @return flightMode returns 0 = Manual, 1 = Autonomous, 2 = Rotomotion. */
-    static int flightMode(uint16_t pulse, boost::array<uint16_t, 3> setpoint);
+    static int flightMode(uint16_t pulse, std::array<uint16_t, 3> setpoint);
 
 };
 #endif // RCTRANS_H

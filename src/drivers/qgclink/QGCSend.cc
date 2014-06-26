@@ -333,7 +333,7 @@ void QGCLink::QGCSend::send_rc_channels(std::queue<std::vector<uint8_t> > *sendq
         sendq->push(buf);
     }
     {
-        boost::array<double, 6> scaled(RCTrans::getScaledArray());
+        std::array<double, 6> scaled(RCTrans::getScaledArray());
 
         mavlink_message_t msg;
         std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);

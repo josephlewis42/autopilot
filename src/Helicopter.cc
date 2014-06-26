@@ -196,7 +196,7 @@ void Helicopter::writeToSystemState()
     state->state_lock.unlock();
 }
 
-uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 3> setpoint)
+uint16_t Helicopter::norm2pulse(double norm, std::array<uint16_t, 3> setpoint)
 {
     uint16_t pulse = 0;
     if(setpoint[2] > setpoint[0])
@@ -216,7 +216,7 @@ uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 3> setpoint)
     return pulse;
 }
 
-uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 2> setpoint)
+uint16_t Helicopter::norm2pulse(double norm, std::array<uint16_t, 2> setpoint)
 {
     uint16_t pulse = 0;
     {
@@ -229,7 +229,7 @@ uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 2> setpoint)
 }
 
 // FIXME - the complexity of this is huge, the magic numbers  don't help. - Joseph
-uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 5> setpoint)
+uint16_t Helicopter::norm2pulse(double norm, std::array<uint16_t, 5> setpoint)
 {
     uint16_t pulse = 1;
     if(setpoint[4] > setpoint[0])
@@ -257,9 +257,9 @@ uint16_t Helicopter::norm2pulse(double norm, boost::array<uint16_t, 5> setpoint)
     return pulse;
 }
 
-boost::array<uint16_t, 6> Helicopter::setScaled(boost::array<double, 6> norm)
+std::array<uint16_t, 6> Helicopter::setScaled(std::array<double, 6> norm)
 {
-    boost::array<uint16_t, 6> pulse;
+    std::array<uint16_t, 6> pulse;
 
     pulse[AILERON] = setAileron(norm[0]);
     pulse[ELEVATOR] = setElevator(norm[1]);

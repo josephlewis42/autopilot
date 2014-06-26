@@ -26,7 +26,7 @@
 #include <string.h>
 #include "IMU.h"
 #include <GPS.h>
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include <MdlAltimeter.h>
 #include "Helicopter.h"
 #include "RadioCalibration.h"
@@ -79,13 +79,13 @@ public:
     float altimeter_height;
 
     // radio calibration data
-    boost::array<uint16_t, 2> radio_calibration_gyro;
-    boost::array<uint16_t, 3> radio_calibration_aileron;
-    boost::array<uint16_t, 3> radio_calibration_elevator;
-    boost::array<uint16_t, 3> radio_calibration_rudder;
-    boost::array<uint16_t, 5> radio_calibration_throttle;
-    boost::array<uint16_t, 5> radio_calibration_pitch;
-    boost::array<uint16_t, 3> radio_calibration_flightMode;
+    std::array<uint16_t, 2> radio_calibration_gyro;
+    std::array<uint16_t, 3> radio_calibration_aileron;
+    std::array<uint16_t, 3> radio_calibration_elevator;
+    std::array<uint16_t, 3> radio_calibration_rudder;
+    std::array<uint16_t, 5> radio_calibration_throttle;
+    std::array<uint16_t, 5> radio_calibration_pitch;
+    std::array<uint16_t, 3> radio_calibration_flightMode;
 
     // helicopter param data
     double 						helicopter_mass;

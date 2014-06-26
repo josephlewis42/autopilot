@@ -22,7 +22,7 @@
 
 /* Project Headers */
 #include "SystemState.h"
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include "bad_control.h"
 #include "RCTrans.h"
 #include "IMU.h"

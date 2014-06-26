@@ -103,7 +103,7 @@ public:
     Debug& operator<<(const void* ptr);
 
     template <typename T, size_t N>
-    Debug& operator<<(const boost::array<T,N>& a);
+    Debug& operator<<(const std::array<T,N>& a);
     template <typename T>
     Debug& operator<<(const std::vector<T>& v);
     Debug& operator<<(const std::vector<uint8_t>& v);
@@ -200,7 +200,7 @@ public:
 
 
 template <typename T, size_t N>
-Debug& Debug::operator<<(const boost::array<T,N>& a)
+Debug& Debug::operator<<(const std::array<T,N>& a)
 {
     ss << "[";
     for (size_t i=0; i<a.size(); i++)

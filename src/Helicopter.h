@@ -33,7 +33,7 @@ namespace blas = boost::numeric::ublas;
 #include <thread>
 
 /* Project Headers */
-#include "servo_switch.h"
+#include <servo_switch.h>
 #include "RadioCalibration.h"
 #include "RCTrans.h"
 #include "heli.h"
@@ -90,7 +90,7 @@ public:
     uint16_t setPitch(double norm);
 
     /** returns an array of derived pulses (from their scaled values) for channels 1 - 6. */
-    boost::array<uint16_t, 6> setScaled(boost::array<double, 6> norm);
+    std::array<uint16_t, 6> setScaled(std::array<double, 6> norm);
     /** @param norm vector of scaled pulse values for all 6 channels
      	   @return pulse vector of de-normalized pulse values for all 6 channels */
     std::vector<uint16_t> setScaled(blas::vector<double> norm)
@@ -166,17 +166,17 @@ private:
         @param norm the scaled pulse value
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return pulse pulse value derived from the scaled value with respect to end points */
-    uint16_t norm2pulse(double norm, boost::array<uint16_t, 2> setpoint);
+    uint16_t norm2pulse(double norm, std::array<uint16_t, 2> setpoint);
     /** Returns a pulse value from a scaled value, with respect to 3 Radio calibration end-points.
         @param norm the scaled pulse value
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return pulse pulse value derived from the scaled value with respect to end points */
-    uint16_t norm2pulse(double norm, boost::array<uint16_t, 3> setpoint);
+    uint16_t norm2pulse(double norm, std::array<uint16_t, 3> setpoint);
     /** Returns a pulse value from a scaled value, with respect to 5 Radio calibration end-points.
         @param norm the scaled pulse value
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return pulse pulse value derived from the scaled value with respect to end points */
-    uint16_t norm2pulse(double norm, boost::array<uint16_t, 5> setpoint);
+    uint16_t norm2pulse(double norm, std::array<uint16_t, 5> setpoint);
 
     /// List provides index to channel mapping for the Helicopter::getScaledPulses function.
     enum RadioElement
