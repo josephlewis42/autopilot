@@ -25,7 +25,7 @@ IMU_Filter::IMU_Filter()
     : inputs(64, 0)
 {
     inputs.assign(inputs.size(), 0);
-    numerator_coeffs.assign(0);
+    numerator_coeffs.fill(0);
 
     const double filter_coeffs[64] =
     {
