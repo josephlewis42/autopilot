@@ -8,6 +8,8 @@
 
 #include "TCPSerial.h"
 
+#include <thread>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -22,7 +24,6 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <boost/thread.hpp>
 
 #define BUFFERSIZE 4096
 
@@ -144,7 +145,7 @@ TCPSerial::TCPSerial()
 
 
     debug() << "starting tcp";
-    boost::thread(std::bind(TCPSerial::tcpListen, this));
+    new std::thread(std::bind(TCPSerial::tcpListen, this));
 }
 
 TCPSerial::~TCPSerial()

@@ -30,6 +30,7 @@
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 /* Project Headers */
 #include "Driver.h"
@@ -134,9 +135,9 @@ private:
 
     send_serial* _send_serial;
     /// thread to receive data on serial port
-    boost::thread receive_thread;
+    std::thread receive_thread;
     /// thread to parse messages received from imu
-    boost::thread parse_thread;
+    std::thread parse_thread;
 
     /// serial port file descriptor
     int fd_ser;

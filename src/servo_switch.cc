@@ -99,8 +99,8 @@ servo_switch::servo_switch()
 
     if(init_port())
     {
-        receive = boost::thread(read_serial());
-        send = boost::thread(send_serial());
+        receive = std::thread(read_serial());
+        send = std::thread(send_serial());
         LogFile *log = LogFile::getInstance();
         log->logHeader(LOG_INPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");
         log->logHeader(LOG_OUTPUT_PULSE_WIDTHS, "CH1 CH2 CH3 CH4 CH5 CH6 CH7 CH8 CH9");

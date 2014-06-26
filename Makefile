@@ -22,8 +22,9 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(BUILD_DIR)
 
 CFLAGS:=  -pipe -std=c++11 -static ${INCLUDE} -c -g -Wall -Werror 
-LDFLAGS:=  -std=c++11 -static -g -L$(BUILD_DIR) -L/usr/lib -L/usr/include/boost  -lboost_thread -lboost_system -lboost_date_time -lboost_filesystem -lgtest -lpthread
-
+LDFLAGS:=  -std=c++11  -g -L$(BUILD_DIR) -L/usr/lib -L/usr/include/boost -lboost_system -lboost_date_time -lboost_filesystem -lgtest -lpthread
+# DON'T LINK STATIC WHEN USING PTHREADS
+# -lboost_thread
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )
 OBJECTS:=$(patsubst %.cc, $(BUILD_DIR)/%.o, $(SOURCES))
 EXECUTABLE=autopilot

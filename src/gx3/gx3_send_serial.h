@@ -125,7 +125,7 @@ private:
 template<typename Callable>
 void IMU::send_serial::start_send_thread(Callable f)
 {
-    boost::thread t(f);
+    new std::thread(f);
 }
 
 template <typename floating_type>

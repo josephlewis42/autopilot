@@ -22,6 +22,8 @@
 
 /* STL Headers */
 #include <bitset>
+#include <thread>
+#include <chrono>
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>
@@ -107,7 +109,7 @@ void IMU::message_parser::operator()()
         {
             parse_command_message(IMU::getInstance()->command_queue.pop());
         }
-        boost::this_thread::sleep(boost::posix_time::milliseconds(5)); // don't need precise timing, just want to yield
+        std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );// don't need precise timing, just want to yield
     }
 }
 

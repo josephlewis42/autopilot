@@ -27,7 +27,7 @@
 #include <atomic>
 
 /* Boost Headers */
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/numeric/ublas/vector.hpp>
 namespace blas = boost::numeric::ublas;
 

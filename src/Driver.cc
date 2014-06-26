@@ -18,6 +18,7 @@
 
 #include "Debug.h"
 #include "Configuration.h"
+#include <thread>
 
 
 std::mutex Driver::_all_drivers_lock;
@@ -113,7 +114,8 @@ int Driver::readDevice(int fd, void * buf, int n)
         // Set the baud rate
         speed_t speed = cfgetospeed(&port_config);
         int waittimeMS = (1000 * speed) / (n * 8);
-        boost::this_thread::sleep(boost::posix_time::milliseconds(waittimeMS));
+
+        std::this_thread::sleep_for( std::chrono::milliseconds( waittimeMS ) );
     }
 
     return read(fd, buf, n);

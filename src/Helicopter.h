@@ -30,7 +30,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 namespace blas = boost::numeric::ublas;
-#include <boost/thread.hpp>
+#include <thread>
 
 /* Project Headers */
 #include "servo_switch.h"

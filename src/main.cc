@@ -32,7 +32,6 @@
 
 
 /* Boost Headers */
-#include <boost/thread.hpp>
 #include <string>
 #include <stdio.h>
 #include <sys/types.h>

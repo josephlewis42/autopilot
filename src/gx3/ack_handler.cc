@@ -24,7 +24,8 @@
 #include "IMU.h"
 
 /* Boost Headers */
-#include <boost/thread.hpp>
+#include <thread>
+#include <chrono>
 
 IMU::ack_handler::ack_handler(uint8_t command)
     :ack_received(false),
@@ -54,17 +55,10 @@ const IMU::ack_handler& IMU::ack_handler::operator=(const ack_handler& other)
     return *this;
 }
 
-void IMU::ack_handler::wait_for_ack(int timeout)
+void IMU::ack_handler::wait_for_ack()
 {
-    boost::thread wait_thread(spin(this));
-    if (timeout == 0)
-    {
-        wait_thread.join();
-    }
-    else
-    {
-        wait_thread.timed_join(boost::posix_time::milliseconds(timeout));
-    }
+    std::thread wait_thread(spin(this));
+    wait_thread.join();
 }
 
 void IMU::ack_handler::operator()(std::vector<uint8_t> message)
@@ -97,6 +91,6 @@ void IMU::ack_handler::spin::operator()()
 {
     while (!parent->get_ack_received())
     {
-        boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+        std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
     }
 }

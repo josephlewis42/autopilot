@@ -21,14 +21,12 @@
 #ifndef SERVO_SWITCH_H_
 #define SERVO_SWITCH_H_
 
-/* Boost Headers */
-#include <boost/thread.hpp>
-
 /* STL Headers */
 #include <vector>
 #include <sys/types.h>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 /* Project Headers */
 #include "Driver.h"
@@ -151,8 +149,8 @@ private:
 
     std::atomic<int> fd_ser1;
 
-    boost::thread receive;
-    boost::thread send;
+    std::thread receive;
+    std::thread send;
 
     static std::vector<uint8_t> compute_checksum(uint8_t id, uint8_t count, const std::vector<uint8_t>& payload);
 

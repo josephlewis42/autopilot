@@ -81,7 +81,7 @@ MdlAltimeter::MdlAltimeter()
         debug() << "Altimeter set up!";
         distance = 0;
         has_new_distance = false;
-        new boost::thread(&MdlAltimeter::mainLoop, this);
+        new std::thread(&MdlAltimeter::mainLoop, this);
     }
 }
 

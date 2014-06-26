@@ -28,14 +28,13 @@
 
 /* STL Headers */
 #include <bitset>
+#include <thread>
+#include <chrono>
 
 /* C Headers */
 #include <termios.h>
 #include <math.h>
 #include <stdint.h>
-
-/* Boost Headers */
-#include <boost/thread.hpp>
 
 /* Project Headers */
 #include "Debug.h"
@@ -75,7 +74,7 @@ void GPS::ReadSerial::operator()()
     if(initPort())
     {
         gps->debug() << "Waiting a moment to startup";
-        boost::this_thread::sleep(boost::posix_time::seconds(1));
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
         //send_log_command();
         readPort();
     }
@@ -167,7 +166,8 @@ bool GPS::ReadSerial::synchronize()
             gps->warning() << "NovAtel: Stopped receiving data, attempting restart.";
             last_data = boost::posix_time::second_clock::local_time();
             send_unlog_command();
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+            std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+
             setupLogging();
         }
 

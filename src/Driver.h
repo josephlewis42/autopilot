@@ -20,7 +20,6 @@
 #ifndef DRIVER_H_
 #define DRIVER_H_
 
-//#include <boost/thread.hpp>
 #include <string.h>
 #include <mutex>
 #include <atomic>

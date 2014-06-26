@@ -18,7 +18,7 @@
  *************************************************************************/
 
 #include "Linux.h"
-#include <boost/thread.hpp>
+#include <thread>
 #include <iostream>
 #include <fstream>
 #include <sys/sysinfo.h>
@@ -59,7 +59,7 @@ Linux::Linux()
     warning() << "starting CPU Information System";
 
     // Start our processing thread.
-    boost::thread(std::bind(Linux::cpuInfo, this));
+    new std::thread(std::bind(Linux::cpuInfo, this));
 }
 
 Linux::~Linux()

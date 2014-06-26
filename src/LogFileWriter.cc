@@ -23,6 +23,7 @@
 #include <exception>
 #include <iostream>
 #include <fstream>
+#include <thread>
 
 
 // static members
@@ -62,7 +63,7 @@ LogfileWriter::LogfileWriter(std::string path)
     //debug() << "Created for " << path;
 
     // all logging write threads will die when the software shuts down.
-    new boost::thread(boost::bind(&LogfileWriter::writeThread, this));
+    new std::thread(std::bind(&LogfileWriter::writeThread, this));
 }
 
 LogfileWriter::~LogfileWriter()

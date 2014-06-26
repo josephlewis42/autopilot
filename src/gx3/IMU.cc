@@ -96,8 +96,8 @@ IMU::IMU()
         return;
     }
 
-    receive_thread = boost::thread(read_serial());
-    parse_thread = boost::thread(message_parser());
+    receive_thread = std::thread(read_serial());
+    parse_thread = std::thread(message_parser());
     _send_serial = new send_serial(this);
 }
 

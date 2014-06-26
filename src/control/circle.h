@@ -26,7 +26,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 
 /* STL Headers */
 #include <string>

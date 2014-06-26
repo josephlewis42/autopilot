@@ -21,7 +21,8 @@
 
 #include <iostream>
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
+#include <thread>
 
 #include "Debug.h"
 
@@ -70,5 +71,6 @@ void RateLimiter::wait()
 void RateLimiter::finishedCriticalSection()
 {
     // yield the thread so others can execute now.
-    boost::thread::yield();
+    std::this_thread::yield();
+
 }

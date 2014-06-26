@@ -28,10 +28,11 @@
 #include "gps_time.h"
 #include "util/AutopilotMath.hpp"
 
+#include <thread>
+
 /* Boost Headers */
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
-#include <boost/thread.hpp>
 #include <boost/ref.hpp>
 #include <boost/assign.hpp>
 // this scope only pollutes the global namespace in a minimal way consistent with the stl global operators
@@ -52,7 +53,7 @@ IMU::send_serial::send_serial(IMU* parent)
                                           this, boost::function<void ()>(boost::bind(&IMU::send_serial::init_imu, this)))))
 
 {
-    boost::thread t(boost::bind(&IMU::send_serial::init_imu, this));
+    new std::thread(std::bind(&IMU::send_serial::init_imu, this));
 }
 
 

@@ -24,13 +24,13 @@
 /* STL Headers */
 #include <string>
 #include <mutex>
+#include <thread>
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
 #include <boost/signals2/signal.hpp>
-#include <boost/thread.hpp>
 
 /* Project Headers */
 #include "Debug.h"
@@ -148,7 +148,7 @@ private:
     static std::mutex _instance_lock;
 
     /// thread used to communicate with the GPS
-    boost::thread read_serial_thread;
+    std::thread read_serial_thread;
 
     /// container for llh_position
     blas::vector<double> llh_position;

@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
- * 
+ *
  * This file is part of ANCL Autopilot.
- * 
+ *
  *     ANCL Autopilot is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     ANCL Autopilot is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -27,10 +27,10 @@
 #include <boost/asio.hpp>
 using boost::asio::ip::udp;
 using boost::asio::ip::address;
-#include <boost/thread.hpp>
 #include <boost/signals2/signal.hpp>
 #include "heli.h"
 #include "Driver.h"
+
 
 
 /* STL Headers */
@@ -38,6 +38,7 @@ using boost::asio::ip::address;
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 /**
  *  @brief Sends and receives data to QGroundControl via UDP.
@@ -102,9 +103,9 @@ private:
 	udp::socket socket;
 
 	/// thread to receive data from qgc see QGCLink::QGCReceive
-	boost::thread receive_thread;
+	std::thread receive_thread;
 	/// thread to send data to qgc see QGCLink::QGCSend
-	boost::thread send_thread;
+	std::thread send_thread;
 
 	/// frequency to send heartbeat messages.  also used for system status messages
 	std::atomic_int heartbeat_rate;

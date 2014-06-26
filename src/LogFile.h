@@ -29,11 +29,12 @@
 #include <mutex>
 
 /* boost headers */
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/signals2.hpp>
 #include <boost/array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp> //include all types plus i/o
 
 /* c headers */
 #include <stdint.h>
@@ -92,7 +93,6 @@
 
 	LogFile *log = LogFile::getInstance();
 
-	boost::this_thread::at_thread_exit(cleanup());
 
 	log->logHeader("normalized outputs", "CH1(us)\tCH2(us)\tCH3(us)\tCH4(us)\tCH5(us)\tCH6(us)\tCH7(us)\tCH8(us)");
 	for (int i=0; i<10; i++)
@@ -102,7 +102,6 @@
 			norm = rand() % 1000 + 1000;
 		}
 		log->logData("normalized outputs", norms);
-		boost::this_thread::sleep(boost::posix_time::seconds(3));
 	}
    \endcode
 

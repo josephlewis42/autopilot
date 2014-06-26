@@ -23,9 +23,9 @@
 #include <string.h>
 #include <utility>
 #include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
+//#include <thread>
 #include <boost/algorithm/string.hpp>
-#include <map>
+//#include <map>
 
 
 

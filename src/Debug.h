@@ -28,7 +28,7 @@
 #include <mutex>
 
 /* Boost Headers */
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/array.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>

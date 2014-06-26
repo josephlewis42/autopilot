@@ -10,6 +10,8 @@
 #define TCPSERIAL_H_
 
 #include "Driver.h"
+#include <atomic>
+
 
 class TCPSerial: public Driver
 {

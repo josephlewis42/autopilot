@@ -22,7 +22,7 @@
 
 /* Boost Headers */
 #include <boost/array.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>

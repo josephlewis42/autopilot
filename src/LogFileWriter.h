@@ -29,7 +29,6 @@
 #include <string>
 #include <mutex>
 
-#include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 
 /**

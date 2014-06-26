@@ -65,7 +65,7 @@ public:
     /// used as slot to wait for ack
     void operator()(std::vector<uint8_t> message);
     /// timeout in ms
-    void wait_for_ack(int timeout = 0);
+    void wait_for_ack();
     /// extract error code byte from ack/nack message - not valid until ack received (returns 255 if ack nor received)
     uint8_t get_error_code();
 private:
