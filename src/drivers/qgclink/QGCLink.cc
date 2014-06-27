@@ -57,7 +57,6 @@ QGCLink::QGCLink()
 	uasId = configGeti("UASidentifier", 100);
 
 	init();
-	param_recv = false;
 }
 
 void QGCLink::init()

@@ -35,6 +35,7 @@ public:
     **/
     static CommonMessages* getInstance();
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
+    std::atomic_bool _sendParams;
 
 private:
     static CommonMessages* _instance;

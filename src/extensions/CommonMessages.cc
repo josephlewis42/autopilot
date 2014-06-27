@@ -19,6 +19,9 @@
 
 #include "CommonMessages.h"
 #include "SystemState.h"
+#include "Control.h"
+#include "Helicopter.h"
+#include "Parameter.h"
 
 
 CommonMessages* CommonMessages::_instance = NULL;
@@ -49,6 +52,8 @@ CommonMessages::CommonMessages()
     _frequencyHz = configGeti("message_send_rate_hz", 10);
 
     debug() << "Sending messages at: " << _frequencyHz.load();
+
+    _sendParams = false; // don't send params until we are told to
 }
 
 CommonMessages::~CommonMessages()
@@ -95,6 +100,38 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
         msgs.push_back(msg);
     }
 
+    if(_sendParams.load())
+    {
+        mavlink_message_t msg;
+
+        std::vector<std::vector<Parameter> > plist;
+
+        plist.push_back(Control::getInstance()->getParameters());
+        plist.push_back(Helicopter::getInstance()->getParameters());
+
+        int num_params = 0;
+        for (unsigned int i=0; i<plist.size(); i++)
+        {
+            num_params += plist[i].size();
+        }
+        int index = 0;
+        for (unsigned int i=0; i<plist.size(); i++)
+        {
+            for (unsigned int j=0; j<plist.at(i).size(); j++)
+            {
+                mavlink_msg_param_value_pack(   uasId,
+                                                (uint8_t)plist.at(i).at(j).getCompID(),
+                                                &msg,
+                                                (const char*)(plist.at(i).at(j).getParamID().c_str()),
+                                                plist.at(i).at(j).getValue(),
+                                                MAV_VAR_FLOAT, num_params, index);
+                msgs.push_back(msg);
+                index++;
+            }
+        }
+
+        _sendParams = false;
+    }
 
 };
 

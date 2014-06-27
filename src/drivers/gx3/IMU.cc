@@ -366,10 +366,10 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
         msgs.push_back(msg);
     }
 
-    if(new_status_message)
+    if(_newStatusMessage.load())
     {
         std::string message(status_message);
-        new_status_message = false;
+        _newStatusMessage = false;
         message.resize(49); // leave room for \0
         mavlink_message_t msg;
         mavlink_msg_ualberta_gx3_message_pack(uasId, heli::GX3_ID, &msg, message.c_str());

@@ -25,6 +25,7 @@
 #include "RadioCalibration.h"
 #include "Helicopter.h"
 #include "Driver.h"
+#include "CommonMessages.h"
 
 /* Mavlink Headers */
 #include "mavlink.h"
@@ -260,7 +261,7 @@ void QGCLink::QGCReceive::receive()
 				case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:		// refresh parameter list, UAV must send parameters to QGC.
 				{
 					qgc->trace() << "received param request list.";
-					qgc->param_recv = true;
+					CommonMessages::getInstance()->_sendParams = true;
 
 					break;
 				}

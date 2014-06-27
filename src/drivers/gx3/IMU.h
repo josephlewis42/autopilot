@@ -116,11 +116,11 @@ public:
     boost::signals2::signal<void (GX3_MODE)> gx3_mode_changed;
     
     ThreadSafeVariable<std::string> status_message;
-    std::atomic_bool new_status_message;
+    std::atomic_bool _newStatusMessage;
     void set_gx3_status_message(std::string in)
     {
         status_message = in;
-        new_status_message = true;
+        _newStatusMessage = true;
     }
 
     static blas::matrix<double> euler_to_rotation(const blas::vector<double>& euler);

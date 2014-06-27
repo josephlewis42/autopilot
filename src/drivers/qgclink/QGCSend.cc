@@ -137,12 +137,6 @@ void QGCLink::QGCSend::send()
             send_status(send_queue);
         }
 
-        /* Send parameters */
-        bool param_recv = qgc->param_recv;
-        qgc->param_recv = false;
-        if(param_recv)
-            send_param(send_queue);
-
         /* Send RC Channels */
         if (should_run(qgc->get_rc_channel_rate(), send_rate, loop_count))
             send_rc_channels(send_queue);
