@@ -112,16 +112,6 @@ private:
 	inline int get_heartbeat_rate() const {return heartbeat_rate;}
 	inline void set_heartbeat_reate(int rate) {heartbeat_rate = rate;}
 
-	/// frequency to send rc channel measurements
-	std::atomic_int rc_channel_rate;
-	inline int get_rc_channel_rate() const {return rc_channel_rate;}
-	inline void set_rc_channel_rate(int rate) {rc_channel_rate = rate;}
-
-	/// frequency to send control output -- threadsafe
-	std::atomic_int control_output_rate;
-	inline int get_control_output_rate() const {return control_output_rate;}
-	inline void set_control_output_rate(int rate) {control_output_rate = rate;}
-
 	/// store frequency to send position measurement rate
 	std::atomic_int position_rate;
 	inline int get_position_rate() const {return position_rate;}

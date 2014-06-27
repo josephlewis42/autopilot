@@ -48,8 +48,6 @@ QGCLink::QGCLink()
 : Driver("QGCLink", "qgroundcontrol"),
   socket(io_service),
   heartbeat_rate(10),
-  rc_channel_rate(10),
-  control_output_rate(10),
   position_rate(10),
   attitude_rate(10)
 {

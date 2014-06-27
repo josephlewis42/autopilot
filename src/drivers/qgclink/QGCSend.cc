@@ -137,14 +137,6 @@ void QGCLink::QGCSend::send()
             send_status(send_queue);
         }
 
-        /* Send RC Channels */
-        if (should_run(qgc->get_rc_channel_rate(), send_rate, loop_count))
-            send_rc_channels(send_queue);
-
-        /* send control effort */
-        if (should_run(qgc->get_control_output_rate(), send_rate, loop_count))
-            send_control_effort(send_queue);
-
         // Do bulk allocation of messages for drivers.
         for(Driver* driver : Driver::getDrivers())
         {
@@ -230,40 +222,6 @@ void QGCLink::QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)
 
     sendq->push(buf);
 
-}
-
-void QGCLink::QGCSend::send_rc_channels(std::queue<std::vector<uint8_t> > *sendq)
-{
-    {
-        std::vector<uint16_t> raw(servo_switch::getInstance()->getRaw());
-        mavlink_message_t msg;
-        std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-        mavlink_msg_rc_channels_raw_pack(100, 200, &msg,
-                                         0, 0,
-                                         raw[0], raw[1], raw[2], raw[3],
-                                         raw[4], raw[5], raw[6], raw[7], 0);
-        buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-        sendq->push(buf);
-    }
-    {
-        std::array<double, 6> scaled(RCTrans::getScaledArray());
-
-        mavlink_message_t msg;
-        std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-        mavlink_msg_rc_channels_scaled_pack(100, 200, &msg,
-                                            0,0,
-                                            static_cast<int16_t>(scaled[RCTrans::AILERON]*1e4),
-                                            static_cast<int16_t>(scaled[RCTrans::ELEVATOR]*1e4),
-                                            static_cast<int16_t>(scaled[RCTrans::THROTTLE]*1e4),
-                                            static_cast<int16_t>(scaled[RCTrans::RUDDER]*1e4),
-                                            static_cast<int16_t>(scaled[RCTrans::GYRO]*1e4),
-                                            static_cast<int16_t>(scaled[RCTrans::PITCH]*1e4),
-                                            0,0,0);
-        buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-        sendq->push(buf);
-    }
 }
 
 void QGCLink::QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
@@ -365,23 +323,6 @@ void QGCLink::QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
 
     buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
 
-    sendq->push(buf);
-}
-
-void QGCLink::QGCSend::send_control_effort(std::queue<std::vector<uint8_t> > *sendq)
-{
-    mavlink_message_t msg;
-    std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-    blas::vector<double> effort(Control::getInstance()->get_control_effort());
-    std::vector<float> control(effort.begin(), effort.end());
-
-    mavlink_msg_ualberta_control_effort_pack(qgc->uasId, heli::CONTROLLER_ID, &msg, &control[0]);
-
-
-
-
-    buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
     sendq->push(buf);
 }
 

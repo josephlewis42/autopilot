@@ -233,14 +233,13 @@ void QGCLink::QGCReceive::receive()
 					case MAV_DATA_STREAM_RC_CHANNELS:
 					{
 						qgc->debug() << "RC Channel Stream at " << m.req_message_rate << " Hz.";
-						qgc->set_rc_channel_rate(m.req_message_rate);
-
+						CommonMessages::getInstance()->rcChannelRate = m.req_message_rate;
 						break;
 					}
 					case MAV_DATA_STREAM_RAW_CONTROLLER:
 					{
 						qgc->debug() << "Controller Data Stream at " << m.req_message_rate << " Hz.";
-						qgc->set_control_output_rate(m.req_message_rate);
+						CommonMessages::getInstance()->controlEffortRate = m.req_message_rate;
 						break;
 					}
 					case MAV_DATA_STREAM_POSITION:

@@ -222,6 +222,8 @@
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<send_system_status_message>true</send_system_status_message>
 		<message_send_rate_hz>10</message_send_rate_hz>
+		<radio_channel_send_rate_hz>10</radio_channel_send_rate_hz>
+		<control_effort_send_rate_hz>10</control_effort_send_rate_hz>
 	</common_messages>
 	<waypoint_manager>
 		<debug>false</debug>

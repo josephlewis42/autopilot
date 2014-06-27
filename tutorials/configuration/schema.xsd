@@ -401,6 +401,8 @@
               <xs:element type="xs:string" name="read_style_COMMENT"/>
               <xs:element type="xs:string" name="send_system_status_message"/>
               <xs:element type="xs:byte" name="message_send_rate_hz"/>
+              <xs:element type="xs:byte" name="radio_channel_send_rate_hz"/>
+              <xs:element type="xs:byte" name="control_effort_send_rate_hz"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

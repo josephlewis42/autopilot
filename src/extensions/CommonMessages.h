@@ -44,7 +44,9 @@ public:
     std::queue<Parameter> requested_params;
     std::mutex requested_params_lock;
 
-    //
+    // Send rates for RC Channels and Control Effort
+    std::atomic<int> rcChannelRate;
+    std::atomic<int> controlEffortRate;
 
 private:
     static CommonMessages* _instance;

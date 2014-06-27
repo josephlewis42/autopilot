@@ -21,6 +21,7 @@
 #include "SystemState.h"
 #include "Control.h"
 #include "Helicopter.h"
+#include "RCTrans.h"
 
 
 CommonMessages* CommonMessages::_instance = NULL;
@@ -49,6 +50,18 @@ CommonMessages::CommonMessages()
                    "The rate at which the set of common messages are sent.",
                    "hz");
     _frequencyHz = configGeti("message_send_rate_hz", 10);
+
+    configDescribe("radio_channel_send_rate_hz",
+                    "0 - 200",
+                    "The rate at which the radio channel values are sent.",
+                    "hz");
+    rcChannelRate = configGeti("radio_channel_send_rate_hz", 10);
+
+    configDescribe("control_effort_send_rate_hz",
+                    "0 - 200",
+                    "The rate at which the control effort values are sent.",
+                    "hz");
+    controlEffortRate = configGeti("control_effort_send_rate_hz", 10);
 
     debug() << "Sending messages at: " << _frequencyHz.load();
 
@@ -171,6 +184,43 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
         
         msgs.push_back(msg);
         _sendRCCalibration = false;
+    }
+
+    if(msgNumber % (sendRateHz / rcChannelRate.load()) == 0)
+    {
+        {
+            std::vector<uint16_t> raw(servo_switch::getInstance()->getRaw());
+            mavlink_message_t msg;
+            mavlink_msg_rc_channels_raw_pack(100, 200, &msg,
+                                             0, 0,
+                                             raw[0], raw[1], raw[2], raw[3],
+                                             raw[4], raw[5], raw[6], raw[7], 0);
+            msgs.push_back(msg);
+        }
+        {
+            std::array<double, 6> scaled(RCTrans::getScaledArray());
+            mavlink_message_t msg;
+            mavlink_msg_rc_channels_scaled_pack(100, 200, &msg,
+                                                0,0,
+                                                static_cast<int16_t>(scaled[RCTrans::AILERON]*1e4),
+                                                static_cast<int16_t>(scaled[RCTrans::ELEVATOR]*1e4),
+                                                static_cast<int16_t>(scaled[RCTrans::THROTTLE]*1e4),
+                                                static_cast<int16_t>(scaled[RCTrans::RUDDER]*1e4),
+                                                static_cast<int16_t>(scaled[RCTrans::GYRO]*1e4),
+                                                static_cast<int16_t>(scaled[RCTrans::PITCH]*1e4),
+                                                0,0,0);
+            msgs.push_back(msg);
+        }
+    }
+
+    if(msgNumber % (sendRateHz / controlEffortRate.load()) == 0)
+    {
+        mavlink_message_t msg;
+        blas::vector<double> effort(Control::getInstance()->get_control_effort());
+        std::vector<float> control(effort.begin(), effort.end());
+        mavlink_msg_ualberta_control_effort_pack(uasId, heli::CONTROLLER_ID, &msg, &control[0]);
+
+        msgs.push_back(msg);
     }
 
 };
