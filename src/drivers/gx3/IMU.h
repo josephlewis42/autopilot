@@ -35,6 +35,7 @@
 /* Project Headers */
 #include "Driver.h"
 #include "ThreadQueue.h"
+#include "ThreadSafeVariable.h"
 
 namespace blas = boost::numeric::ublas;
 
@@ -114,15 +115,12 @@ public:
     /// signal to notify when gx3 mode changes
     boost::signals2::signal<void (GX3_MODE)> gx3_mode_changed;
     
-    std::string status_message;
+    ThreadSafeVariable<std::string> status_message;
     std::atomic_bool new_status_message;
-    std::mutex status_message_lock;
     void set_gx3_status_message(std::string in)
     {
-    	status_message_lock.lock();
         status_message = in;
         new_status_message = true;
-        status_message_lock.unlock();
     }
 
     static blas::matrix<double> euler_to_rotation(const blas::vector<double>& euler);
