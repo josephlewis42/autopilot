@@ -260,9 +260,7 @@ void QGCLink::QGCReceive::receive()
 				case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:		// refresh parameter list, UAV must send parameters to QGC.
 				{
 					qgc->trace() << "received param request list.";
-					qgc->param_recv_lock.lock();
 					qgc->param_recv = true;
-					qgc->param_recv_lock.unlock();
 
 					break;
 				}

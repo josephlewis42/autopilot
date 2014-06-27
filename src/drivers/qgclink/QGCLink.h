@@ -132,8 +132,7 @@ private:
 	inline void set_attitude_rate(int rate) {attitude_rate = rate;}
 	inline int get_attitude_rate() const {return attitude_rate;}
 
-	mutable std::mutex param_recv_lock;
-	bool param_recv;
+	std::atomic_bool param_recv;
 
 	mutable std::mutex requested_params_lock;
 	std::queue<Parameter> requested_params;

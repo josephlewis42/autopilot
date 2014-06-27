@@ -138,10 +138,8 @@ void QGCLink::QGCSend::send()
         }
 
         /* Send parameters */
-        qgc->param_recv_lock.lock();
         bool param_recv = qgc->param_recv;
         qgc->param_recv = false;
-        qgc->param_recv_lock.unlock();
         if(param_recv)
             send_param(send_queue);
 
