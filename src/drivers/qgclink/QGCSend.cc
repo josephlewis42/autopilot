@@ -129,12 +129,16 @@ void QGCLink::QGCSend::send()
     {
         rl.wait();
 
-
-
         if (should_run(qgc->get_heartbeat_rate(), send_rate, loop_count))
         {
             send_heartbeat(send_queue);
             send_status(send_queue);
+        }
+
+        /* Send any queued messages to the console */
+        if (!message_queue_empty()) //only send max one message per iteration
+        {
+            send_console_message(message_queue_pop(), send_queue);
         }
 
         // Do bulk allocation of messages for drivers.
@@ -149,22 +153,18 @@ void QGCLink::QGCSend::send()
         		send_queue->push(buf);
         	}
         }
-
-
-        /* Send any queued messages to the console */
-        if (!message_queue_empty()) //only send max one message per iteration
-            send_console_message(message_queue_pop(), send_queue);
+        
+        /* actually send data to qgc */
         try
         {
-            /* actually send data to qgc */
             while (!send_queue->empty())
             {
-#ifndef NDEBUG
+                #ifndef NDEBUG
                 uint8_t sysid = send_queue->front().at(3);
                 uint8_t compid = send_queue->front().at(4);
                 uint8_t msgid = send_queue->front().at(5);
                 qgc->debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
-#endif
+                #endif
                 qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
                 send_queue->pop();
             }
@@ -174,6 +174,7 @@ void QGCLink::QGCSend::send()
         {
             qgc->warning() << e.what();
         }
+        
         /* Increment loop count */
         loop_count++;
 
