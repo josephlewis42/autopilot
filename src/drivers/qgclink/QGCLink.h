@@ -132,15 +132,6 @@ private:
 	inline void set_attitude_rate(int rate) {attitude_rate = rate;}
 	inline int get_attitude_rate() const {return attitude_rate;}
 
-	/// store whether rc_calibration packet has been requested
-	std::atomic_bool requested_rc_calibration;
-	/// threadsafe set requested rc calibration (could be used as slot)
-	inline void set_requested_rc_calibration() {requested_rc_calibration = true;}
-	/// threadsafe clear requested rc calibration
-	inline void clear_requested_rc_calibration() {requested_rc_calibration = false;}
-	/// threadsafe get requested rc calibration
-	inline bool get_requested_rc_calibration() const {return requested_rc_calibration;}
-
 	int uasId;
 };
 

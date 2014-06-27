@@ -145,13 +145,6 @@ void QGCLink::QGCSend::send()
         if (should_run(qgc->get_control_output_rate(), send_rate, loop_count))
             send_control_effort(send_queue);
 
-        /* Send RC Calibration */
-        if (qgc->get_requested_rc_calibration())
-        {
-            send_rc_calibration(send_queue);
-            qgc->clear_requested_rc_calibration();
-        }
-
         // Do bulk allocation of messages for drivers.
         for(Driver* driver : Driver::getDrivers())
         {
@@ -194,25 +187,6 @@ void QGCLink::QGCSend::send()
 
         rl.finishedCriticalSection();
     }
-}
-
-void QGCLink::QGCSend::send_rc_calibration(std::queue<std::vector<uint8_t> > *sendq)
-{
-    mavlink_message_t msg;
-    std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-    RadioCalibration *radio = RadioCalibration::getInstance();
-
-    mavlink_msg_radio_calibration_pack(qgc->uasId, heli::RADIO_CAL_ID, &msg,
-                                       radio->getAileron().data(),
-                                       radio->getElevator().data(),
-                                       radio->getRudder().data(),
-                                       radio->getGyro().data(),
-                                       radio->getPitch().data(),
-                                       radio->getThrottle().data()
-                                      );
-
-    buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-    sendq->push(buf);
 }
 
 bool QGCLink::QGCSend::should_run(int stream_rate, int send_rate, int count)

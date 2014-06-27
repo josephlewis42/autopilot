@@ -104,9 +104,7 @@ void QGCLink::QGCReceive::receive()
 //					case MAV_ACTION_CALIBRATE_RC:
 //					{
 //						debug() << "Send RC Calibration Data";
-//						CommonMessages::getInstance()->requested_rc_calibration_lock.lock();
 //						CommonMessages::getInstance()->requested_rc_calibration = true;
-//						CommonMessages::getInstance()->requested_rc_calibration_lock.unlock();
 //						break;
 //					}
 //					case MAV_ACTION_SHUTDOWN:
@@ -130,7 +128,7 @@ void QGCLink::QGCReceive::receive()
 					case UALBERTA_RC_CALIBRATION:
 					{
 						qgc->debug() << "Send RC Calibration Data";
-						qgc->set_requested_rc_calibration();
+						CommonMessages::getInstance()->_sendRCCalibration = true;
 						break;
 					}
 					case UALBERTA_SET_ORIGIN:

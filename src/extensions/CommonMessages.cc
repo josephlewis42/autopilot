@@ -52,7 +52,9 @@ CommonMessages::CommonMessages()
 
     debug() << "Sending messages at: " << _frequencyHz.load();
 
-    _sendParams = false; // don't send params until we are told to
+    _sendParams = false; // don't send params until requested
+    _sendRCCalibration = false; // don't send calibration until requested
+
 }
 
 CommonMessages::~CommonMessages()
@@ -151,6 +153,24 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
             msgs.push_back(msg);
             requested_params.pop();
         }
+    }
+
+    if(_sendRCCalibration.load())
+    {
+        mavlink_message_t msg;
+        RadioCalibration *radio = RadioCalibration::getInstance();
+
+        mavlink_msg_radio_calibration_pack(uasId, heli::RADIO_CAL_ID, &msg,
+                                           radio->getAileron().data(),
+                                           radio->getElevator().data(),
+                                           radio->getRudder().data(),
+                                           radio->getGyro().data(),
+                                           radio->getPitch().data(),
+                                           radio->getThrottle().data()
+                                          );
+        
+        msgs.push_back(msg);
+        _sendRCCalibration = false;
     }
 
 };

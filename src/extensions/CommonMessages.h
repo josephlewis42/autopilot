@@ -38,10 +38,13 @@ public:
     static CommonMessages* getInstance();
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
     std::atomic_bool _sendParams;
+    std::atomic_bool _sendRCCalibration;
 
     // List of params requested by QGC
     std::queue<Parameter> requested_params;
     std::mutex requested_params_lock;
+
+    //
 
 private:
     static CommonMessages* _instance;

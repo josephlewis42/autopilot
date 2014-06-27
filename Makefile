@@ -49,7 +49,7 @@ ser2net: utils/ser2net.cpp
 	$(CC) -std=c++11 -g -Wall $< -o ${BUILD_DIR}/$@
 
 mavlink:
-	make --directory ../UDenverMavlink
+	+make --directory ../UDenverMavlink
 
 clean:
 	rm -r $(BUILD_DIR)
