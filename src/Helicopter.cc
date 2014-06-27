@@ -188,11 +188,8 @@ void Helicopter::writeToSystemState()
 {
     SystemState *state = SystemState::getInstance();
     state->state_lock.lock();
-    state->helicopter_mass = mass;
     state->helicopter_gravity = gravity;
-    state->helicopter_main_hub_offset = main_hub_offset;
-    state->helicopter_tail_hub_offset = tail_hub_offset;
-    state->helicopter_inertia = inertia;
+    state->helicopter_params = getParameters();
     state->state_lock.unlock();
 }
 

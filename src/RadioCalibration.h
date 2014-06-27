@@ -60,6 +60,9 @@ public:
     /// Construct the class
     static RadioCalibration* getInstance();
 
+    /**
+     * Writes all relevant values for this class to the unified System State object
+     */
     void writeToSystemState();
 
     std::array<uint16_t, 3> getAileron();

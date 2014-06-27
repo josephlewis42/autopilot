@@ -31,6 +31,7 @@
 #include "Helicopter.h"
 #include "RadioCalibration.h"
 #include <Control.h>
+#include "Parameter.h"
 namespace blas = boost::numeric::ublas;
 #include <SystemStateParam.hpp>
 
@@ -88,11 +89,8 @@ public:
     std::array<uint16_t, 3> radio_calibration_flightMode;
 
     // helicopter param data
-    double 						helicopter_mass;
-    double 						helicopter_gravity;
-    blas::vector<double> 		helicopter_main_hub_offset;
-    blas::vector<double> 		helicopter_tail_hub_offset;
-    blas::banded_matrix<double> helicopter_inertia;
+    std::vector<Parameter> helicopter_params;
+    double                 helicopter_gravity;
 
     // control data
     heli::Controller_Mode 	control_mode;
@@ -101,6 +99,7 @@ public:
     blas::vector<double> 	control_effort;
     heli::Trajectory_Type 	control_trajectory_type;
     std::vector<double> 	control_pilot_mix;
+    std::vector<Parameter>  control_params;
 
     // Data from the helicopter.
     SystemStateParam<uint16_t> batteryVoltage_mV;

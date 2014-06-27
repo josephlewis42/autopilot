@@ -83,6 +83,7 @@ void Control::writeToSystemState()
     state->control_effort = attitude_pid_controller().get_control_effort();
     state->control_trajectory_type = trajectory_type;
     state->control_pilot_mix = pilot_mix;
+    state->control_params = getParameters();
     state->state_lock.unlock();
 }
 

@@ -62,6 +62,9 @@ public:
 
     static Control* getInstance();
 
+    /**
+     * Writes all relevant values for this class to the unified System State object
+     */
     void writeToSystemState();
 
     /**

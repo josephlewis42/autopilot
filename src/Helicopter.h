@@ -56,6 +56,9 @@ class Helicopter
 public:
     static Helicopter* getInstance();
 
+    /**
+     * Writes all relevant values for this class to the unified System State object
+     */
     void writeToSystemState();
 
     /** Returns Aileron channel pulse value derived from scaled pulse
