@@ -68,10 +68,6 @@ private:
 	 * @param sendq queue to put message in
 	 */
 	void send_raw_imu(std::queue<std::vector<uint8_t> >* sendq);
-	/** queue up rc channel (raw and scaled) message
-	 * @param sendq queue to put messages in
-	 */
-	void send_rc_channels(std::queue<std::vector<uint8_t> >* sendq);
 	/** queue up status message
 	 * @param sendq queue to put messages in
 	 */
@@ -80,10 +76,6 @@ private:
 	 * @param sendq queue to put messages in
 	 */
 	void send_attitude(std::queue<std::vector<uint8_t> > *sendq);
-	/** queue up control effort stream message
-	 * @param sendq queue to add message to
-	 */
-	void send_control_effort(std::queue<std::vector<uint8_t> > *sendq);
 	/// send the current position and velocity measurement
 	void send_position(std::queue<std::vector<uint8_t> > *sendq);
 	/** add console message to send queue
