@@ -22,7 +22,9 @@
 
 #include <atomic>  // Used for atomic types
 #include <mutex>   // Used for singleton design.
+#include <queue>   // User for requested param list
 #include "Driver.h" // All drivers implement this.
+#include "Parameter.h"
 
 /**
  * Provides an interface to the performance of Linux.
@@ -36,6 +38,10 @@ public:
     static CommonMessages* getInstance();
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
     std::atomic_bool _sendParams;
+
+    // List of params requested by QGC
+    std::queue<Parameter> requested_params;
+    std::mutex requested_params_lock;
 
 private:
     static CommonMessages* _instance;

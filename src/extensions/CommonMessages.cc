@@ -21,7 +21,6 @@
 #include "SystemState.h"
 #include "Control.h"
 #include "Helicopter.h"
-#include "Parameter.h"
 
 
 CommonMessages* CommonMessages::_instance = NULL;
@@ -124,13 +123,34 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
                                                 &msg,
                                                 (const char*)(plist.at(i).at(j).getParamID().c_str()),
                                                 plist.at(i).at(j).getValue(),
-                                                MAV_VAR_FLOAT, num_params, index);
+                                                MAV_VAR_FLOAT,
+                                                num_params,
+                                                index);
                 msgs.push_back(msg);
                 index++;
             }
         }
 
         _sendParams = false;
+    }
+
+    if(!requested_params.empty())
+    {
+        std::lock_guard<std::mutex> lock(requested_params_lock);
+        mavlink_message_t msg;
+        while(!requested_params.empty())
+        {
+            mavlink_msg_param_value_pack(uasId,
+                                         requested_params.front().getCompID(),
+                                         &msg, (const char*)(requested_params.front().getParamID().c_str()),
+                                         requested_params.front().getValue(),
+                                         MAV_VAR_FLOAT,
+                                         1,   // num of params
+                                         -1); // index
+
+            msgs.push_back(msg);
+            requested_params.pop();
+        }
     }
 
 };

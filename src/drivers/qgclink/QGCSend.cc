@@ -145,11 +145,6 @@ void QGCLink::QGCSend::send()
         if (should_run(qgc->get_control_output_rate(), send_rate, loop_count))
             send_control_effort(send_queue);
 
-        qgc->requested_params_lock.lock();
-        if (!qgc->requested_params.empty())
-            send_requested_params(send_queue);
-        qgc->requested_params_lock.unlock();
-
         /* Send RC Calibration */
         if (qgc->get_requested_rc_calibration())
         {
@@ -198,48 +193,6 @@ void QGCLink::QGCSend::send()
         loop_count++;
 
         rl.finishedCriticalSection();
-    }
-}
-
-void QGCLink::QGCSend::send_param(std::queue<std::vector<uint8_t> > *sendq)
-{
-    qgc->debug("attempting to send parameter list");
-    mavlink_message_t msg;
-    std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-    std::vector<std::vector<Parameter> > plist;
-
-    plist.push_back(Control::getInstance()->getParameters());
-    plist.push_back(Helicopter::getInstance()->getParameters());
-
-    int num_params = 0;
-    for (unsigned int i=0; i<plist.size(); i++)
-        num_params += plist[i].size();
-    int index = 0;
-    for (unsigned int i=0; i<plist.size(); i++)
-        for (unsigned int j=0; j<plist.at(i).size(); j++)
-        {
-            mavlink_msg_param_value_pack(qgc->uasId, (uint8_t)plist.at(i).at(j).getCompID(), &msg, (const char*)(plist.at(i).at(j).getParamID().c_str()),
-                                         plist.at(i).at(j).getValue(), MAV_VAR_FLOAT, num_params, index);
-            buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-            sendq->push(buf);
-            index++;
-        }
-}
-
-void QGCLink::QGCSend::send_requested_params(std::queue<std::vector<uint8_t> > *sendq)
-{
-    mavlink_message_t msg;
-    std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
-
-    while(!qgc->requested_params.empty())
-    {
-        mavlink_msg_param_value_pack(qgc->uasId, qgc->requested_params.front().getCompID(), &msg, (const char*)(qgc->requested_params.front().getParamID().c_str()),
-                                     qgc->requested_params.front().getValue(), MAV_VAR_FLOAT, 1/*num_params*/, -1/*index*/);
-
-        buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
-        sendq->push(buf);
-        qgc->requested_params.pop();
     }
 }
 

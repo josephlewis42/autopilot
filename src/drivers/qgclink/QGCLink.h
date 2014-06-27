@@ -132,9 +132,6 @@ private:
 	inline void set_attitude_rate(int rate) {attitude_rate = rate;}
 	inline int get_attitude_rate() const {return attitude_rate;}
 
-	mutable std::mutex requested_params_lock;
-	std::queue<Parameter> requested_params;
-
 	/// store whether rc_calibration packet has been requested
 	std::atomic_bool requested_rc_calibration;
 	/// threadsafe set requested rc calibration (could be used as slot)

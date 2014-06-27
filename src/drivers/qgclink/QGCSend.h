@@ -86,14 +86,6 @@ private:
 	void send_control_effort(std::queue<std::vector<uint8_t> > *sendq);
 	/// send the current position and velocity measurement
 	void send_position(std::queue<std::vector<uint8_t> > *sendq);
-	/** queue up parameter list message
-	 * @param sendq queue to put messages in
-	 */
-	void send_param(std::queue<std::vector<uint8_t> > *sendq);
-	/** queue up requested parameter message
-	 * @param sendq queue to put messages in
-	 */
-	void send_requested_params(std::queue<std::vector<uint8_t> > *sendq);
 	/** add rc calibration message to send queue
 	 * @param sendq send queue
 	 */

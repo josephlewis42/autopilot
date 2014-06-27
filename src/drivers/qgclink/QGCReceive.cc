@@ -104,9 +104,9 @@ void QGCLink::QGCReceive::receive()
 //					case MAV_ACTION_CALIBRATE_RC:
 //					{
 //						debug() << "Send RC Calibration Data";
-//						qgc->requested_rc_calibration_lock.lock();
-//						qgc->requested_rc_calibration = true;
-//						qgc->requested_rc_calibration_lock.unlock();
+//						CommonMessages::getInstance()->requested_rc_calibration_lock.lock();
+//						CommonMessages::getInstance()->requested_rc_calibration = true;
+//						CommonMessages::getInstance()->requested_rc_calibration_lock.unlock();
 //						break;
 //					}
 //					case MAV_ACTION_SHUTDOWN:
@@ -285,8 +285,8 @@ void QGCLink::QGCReceive::receive()
 							{
 								if ((*it).getParamID() == (const char*)(set.param_id))
 								{
-									std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
-									qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::CONTROLLER_ID));
+									std::lock_guard<std::mutex> lock(CommonMessages::getInstance()->requested_params_lock);
+									CommonMessages::getInstance()->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::CONTROLLER_ID));
 									qgc->debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
 								}
 							}
@@ -302,8 +302,8 @@ void QGCLink::QGCReceive::receive()
 							{
 								if ((*it).getParamID() == (const char*)(set.param_id))
 								{
-									std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
-									qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::HELICOPTER_ID));
+									std::lock_guard<std::mutex> lock(CommonMessages::getInstance()->requested_params_lock);
+									CommonMessages::getInstance()->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::HELICOPTER_ID));
 									qgc->debug() << __FILE__ << __LINE__ << "Sending Parameter: " << (*it);
 									param_found = true;
 								}
@@ -334,8 +334,8 @@ void QGCLink::QGCReceive::receive()
 //						{
 //							if ((*it).getParamID() == (const char*)(set.param_id))
 //							{
-//								std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
-//								qgc->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::NAVFILTER_ID));
+//								std::lock_guard<std::mutex> lock(CommonMessages::getInstance()->requested_params_lock);
+//								CommonMessages::getInstance()->requested_params.push(Parameter((*it).getParamID(), (*it).getValue(), heli::NAVFILTER_ID));
 //							}
 //						}
 					break;
@@ -351,7 +351,7 @@ void QGCLink::QGCReceive::receive()
 							if (index < plist.size())
 							{
 								qgc->trace() << "sending parameter: " << plist[index];
-								qgc->requested_params.push(plist[index]);
+								CommonMessages::getInstance()->requested_params.push(plist[index]);
 							}
 						}
 						else
@@ -361,8 +361,8 @@ void QGCLink::QGCReceive::receive()
 							{
 								if (it->getParamID() == (const char*)(set.param_id))
 								{
-									std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
-									qgc->requested_params.push(Parameter(it->getParamID(), it->getValue(), heli::CONTROLLER_ID));
+									std::lock_guard<std::mutex> lock(CommonMessages::getInstance()->requested_params_lock);
+									CommonMessages::getInstance()->requested_params.push(Parameter(it->getParamID(), it->getValue(), heli::CONTROLLER_ID));
 									param_found = true;
 								}
 							}
@@ -377,8 +377,8 @@ void QGCLink::QGCReceive::receive()
 						{
 							if (it->getParamID() == (const char*)(set.param_id))
 							{
-								std::lock_guard<std::mutex> lock(qgc->requested_params_lock);
-								qgc->requested_params.push(Parameter(it->getParamID(), it->getValue(), heli::HELICOPTER_ID));
+								std::lock_guard<std::mutex> lock(CommonMessages::getInstance()->requested_params_lock);
+								CommonMessages::getInstance()->requested_params.push(Parameter(it->getParamID(), it->getValue(), heli::HELICOPTER_ID));
 								param_found = true;
 							}
 						}
