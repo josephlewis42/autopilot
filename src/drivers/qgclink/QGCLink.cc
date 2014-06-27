@@ -51,6 +51,9 @@ QGCLink::QGCLink()
   position_rate(10),
   attitude_rate(10)
 {
+	configDescribe("UASidentifier",
+                   "int",
+                   "Unique numeric identifier for this system.");
 	uasId = configGeti("UASidentifier", 100);
 
 	init();

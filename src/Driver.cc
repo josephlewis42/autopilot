@@ -39,11 +39,30 @@ Driver::Driver(std::string name, std::string config_prefix)
         std::lock_guard<std::mutex> lock(_all_drivers_lock);
         all_drivers.push_front(this);
     }
+
+    configDescribe("debug",
+                   "true/false",
+                   "Enables/disables debug messages for this driver.");
     _debug = configGetb("debug", false);
+
+    configDescribe("read_style",
+                   "0 - 3",
+                   "The style of serial port read to use for this driver.");
     _readDeviceType = configGeti("read_style", 2);
+
+    configDescribe("enable",
+                   "true/false",
+                   "Enables/disables this driver.");
     _enabled = configGetb("enable", true);
+
+    configDescribe("terminate_if_init_failed",
+                   "true/false",
+                   "Defines whether the autopilot should terminate if this driver is enabled but fails to initialize.");
     _terminate_if_init_failed = configGetb("terminate_if_init_failed", true);
 
+    configDescribe("read_style_COMMENT",
+                   "string",
+                   "Description for the functionality of different serial read styles.");
     configGets("read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
 }
 

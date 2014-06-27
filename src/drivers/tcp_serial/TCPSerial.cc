@@ -60,6 +60,9 @@ TCPSerial::TCPSerial()
     }
 
     // init serial port
+    configDescribe("serial_path",
+                   "file path",
+                   "File path for serial port.");
     std::string port = configGets("serial_path", "/dev/ttyS0");
     ser_fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY); // nonblocking is important here
     namedTerminalSettings("serial_settings", ser_fd, 9600, "8N1", false, true);
@@ -71,7 +74,14 @@ TCPSerial::TCPSerial()
 
 
     // init TCP port
+    configDescribe("TCP_Port",
+                   "port number",
+                   "Port number for TCP port.");
     std::string PORT = configGets("TCP_Port", "5000");
+
+    configDescribe("TCP_backlog",
+                   "0 - 100",
+                   "TCP backlog size.");
     int BACKLOG = configGeti("TCP_backlog", 10);
     debug() << "Trying to start tcp on port " << PORT;
     struct addrinfo hints, *servinfo, *p;

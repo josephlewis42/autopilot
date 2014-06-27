@@ -81,7 +81,16 @@ IMU::IMU()
     attitude_source_connection(QGCLink::getInstance()->attitude_source.connect(
                                     boost::bind(&IMU::set_use_nav_attitude, this, _1)))
 {
+    configDescribe("position_message_rate_hz",
+                   "0 - 100",
+                   "Rate at which position messages are sent.",
+                   "hz");
     _positionSendRateHz = configGeti("position_message_rate_hz", 10);
+
+    configDescribe("attitude_message_rate_hz",
+                   "0 - 100",
+                   "Rate at which attitude messages are sent.",
+                   "hz");
     _attitudeSendRateHz = configGeti("attitude_message_rate_hz", 10);
 
     if(! isEnabled())
