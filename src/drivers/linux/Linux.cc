@@ -26,22 +26,8 @@
 
 #include "RateLimiter.h"
 
-
-Linux* Linux::_instance = NULL;
-std::mutex Linux::_instance_lock;
-
-Linux* Linux::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-    if (_instance == NULL)
-    {
-        _instance = new Linux;
-    }
-    return _instance;
-}
-
 Linux::Linux()
-    :Driver("Linux CPU Info","linux_cpu_info")
+:Driver("Linux CPU Info","linux_cpu_info")
 {
     // If the system wants to halt, don't start running.
     if(terminateRequested())

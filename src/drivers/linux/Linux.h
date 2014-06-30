@@ -23,18 +23,16 @@
 #include <atomic>  // Used for atomic types
 #include <mutex>  // Used for singleton design.
 #include "Driver.h"  // All drivers implement this.
+#include "Singleton.h"
 
 /**
  * Provides an interface to the performance of Linux.
  **/
-class Linux: public Driver
+class Linux: public Driver, public Singleton<Linux>
 {
-public:
-    /**
-    Returns the one allowed instance of this Driver
-    **/
-    static Linux* getInstance();
+    friend class Singleton<Linux>;
 
+public:
     /**
      * Returns the CPU utilization of the whole system.
      **/
@@ -46,9 +44,6 @@ public:
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
 
 private:
-    static Linux* _instance;
-    static std::mutex _instance_lock;
-
     Linux();
     virtual ~Linux();
 
