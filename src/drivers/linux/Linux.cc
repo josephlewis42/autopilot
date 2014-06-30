@@ -18,77 +18,38 @@
  *************************************************************************/
 
 #include "Linux.h"
-#include <thread>
-#include <iostream>
-#include <fstream>
 #include <sys/sysinfo.h>
-#include <mavlink.h>
-
-#include "RateLimiter.h"
 
 Linux::Linux()
-:Driver("Linux CPU Info","linux_cpu_info")
+:Plugin("Linux CPU Info","linux_cpu_info", 1)
 {
-    // If the system wants to halt, don't start running.
-    if(terminateRequested())
-    {
-        return;
-    }
-
-    // If the user has disabled this component, don't start running
-    if(! isEnabled())
-    {
-        return;
-    }
-
-    // Tell the user we made it up
-    warning() << "starting CPU Information System";
-
-    // Start our processing thread.
-    new std::thread(std::bind(Linux::cpuInfo, this));
+    start(); // Start the plugin
 }
 
-Linux::~Linux()
+bool Linux::init()
 {
-
+    return true; // we setup correctly.
 }
 
-void Linux::cpuInfo(Linux* instance)
+void Linux::teardown()
 {
-    RateLimiter rl(1);
+}
 
-    std::ifstream cpufile, memfile;
-    cpufile.open ("/proc/loadavg");
 
+void Linux::loop()
+{
     struct sysinfo sysinf;
+    sysinfo(&sysinf);
 
     float util = 0;
-    while(!instance->terminateRequested())
-    {
-        rl.wait(); // suspends until we're ready to go
 
-        // read cpufile
-        cpufile >> util;
-        cpufile.seekg(0); // go to the beginning of the file
-
-        instance->cpu_utilization = util; // set our utilization
-        // read memory info
-
-        sysinfo(&sysinf);
-        instance->uptime_seconds = sysinf.uptime;
-        instance->totalram = (sysinf.totalram * sysinf.mem_unit) / (1024 * 1024);
-        instance->freeram = (sysinf.freeram * sysinf.mem_unit) / (1024 * 1024);
-
-        int totalram = (int)instance->totalram;
-        int freeram = (int)instance->freeram;
-
-
-        instance->debug() << "Got Load of: " << util << " memtotal: " << totalram << " mb free: " << freeram << " mb";
-
-        rl.finishedCriticalSection(); // call to yield
-    }
-
-    cpufile.close();
+    cpu_utilization = sysinf.loads[0] / (float)(1 << SI_LOAD_SHIFT); // set our utilization at 5 min.
+    uptime_seconds = sysinf.uptime;
+    totalram = (sysinf.totalram * sysinf.mem_unit) / (1024 * 1024);
+    freeram = (sysinf.freeram * sysinf.mem_unit) / (1024 * 1024);
+    int totalraml = (int)totalram.load();
+    int freeraml = (int)freeram.load();
+    trace() << "Got Load of: " << util << " memtotal: " << totalraml << " mb free: " << freeraml << " mb";
 }
 
 void Linux::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
@@ -100,7 +61,7 @@ void Linux::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int 
         debug() << "Sending CPU Utilization";
 
         mavlink_message_t msg;
-        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, getCpuUtilization(), totalram.load(), freeram.load());
+        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, cpu_utilization.load(), totalram.load(), freeram.load());
         msgs.push_back(msg);
     }
 };

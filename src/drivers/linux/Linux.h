@@ -21,31 +21,24 @@
 #define LINUX_H
 
 #include <atomic>  // Used for atomic types
-#include <mutex>  // Used for singleton design.
-#include "Driver.h"  // All drivers implement this.
+#include "Plugin.h"
 #include "Singleton.h"
 
 /**
  * Provides an interface to the performance of Linux.
  **/
-class Linux: public Driver, public Singleton<Linux>
+class Linux: public Plugin, public Singleton<Linux>
 {
     friend class Singleton<Linux>;
 
 public:
-    /**
-     * Returns the CPU utilization of the whole system.
-     **/
-    float getCpuUtilization() const
-    {
-        return cpu_utilization.load();
-    }
-
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
+    virtual bool init();
+    virtual void loop();
+    virtual void teardown();
 
 private:
     Linux();
-    virtual ~Linux();
 
     static void cpuInfo(Linux* instance);
 
