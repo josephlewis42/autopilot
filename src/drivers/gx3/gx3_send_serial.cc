@@ -230,7 +230,7 @@ void IMU::send_serial::set_filter_parameters()
     ack_handler heading_ack(0x18);
 
     // gps source control
-    configDescribe("use_external_gps",
+    IMU::getInstance()->configDescribe("use_external_gps",
                    "true/false",
                    "Defines if IMU should use external GPS data.");
     bool externGPS = IMU::getInstance()->configGetb("use_external_gps", true);
