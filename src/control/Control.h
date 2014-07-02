@@ -23,6 +23,7 @@
 /* STL Headers */
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 /* Project Headers */
 #include "Parameter.h"
@@ -79,8 +80,9 @@ public:
      * Sets the value of a parameter.  Usually called when a message is received from QGC.
      * @param p parameter to change
      * @note make sure that the param_id field has been trimmed to remove white space inserted by QGC
+     * @return true if the param was set, false if it was not found
      */
-    void setParameter(Parameter p);
+    bool setParameter(Parameter p);
 
     /**
      *
@@ -200,6 +202,22 @@ public:
     /// Get the pitch mix
     double get_pitch_mix() const;
 
+    /// line trajectory generator
+    line line_trajectory;
+
+    /// circle trajectory generator
+    circle circle_trajectory;
+    /// PID Controller object to control the inner loop roll-pitch
+    attitude_pid roll_pitch_pid_controller;
+
+    /** PID controller to stabilized a position.  It provides a roll-pitch reference
+     * for the inner controller
+     */
+    translation_outer_pid x_y_pid_controller;
+
+    /// PID control with tail rotor sbf compensation
+    tail_sbf x_y_sbf_controller;
+
 private:
     static std::string XML_ROLL_MIX;
     static std::string XML_PITCH_MIX;
@@ -224,16 +242,7 @@ private:
     /// Make access to Control::_instance threadsafe
     static std::mutex _instance_lock;
 
-    /// PID Controller object to control the inner loop roll-pitch
-    attitude_pid roll_pitch_pid_controller;
 
-    /** PID controller to stabilized a position.  It provides a roll-pitch reference
-     * for the inner controller
-     */
-    translation_outer_pid x_y_pid_controller;
-
-    /// PID control with tail rotor sbf compensation
-    tail_sbf x_y_sbf_controller;
 
     /**
      * Stores the weighting used to calculate the pilot mix with the controller output.
@@ -325,13 +334,12 @@ private:
     mutable std::mutex trajectory_type_lock;
 
 
-    /// line trajectory generator
-    line line_trajectory;
-    /// circle trajectory generator
-    circle circle_trajectory;
-
     /// convert a trajectoy type to a sting for logging
     static std::string getTrajectoryString(heli::Trajectory_Type trajectory_type);
+
+    /// Holds a map between Parameter names and the functions that set them.
+    std::unordered_map<std::string, std::function<void(double)>> parameterSetMap;
+
 };
 
 template <typename ContainerType>

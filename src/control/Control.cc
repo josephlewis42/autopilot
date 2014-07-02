@@ -55,6 +55,41 @@ Control::Control()
     // load config file
     loadFile();
     reference_position.clear();
+
+         /**
+    // Set the huge map for lookups
+    parameterSetMap[attitude_pid::PARAM_ROLL_KP] = &attitude_pid_controller().set_roll_proportional;
+    parameterSetMap[attitude_pid::PARAM_ROLL_KD] = &attitude_pid_controller().set_roll_derivative;
+    parameterSetMap[attitude_pid::PARAM_ROLL_KI] = &attitude_pid_controller().set_roll_integral;
+    parameterSetMap[attitude_pid::PARAM_PITCH_KP] = &attitude_pid_controller().set_pitch_proportional;
+    parameterSetMap[attitude_pid::PARAM_PITCH_KD] = &attitude_pid_controller().set_pitch_derivative;
+    parameterSetMap[attitude_pid::PARAM_PITCH_KI] = &attitude_pid_controller().set_pitch_integral;
+    parameterSetMap[PARAM_MIX_ROLL] = &set_roll_mix;
+    parameterSetMap[PARAM_MIX_PITCH] = &set_pitch_mix;
+    parameterSetMap[attitude_pid::PARAM_ROLL_TRIM] = &attitude_pid_controller().set_roll_trim_degrees;
+    parameterSetMap[attitude_pid::PARAM_PITCH_TRIM] = &attitude_pid_controller().set_pitch_trim_degrees;
+    parameterSetMap[translation_outer_pid::PARAM_X_KP] = &translation_pid_controller().set_x_proportional;
+    parameterSetMap[translation_outer_pid::PARAM_X_KD] = &translation_pid_controller().set_x_derivative;
+    parameterSetMap[translation_outer_pid::PARAM_X_KI] = &translation_pid_controller().set_x_integral;
+    parameterSetMap[translation_outer_pid::PARAM_Y_KP] = &translation_pid_controller().set_y_proportional;
+    parameterSetMap[translation_outer_pid::PARAM_Y_KD] = &translation_pid_controller().set_y_derivative;
+    parameterSetMap[translation_outer_pid::PARAM_Y_KI] = &translation_pid_controller().set_y_integral;
+    parameterSetMap[translation_outer_pid::PARAM_TRAVEL] = &translation_pid_controller().set_scaled_travel_degrees;
+    parameterSetMap[tail_sbf::PARAM_TRAVEL] = &x_y_sbf_controller.set_scaled_travel_degrees;
+    parameterSetMap[tail_sbf::PARAM_X_KP] = &x_y_sbf_controller.set_x_proportional;
+    parameterSetMap[tail_sbf::PARAM_X_KD] = &x_y_sbf_controller.set_x_derivative;
+    parameterSetMap[tail_sbf::PARAM_X_KI] = &x_y_sbf_controller.set_x_integral;
+    parameterSetMap[tail_sbf::PARAM_Y_KP] = &x_y_sbf_controller.set_y_proportional;
+    parameterSetMap[tail_sbf::PARAM_Y_KD] = &x_y_sbf_controller.set_y_derivative;
+    parameterSetMap[tail_sbf::PARAM_Y_KI] = &x_y_sbf_controller.set_y_integral;
+    parameterSetMap[circle::PARAM_HOVER_TIME] = &circle_trajectory.set_hover_time;
+    parameterSetMap[circle::PARAM_RADIUS] = &circle_trajectory.set_radius;
+    parameterSetMap[circle::PARAM_SPEED] = &circle_trajectory.set_speed;
+    parameterSetMap[line::PARAM_HOVER_TIME] = &line_trajectory.set_hover_time;
+    parameterSetMap[line::PARAM_SPEED] = &line_trajectory.set_speed;
+    parameterSetMap[line::PARAM_X_TRAVEL] = &line_trajectory.set_x_travel;
+    parameterSetMap[line::PARAM_Y_TRAVEL] = &line_trajectory.set_y_travel;
+         **/
 }
 
 Control* Control::_instance = NULL;
@@ -119,7 +154,7 @@ std::vector<Parameter> Control::getParameters()
     return plist;
 }
 
-void Control::setParameter(Parameter p)
+bool Control::setParameter(Parameter p)
 {
     std::string param_id(p.getParamID());
     boost::trim(param_id);
@@ -195,10 +230,11 @@ void Control::setParameter(Parameter p)
     else
     {
         warning() << "Control::setParameter - unknown parameter: " << p;
-        return;
+        return false;
     }
     saveFile();
     writeToSystemState();
+    return true;
 }
 
 blas::vector<double> Control::get_control_effort() const
