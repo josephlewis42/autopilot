@@ -18,22 +18,25 @@
 #ifndef SYSTEMSTATE_H_
 #define SYSTEMSTATE_H_
 
+// System imports
 #include <vector>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <atomic>
 #include <mutex>
 #include <string.h>
+
+// Project imports
 #include "IMU.h"
-#include <GPS.h>
-#include <servo_switch.h>
-#include <MdlAltimeter.h>
-#include "Helicopter.h"
-#include "RadioCalibration.h"
-#include <Control.h>
 #include "Parameter.h"
+#include "SystemStateParam.hpp"
+#include "SystemStateObjParam.hpp"
+#include "GPSPosition.h"
+#include "heli.h"
+#include "gps_time.h"
+
 namespace blas = boost::numeric::ublas;
-#include <SystemStateParam.hpp>
+
 
 class SystemState
 {
@@ -46,7 +49,6 @@ public:
     std::mutex state_lock;
 
     // gx3 data
-    blas::vector<double> 	gx3_position;
     blas::vector<double> 	gx3_ned_origin;
     blas::vector<double> 	gx3_velocity;
     blas::vector<double> 	gx3_nav_euler;
@@ -59,7 +61,6 @@ public:
     IMU::GX3_MODE 			gx3_mode;
 
     // novatel data
-    blas::vector<double> 	novatel_llh_position;
     blas::vector<double> 	novatel_ned_velocity;
     blas::vector<double> 	novatel_pos_sigma;
     blas::vector<double> 	novatel_vel_sigma;
@@ -103,6 +104,9 @@ public:
 
     // Data from the helicopter.
     SystemStateParam<uint16_t> batteryVoltage_mV;
+
+    /// The position of the helicopter on Earth, defaults to accepting a less precise position in one second.
+    SystemStateObjParam<GPSPosition> position;
 
 private:
     SystemState();

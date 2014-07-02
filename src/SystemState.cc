@@ -19,7 +19,8 @@
 #include "SystemState.h"
 
 SystemState::SystemState()
-:batteryVoltage_mV(0)
+:batteryVoltage_mV(0),
+ position(1000 , GPSPosition(0,0,0,500))
 {
 }
 
