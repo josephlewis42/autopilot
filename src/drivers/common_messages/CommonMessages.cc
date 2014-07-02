@@ -22,6 +22,8 @@
 #include "Control.h"
 #include "Helicopter.h"
 #include "RCTrans.h"
+#include <sys/sysinfo.h>
+#include <chrono>
 
 
 CommonMessages* CommonMessages::_instance = NULL;
@@ -44,6 +46,11 @@ CommonMessages::CommonMessages()
                    "true/false",
                    "Enables/disables sending the status message which includes battery usage system load and enabled sensors.");
     _sendSysStatus = configGetb("send_system_status_message", true);
+
+    configDescribe("send_system_time_message",
+                   "true/false",
+                   "Enables/disables sending the time message which includes the system time.");
+    _sendSysTime = configGetb("send_system_time_message", true);
 
     configDescribe("message_send_rate_hz",
                    "0 - 200",
@@ -79,112 +86,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
 {
     if(! isEnabled()) return;
 
-    if(_frequencyHz.load() <= 0 || msgNumber % (sendRateHz / _frequencyHz.load()) != 0)
-    {
-        return;
-    }
 
-    SystemState* state = SystemState::getInstance();
-
-    state->batteryVoltage_mV.set(12 * 1000, 0);
-
-
-    trace() << "Sending Mavlink Messages";
-    /**
-    mavlink_message_t msg;
-    mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, getCpuUtilization(), totalram.load(), freeram.load());
-    msgs.push_back(msg);
-    **/
-    // sys_status
-    if(_sendSysStatus.load())
-    {
-        mavlink_message_t msg;
-        mavlink_msg_sys_status_pack(uasId, MAV_COMP_ID_ALL, &msg,
-                                    0, // uint32_t onboard_control_sensors_present,
-                                    0, // uint32_t onboard_control_sensors_enabled,
-                                    0, // uint32_t onboard_control_sensors_health,
-                                    0, // uint16_t load,
-                                    state->batteryVoltage_mV.get(), // uint16_t voltage_battery,
-                                    0, // int16_t current_battery,
-                                    0, // int8_t battery_remaining,
-                                    0, // uint16_t drop_rate_comm,
-                                    0, // uint16_t errors_comm,
-                                    0, 0, 0, 0 //uint16_t errors_count1-4
-                                    );
-        msgs.push_back(msg);
-    }
-
-    if(_sendParams.load())
-    {
-        mavlink_message_t msg;
-
-        std::vector<std::vector<Parameter> > plist;
-
-        plist.push_back(Control::getInstance()->getParameters());
-        plist.push_back(Helicopter::getInstance()->getParameters());
-
-        int num_params = 0;
-        for (unsigned int i=0; i<plist.size(); i++)
-        {
-            num_params += plist[i].size();
-        }
-        int index = 0;
-        for (unsigned int i=0; i<plist.size(); i++)
-        {
-            for (unsigned int j=0; j<plist.at(i).size(); j++)
-            {
-                mavlink_msg_param_value_pack(   uasId,
-                                                (uint8_t)plist.at(i).at(j).getCompID(),
-                                                &msg,
-                                                (const char*)(plist.at(i).at(j).getParamID().c_str()),
-                                                plist.at(i).at(j).getValue(),
-                                                MAV_VAR_FLOAT,
-                                                num_params,
-                                                index);
-                msgs.push_back(msg);
-                index++;
-            }
-        }
-
-        _sendParams = false;
-    }
-
-    if(!requested_params.empty())
-    {
-        std::lock_guard<std::mutex> lock(requested_params_lock);
-        mavlink_message_t msg;
-        while(!requested_params.empty())
-        {
-            mavlink_msg_param_value_pack(uasId,
-                                         requested_params.front().getCompID(),
-                                         &msg, (const char*)(requested_params.front().getParamID().c_str()),
-                                         requested_params.front().getValue(),
-                                         MAV_VAR_FLOAT,
-                                         1,   // num of params
-                                         -1); // index
-
-            msgs.push_back(msg);
-            requested_params.pop();
-        }
-    }
-
-    if(_sendRCCalibration.load())
-    {
-        mavlink_message_t msg;
-        RadioCalibration *radio = RadioCalibration::getInstance();
-
-        mavlink_msg_radio_calibration_pack(uasId, heli::RADIO_CAL_ID, &msg,
-                                           radio->getAileron().data(),
-                                           radio->getElevator().data(),
-                                           radio->getRudder().data(),
-                                           radio->getGyro().data(),
-                                           radio->getPitch().data(),
-                                           radio->getThrottle().data()
-                                          );
-        
-        msgs.push_back(msg);
-        _sendRCCalibration = false;
-    }
 
     if(msgNumber % (sendRateHz / rcChannelRate.load()) == 0)
     {
@@ -223,5 +125,155 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
         msgs.push_back(msg);
     }
 
+    if(!requested_params.empty())
+    {
+        std::lock_guard<std::mutex> lock(requested_params_lock);
+        mavlink_message_t msg;
+        while(!requested_params.empty())
+        {
+            mavlink_msg_param_value_pack(uasId,
+                                         requested_params.front().getCompID(),
+                                         &msg, (const char*)(requested_params.front().getParamID().c_str()),
+                                         requested_params.front().getValue(),
+                                         MAV_VAR_FLOAT,
+                                         1,   // num of params
+                                         -1); // index
+
+            msgs.push_back(msg);
+            requested_params.pop();
+        }
+    }
+
+
+
+    // the rest of the messages use a common frequency.
+    if(_frequencyHz.load() <= 0 || msgNumber % (sendRateHz / _frequencyHz.load()) != 0)
+    {
+        return;
+    }
+
+    SystemState* state = SystemState::getInstance();
+
+    state->batteryVoltage_mV.set(12 * 1000, 0);
+
+
+    trace() << "Sending Mavlink Messages";
+    /**
+    mavlink_message_t msg;
+    mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, getCpuUtilization(), totalram.load(), freeram.load());
+    msgs.push_back(msg);
+    **/
+    // sys_status
+    if(_sendSysStatus.load())
+    {
+        mavlink_message_t msg;
+        mavlink_msg_sys_status_pack(uasId, MAV_COMP_ID_ALL, &msg,
+                                    0, // uint32_t onboard_control_sensors_present,
+                                    0, // uint32_t onboard_control_sensors_enabled,
+                                    0, // uint32_t onboard_control_sensors_health,
+                                    0, // uint16_t load,
+                                    state->batteryVoltage_mV.get(), // uint16_t voltage_battery,
+                                    0, // int16_t current_battery,
+                                    0, // int8_t battery_remaining,
+                                    0, // uint16_t drop_rate_comm,
+                                    0, // uint16_t errors_comm,
+                                    0, 0, 0, 0 //uint16_t errors_count1-4
+                                    );
+        msgs.push_back(msg);
+    }
+
+
+    if(_sendSysTime.load())
+    {
+        struct sysinfo sysinf;
+        sysinfo(&sysinf);
+        mavlink_message_t msg;
+        uint64_t time_unix_usec = std::chrono::duration_cast<std::chrono::microseconds>(
+                                    std::chrono::system_clock::now().time_since_epoch()).count();
+
+        mavlink_msg_system_time_pack(uasId, MAV_COMP_ID_ALL, &msg,
+                                    time_unix_usec,
+                                    sysinf.uptime * 1000
+                                    );
+        msgs.push_back(msg);
+    }
+
+    // Global position (mavlink common message)
+    {
+
+        // send the default mavlink message
+        mavlink_message_t msg;
+        auto position = state->position.get();
+        mavlink_msg_global_position_int_pack(uasId,
+                                             MAV_COMP_ID_ALL,
+                                             &msg,
+                                             getMsSinceInit(),
+                                             position.getLatitudeDD() * 1E7,
+                                             position.getLongitudeDD() * 1E7,
+                                             position.getHeightM() * 1000,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0);
+        msgs.push_back(msg);
+    }
+
+
+
+    if(_sendParams.load())
+    {
+        mavlink_message_t msg;
+
+        std::vector<std::vector<Parameter> > plist;
+
+        plist.push_back(Control::getInstance()->getParameters());
+        plist.push_back(Helicopter::getInstance()->getParameters());
+
+        int num_params = 0;
+        for (unsigned int i=0; i<plist.size(); i++)
+        {
+            num_params += plist[i].size();
+        }
+        int index = 0;
+        for (unsigned int i=0; i<plist.size(); i++)
+        {
+            for (unsigned int j=0; j<plist.at(i).size(); j++)
+            {
+                mavlink_msg_param_value_pack(   uasId,
+                                                (uint8_t)plist.at(i).at(j).getCompID(),
+                                                &msg,
+                                                (const char*)(plist.at(i).at(j).getParamID().c_str()),
+                                                plist.at(i).at(j).getValue(),
+                                                MAV_VAR_FLOAT,
+                                                num_params,
+                                                index);
+                msgs.push_back(msg);
+                index++;
+            }
+        }
+
+        _sendParams = false;
+    }
+
+
+
+    if(_sendRCCalibration.load())
+    {
+        mavlink_message_t msg;
+        RadioCalibration *radio = RadioCalibration::getInstance();
+
+        mavlink_msg_radio_calibration_pack(uasId, heli::RADIO_CAL_ID, &msg,
+                                           radio->getAileron().data(),
+                                           radio->getElevator().data(),
+                                           radio->getRudder().data(),
+                                           radio->getGyro().data(),
+                                           radio->getPitch().data(),
+                                           radio->getThrottle().data()
+                                          );
+
+        msgs.push_back(msg);
+        _sendRCCalibration = false;
+    }
 };
 

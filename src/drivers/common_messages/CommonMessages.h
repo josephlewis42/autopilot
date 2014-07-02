@@ -56,6 +56,7 @@ private:
     virtual ~CommonMessages();
     std::atomic<int> _frequencyHz; // frequency at which to send these messages.
     std::atomic_bool _sendSysStatus;
+    std::atomic_bool _sendSysTime;
 };
 
 #endif /* LINUX_H */
