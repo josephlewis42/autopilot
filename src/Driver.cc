@@ -6,9 +6,7 @@
  */
 
 #include "Driver.h"
-//#include <boost/foreach.hpp>
 #include <termios.h>
-#include <boost/algorithm/string.hpp>
 
 #include "Configuration.h"
 #include "qnx2linux.h"
@@ -19,6 +17,9 @@
 #include "Debug.h"
 #include "Configuration.h"
 #include <thread>
+#include <cstdio>
+#include <fcntl.h>
+#include <algorithm>
 
 
 std::mutex Driver::_all_drivers_lock;
@@ -33,6 +34,7 @@ Driver::Driver(std::string name, std::string config_prefix)
       _terminate(_all_drivers_terminate.load()),
       _config_prefix(config_prefix),
       _name(name),
+      _savePathFd(-1), // by default don't save anything
       _driverInit(std::chrono::system_clock::now())
 {
     {
@@ -64,6 +66,17 @@ Driver::Driver(std::string name, std::string config_prefix)
                    "string",
                    "Description for the functionality of different serial read styles.");
     configGets("read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
+
+    configDescribe("read_save_path",
+                  "path to a file or blank to not save",
+                  "A location on the filesystem where all of the incoming data passed through the driver "
+                   "`readDevice` call will be appended.");
+    _savePath = configGets("read_save_path", "");
+
+    if(!_savePath.empty())
+    {
+        _savePathFd = open(_savePath.c_str(), O_CREAT | O_WRONLY | O_APPEND);
+    }
 }
 
 Driver::~Driver()
@@ -115,29 +128,39 @@ Debug Driver::trace()
 
 int Driver::readDevice(int fd, void * buf, int n)
 {
-    if(_readDeviceType == 0)
+    int amt = 0;
+
+    switch(_readDeviceType)
     {
-        return QNX2Linux::readUntilMin(fd, buf, n, n);
+        case 0:
+            amt = QNX2Linux::readUntilMin(fd, buf, n, n);
+            break;
+        case 1:
+            amt = QNX2Linux::readcond(fd, buf, n, n, 10,10);
+            break;
+        case 3:
+        {
+            struct termios port_config;
+            tcgetattr(fd, &port_config);                  // get the current port settings
+
+            // Set the baud rate
+            speed_t speed = cfgetospeed(&port_config);
+            int waittimeMS = (1000 * speed) / (n * 8);
+
+            std::this_thread::sleep_for( std::chrono::milliseconds( waittimeMS ) );
+            amt = read(fd, buf, n);
+            break;
+        }
+        default:
+            amt = read(fd, buf, n);
     }
 
-    if(_readDeviceType == 1)
+    if(_savePathFd > 0)
     {
-        return QNX2Linux::readcond(fd, buf, n, n, 10,10);
+        write(_savePathFd, buf, amt);
     }
 
-    if(_readDeviceType == 3)
-    {
-        struct termios port_config;
-        tcgetattr(fd, &port_config);                  // get the current port settings
-
-        // Set the baud rate
-        speed_t speed = cfgetospeed(&port_config);
-        int waittimeMS = (1000 * speed) / (n * 8);
-
-        std::this_thread::sleep_for( std::chrono::milliseconds( waittimeMS ) );
-    }
-
-    return read(fd, buf, n);
+    return amt;
 }
 
 bool Driver::namedTerminalSettings(std::string name,
@@ -202,7 +225,8 @@ bool Driver::terminalSettings(int fd,
 
 
     //parity
-    boost::to_upper(parity);
+    std::transform(parity.begin(), parity.end(), parity.begin(), ::toupper);
+
 
     if(parity == std::string("8N1"))  	//No parity (8N1):
     {

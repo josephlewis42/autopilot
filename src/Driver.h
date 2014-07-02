@@ -63,6 +63,12 @@ private:
     /// Keeps the value of the read property on a particular device.
     int _readDeviceType;
 
+    /// Keeps the value of the save path for reading (a tee location where the raw data can be dumped)
+    std::string _savePath;
+
+    /// The file descriptor of the save path.
+    int _savePathFd;
+
     /// Keeps the time that the driver was initiated
     std::chrono::time_point<std::chrono::system_clock> _driverInit;
 
