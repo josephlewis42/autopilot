@@ -93,6 +93,11 @@ IMU::IMU()
                    "hz");
     _attitudeSendRateHz = configGeti("attitude_message_rate_hz", 10);
 
+    configDescribe("use_external_gps",
+                   "true/false",
+                   "Defines if IMU should use external GPS data.");
+    externGPS = IMU::getInstance()->configGetb("use_external_gps", true);
+
     if(! isEnabled())
     {
         warning() << "GX3 disabled!";
@@ -277,28 +282,6 @@ void IMU::set_ned_origin(const blas::vector<double>& origin)
 
 void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
-    // Global position (mavlink common message)
-    {
-        //trace() << "Sending mavlink_msg_global_position_int_pack";
-
-        // send the default mavlink message
-        mavlink_message_t msg;
-        blas::vector<double> _llh_pos(get_llh_position());
-
-        mavlink_msg_global_position_int_pack(uasId,
-                                             heli::GX3_ID,
-                                             &msg,
-                                             getMsSinceInit(),
-                                             _llh_pos[0] * 1E7,
-                                             _llh_pos[1] * 1E7,
-                                             _llh_pos[2] * 1000,
-                                             0,
-                                             0,
-                                             0,
-                                             0,
-                                             0);
-        msgs.push_back(msg);
-    }
 
 
     // UAlberta Position
@@ -390,9 +373,20 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
 void IMU::writeToSystemState()
 {
+
     SystemState *state = SystemState::getInstance();
+
+    // no need to lock for the position because it uses SystemStateObjParams
+    {
+        blas::vector<double> llh_position = get_position();
+
+        double accuracy = externGPS ? 0 : 50; // high if we are using our own as it isn't very precise.
+        GPSPosition pos(llh_position[0], llh_position[1], llh_position[2], accuracy);
+        state->position.set(pos, accuracy);
+    }
+
+
     state->state_lock.lock();
-    state->gx3_position = position;
     state->gx3_ned_origin = ned_origin;
     state->gx3_velocity = velocity;
     state->gx3_nav_euler = nav_euler;

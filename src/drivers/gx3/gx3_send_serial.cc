@@ -230,12 +230,8 @@ void IMU::send_serial::set_filter_parameters()
     ack_handler heading_ack(0x18);
 
     // gps source control
-    IMU::getInstance()->configDescribe("use_external_gps",
-                   "true/false",
-                   "Defines if IMU should use external GPS data.");
-    bool externGPS = IMU::getInstance()->configGetb("use_external_gps", true);
     // 3DM-GX3-45-Data-Communications-Protocol.pdf p 65 2 for external 1 for internal
-    uint8_t externGPSVal = (externGPS)? 0x02: 0x01;
+    uint8_t externGPSVal = (IMU::getInstance()->externGPS)? 0x02: 0x01;
 
     std::vector<uint8_t> gps = {0x04, 0x15, 0x01, externGPSVal};
     ack_handler gps_ack(0x15);

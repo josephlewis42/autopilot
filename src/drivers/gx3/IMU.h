@@ -114,7 +114,7 @@ public:
 
     /// signal to notify when gx3 mode changes
     boost::signals2::signal<void (GX3_MODE)> gx3_mode_changed;
-    
+
     ThreadSafeVariable<std::string> status_message;
     std::atomic_bool _newStatusMessage;
     void set_gx3_status_message(std::string in)
@@ -133,6 +133,9 @@ public:
     {
         _positionSendRateHz = hz;
     };
+
+    /// should we use an external gps?
+    bool externGPS;
 
 private:
 
