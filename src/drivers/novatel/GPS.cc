@@ -85,8 +85,25 @@ GPS::~GPS()
 void GPS::writeToSystemState()
 {
     SystemState *state = SystemState::getInstance();
+
+    // no need to lock for the position because it uses SystemStateObjParams
+    {
+        blas::vector<double> llh_position = get_llh_position();
+        blas::vector<double> llh_errors = get_pos_sigma();
+
+        // take the maximum error from the NovAtel to report as the position
+        double max = -1;
+        for(int i = 0; i < (int) llh_errors.size(); i++)
+        {
+            max = llh_errors[i] > max? llh_errors[i] : max;
+        }
+
+        GPSPosition pos(llh_position[0], llh_position[1], llh_position[2], max);
+        state->position.set(pos, max);
+    }
+
     state->state_lock.lock();
-    state->novatel_llh_position = llh_position;
+
     state->novatel_ned_velocity = ned_velocity;
     state->novatel_pos_sigma = pos_sigma;
     state->novatel_vel_sigma = vel_sigma;
