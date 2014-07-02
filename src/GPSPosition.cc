@@ -21,6 +21,14 @@
 #include "AutopilotMath.hpp"
 #include <cmath>
 
+GPSPosition::GPSPosition()
+:_latitudeDD(0),
+_longitudeDD(0),
+_heightM(0),
+_accuracyM(1000)
+{
+}
+
 GPSPosition::GPSPosition(double latitudeDD, double longitudeDD, double heightM, double accuracyM)
 :_latitudeDD(latitudeDD),
 _longitudeDD(longitudeDD),

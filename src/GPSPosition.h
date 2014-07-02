@@ -43,6 +43,8 @@ class GPSPosition
          */
         GPSPosition(double latitudeDD, double longitudeDD, double heightM, double accuracyM=100);
 
+        /// Empty constructor.
+        GPSPosition();
         /**
          * Convert lat/lon/height coordinates to Earth-Centered
          * Earth-Fixed (ECEF) coordinates (WGS84).
