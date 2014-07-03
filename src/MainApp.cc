@@ -40,8 +40,6 @@
 #include "SystemState.h"
 #include "CommonMessages.h"
 #include "WaypointManager.h"
-
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time.hpp>
 
 
@@ -71,8 +69,6 @@ MainApp::MainApp()
 
 void MainApp::run()
 {
-    boost::posix_time::ptime startTime(boost::posix_time::microsec_clock::local_time());          // Used during timer-based schedg tests, to create a program start time stamp.
-
     signal(SIGINT, [](int signum)
     {
         MainApp::getInstance()->terminate();
