@@ -39,7 +39,7 @@ const double XML_HOVER_PARAM_DEFAULT  = 7.0;
 const double XML_SPEED_PARAM_DEFAULT  = 0.30000001192092896;
 
 circle::circle()
-    : radius(0),
+    : radius(XML_RADIUS_PARAM_DEFAULT),
       start_location(blas::zero_vector<double>(3)),
       center_location(blas::zero_vector<double>(3)),
       speed(XML_SPEED_PARAM_DEFAULT),
