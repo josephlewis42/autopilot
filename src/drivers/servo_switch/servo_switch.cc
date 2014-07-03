@@ -67,8 +67,6 @@ enum ServoMessageID
 const std::string SERVO_SERIAL_PORT_CONFIG_NAME = "servo.serial_port";
 const std::string SERVO_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ttyS0";
 
-const std::string SERVO_SWITCH_ENABLED = "servo.enabled";
-const bool SERVO_SWITCH_ENABLED_DEFAULT = true;
 const std::string servo_switch::LOG_INPUT_PULSE_WIDTHS = "Input Pulse Widths";
 const std::string servo_switch::LOG_OUTPUT_PULSE_WIDTHS = "Output Pulse Widths";
 const std::string servo_switch::LOG_INPUT_RPM = "Engine RPM";
