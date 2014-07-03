@@ -48,9 +48,6 @@ private:
     /// Keeps the human readable name for the current driver.
     std::string _name;
 
-    /// stores if the driver is going to do big debugging.
-    bool _debug;
-
     /// Locks the all_drivers list
     static std::mutex _all_drivers_lock;
 
@@ -112,9 +109,6 @@ public:
      **/
     static std::vector<Driver*> getDrivers();
 
-
-    /// Traces an item to the debugging output of the software if debugging has been set up in the config file.
-    Debug trace();
 
     /**
      * Reads a fd in to the given buffer with a minimum of n bytes

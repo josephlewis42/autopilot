@@ -62,7 +62,7 @@ void Debug::appendLevel()
         ss << "Critical: ";
         break;
     case MESSAGE:
-        ss << "Message:  ";
+        ss << "Info:  ";
         break;
     case DEBUG:
         ss << "Debug:    ";
@@ -97,6 +97,7 @@ Debug::~Debug()
     case DEBUG:
         linecolor = "\x1b[37m";
         break;
+    case MESSAGE:
     default:
         linecolor = "";
     }
@@ -108,7 +109,7 @@ Debug::~Debug()
         if(strcmp(last_message.c_str(), message.c_str()) == 0)
         {
             message_count++;
-            std::cerr << "\r" << linecolor << message << "\x1b[0m" << " x" << message_count;
+            std::cerr << "\r" << linecolor << message << " \x1b[0;7m" << "x" << message_count <<"\x1b[0m";
         }
         else
         {
@@ -119,21 +120,33 @@ Debug::~Debug()
     }
 #endif
 
+    LogFile* lf = LogFile::getInstanceIfConstructed();
 
     switch(debug_level)
     {
     case WARNING:
-        LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
+        if(lf != nullptr)
+        {
+            lf->logMessage(LOGFILE_NAME, message);
+        }
+
         Debug::warningSignal(message);
         break;
 
     case CRITICAL:
-        LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
+        if(lf != nullptr)
+        {
+            lf->logMessage(LOGFILE_NAME, message);
+        }
+
         Debug::criticalSignal(message);
         break;
 
     case MESSAGE:
-        LogFile::getInstance()->logMessage(LOGFILE_NAME, message);
+        if(lf != nullptr)
+        {
+            lf->logMessage(LOGFILE_NAME, message);
+        }
         break;
 
     case DEBUG:

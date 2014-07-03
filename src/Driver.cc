@@ -42,10 +42,10 @@ Driver::Driver(std::string name, std::string config_prefix)
         all_drivers.push_front(this);
     }
 
-    configDescribe("debug",
-                   "true/false",
-                   "Enables/disables debug messages for this driver.");
-    _debug = configGetb("debug", false);
+    configDescribe("logging_level",
+                  "0-5",
+                  "Sets the level of messages you want logged in this driver. 0-trace+, 1-debug+, 2-info+, 3-warning+, 4-critical+, 5-none");
+    setLoggingLevel(configGeti("logging_level", 2));
 
     configDescribe("read_style",
                    "0 - 3",
@@ -114,17 +114,6 @@ std::vector<Driver*> Driver::getDrivers()
 
     return drivers;
 }
-
-Debug Driver::trace()
-{
-    if(_debug == false)
-    {
-        return ignore();
-    }
-
-    return debug();
-}
-
 
 int Driver::readDevice(int fd, void * buf, int n)
 {
