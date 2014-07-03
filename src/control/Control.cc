@@ -56,40 +56,39 @@ Control::Control()
     loadFile();
     reference_position.clear();
 
-         /**
+
     // Set the huge map for lookups
-    parameterSetMap[attitude_pid::PARAM_ROLL_KP] = &attitude_pid_controller().set_roll_proportional;
-    parameterSetMap[attitude_pid::PARAM_ROLL_KD] = &attitude_pid_controller().set_roll_derivative;
-    parameterSetMap[attitude_pid::PARAM_ROLL_KI] = &attitude_pid_controller().set_roll_integral;
-    parameterSetMap[attitude_pid::PARAM_PITCH_KP] = &attitude_pid_controller().set_pitch_proportional;
-    parameterSetMap[attitude_pid::PARAM_PITCH_KD] = &attitude_pid_controller().set_pitch_derivative;
-    parameterSetMap[attitude_pid::PARAM_PITCH_KI] = &attitude_pid_controller().set_pitch_integral;
-    parameterSetMap[PARAM_MIX_ROLL] = &set_roll_mix;
-    parameterSetMap[PARAM_MIX_PITCH] = &set_pitch_mix;
-    parameterSetMap[attitude_pid::PARAM_ROLL_TRIM] = &attitude_pid_controller().set_roll_trim_degrees;
-    parameterSetMap[attitude_pid::PARAM_PITCH_TRIM] = &attitude_pid_controller().set_pitch_trim_degrees;
-    parameterSetMap[translation_outer_pid::PARAM_X_KP] = &translation_pid_controller().set_x_proportional;
-    parameterSetMap[translation_outer_pid::PARAM_X_KD] = &translation_pid_controller().set_x_derivative;
-    parameterSetMap[translation_outer_pid::PARAM_X_KI] = &translation_pid_controller().set_x_integral;
-    parameterSetMap[translation_outer_pid::PARAM_Y_KP] = &translation_pid_controller().set_y_proportional;
-    parameterSetMap[translation_outer_pid::PARAM_Y_KD] = &translation_pid_controller().set_y_derivative;
-    parameterSetMap[translation_outer_pid::PARAM_Y_KI] = &translation_pid_controller().set_y_integral;
-    parameterSetMap[translation_outer_pid::PARAM_TRAVEL] = &translation_pid_controller().set_scaled_travel_degrees;
-    parameterSetMap[tail_sbf::PARAM_TRAVEL] = &x_y_sbf_controller.set_scaled_travel_degrees;
-    parameterSetMap[tail_sbf::PARAM_X_KP] = &x_y_sbf_controller.set_x_proportional;
-    parameterSetMap[tail_sbf::PARAM_X_KD] = &x_y_sbf_controller.set_x_derivative;
-    parameterSetMap[tail_sbf::PARAM_X_KI] = &x_y_sbf_controller.set_x_integral;
-    parameterSetMap[tail_sbf::PARAM_Y_KP] = &x_y_sbf_controller.set_y_proportional;
-    parameterSetMap[tail_sbf::PARAM_Y_KD] = &x_y_sbf_controller.set_y_derivative;
-    parameterSetMap[tail_sbf::PARAM_Y_KI] = &x_y_sbf_controller.set_y_integral;
-    parameterSetMap[circle::PARAM_HOVER_TIME] = &circle_trajectory.set_hover_time;
-    parameterSetMap[circle::PARAM_RADIUS] = &circle_trajectory.set_radius;
-    parameterSetMap[circle::PARAM_SPEED] = &circle_trajectory.set_speed;
-    parameterSetMap[line::PARAM_HOVER_TIME] = &line_trajectory.set_hover_time;
-    parameterSetMap[line::PARAM_SPEED] = &line_trajectory.set_speed;
-    parameterSetMap[line::PARAM_X_TRAVEL] = &line_trajectory.set_x_travel;
-    parameterSetMap[line::PARAM_Y_TRAVEL] = &line_trajectory.set_y_travel;
-         **/
+    parameterSetMap[attitude_pid::PARAM_ROLL_KP] = [](double val){Control::getInstance()->attitude_pid_controller().set_roll_proportional(val);};
+    parameterSetMap[attitude_pid::PARAM_ROLL_KD] = [](double val){Control::getInstance()->attitude_pid_controller().set_roll_derivative(val);};
+    parameterSetMap[attitude_pid::PARAM_ROLL_KI] = [](double val){Control::getInstance()->attitude_pid_controller().set_roll_integral(val);};
+    parameterSetMap[attitude_pid::PARAM_PITCH_KP] = [](double val){Control::getInstance()->attitude_pid_controller().set_pitch_proportional(val);};
+    parameterSetMap[attitude_pid::PARAM_PITCH_KD] = [](double val){Control::getInstance()->attitude_pid_controller().set_pitch_derivative(val);};
+    parameterSetMap[attitude_pid::PARAM_PITCH_KI] = [](double val){Control::getInstance()->attitude_pid_controller().set_pitch_integral(val);};
+    parameterSetMap[PARAM_MIX_ROLL] = [](double val){Control::getInstance()->set_roll_mix(val);};
+    parameterSetMap[PARAM_MIX_PITCH] = [](double val){Control::getInstance()->set_pitch_mix(val);};
+    parameterSetMap[attitude_pid::PARAM_ROLL_TRIM] = [](double val){Control::getInstance()->attitude_pid_controller().set_roll_trim_degrees(val);};
+    parameterSetMap[attitude_pid::PARAM_PITCH_TRIM] = [](double val){Control::getInstance()->attitude_pid_controller().set_pitch_trim_degrees(val);};
+    parameterSetMap[translation_outer_pid::PARAM_X_KP] = [](double val){Control::getInstance()->translation_pid_controller().set_x_proportional(val);};
+    parameterSetMap[translation_outer_pid::PARAM_X_KD] = [](double val){Control::getInstance()->translation_pid_controller().set_x_derivative(val);};
+    parameterSetMap[translation_outer_pid::PARAM_X_KI] = [](double val){Control::getInstance()->translation_pid_controller().set_x_integral(val);};
+    parameterSetMap[translation_outer_pid::PARAM_Y_KP] = [](double val){Control::getInstance()->translation_pid_controller().set_y_proportional(val);};
+    parameterSetMap[translation_outer_pid::PARAM_Y_KD] = [](double val){Control::getInstance()->translation_pid_controller().set_y_derivative(val);};
+    parameterSetMap[translation_outer_pid::PARAM_Y_KI] = [](double val){Control::getInstance()->translation_pid_controller().set_y_integral(val);};
+    parameterSetMap[translation_outer_pid::PARAM_TRAVEL] = [](double val){Control::getInstance()->translation_pid_controller().set_scaled_travel_degrees(val);};
+    parameterSetMap[tail_sbf::PARAM_TRAVEL] = [](double val){Control::getInstance()->x_y_sbf_controller.set_scaled_travel_degrees(val);};
+    parameterSetMap[tail_sbf::PARAM_X_KP] = [](double val){Control::getInstance()->x_y_sbf_controller.set_x_proportional(val);};
+    parameterSetMap[tail_sbf::PARAM_X_KD] = [](double val){Control::getInstance()->x_y_sbf_controller.set_x_derivative(val);};
+    parameterSetMap[tail_sbf::PARAM_X_KI] = [](double val){Control::getInstance()->x_y_sbf_controller.set_x_integral(val);};
+    parameterSetMap[tail_sbf::PARAM_Y_KP] = [](double val){Control::getInstance()->x_y_sbf_controller.set_y_proportional(val);};
+    parameterSetMap[tail_sbf::PARAM_Y_KD] = [](double val){Control::getInstance()->x_y_sbf_controller.set_y_derivative(val);};
+    parameterSetMap[tail_sbf::PARAM_Y_KI] = [](double val){Control::getInstance()->x_y_sbf_controller.set_y_integral(val);};
+    parameterSetMap[circle::PARAM_HOVER_TIME] = [](double val){Control::getInstance()->circle_trajectory.set_hover_time(val);};
+    parameterSetMap[circle::PARAM_RADIUS] = [](double val){Control::getInstance()->circle_trajectory.set_radius(val);};
+    parameterSetMap[circle::PARAM_SPEED] = [](double val){Control::getInstance()->circle_trajectory.set_speed(val);};
+    parameterSetMap[line::PARAM_HOVER_TIME] = [](double val){Control::getInstance()->line_trajectory.set_hover_time(val);};
+    parameterSetMap[line::PARAM_SPEED] = [](double val){Control::getInstance()->line_trajectory.set_speed(val);};
+    parameterSetMap[line::PARAM_X_TRAVEL] = [](double val){Control::getInstance()->line_trajectory.set_x_travel(val);};
+    parameterSetMap[line::PARAM_Y_TRAVEL] = [](double val){Control::getInstance()->line_trajectory.set_y_travel(val);};
 }
 
 Control* Control::_instance = NULL;
@@ -158,80 +157,15 @@ bool Control::setParameter(Parameter p)
 {
     std::string param_id(p.getParamID());
     boost::trim(param_id);
-    if (param_id == attitude_pid::PARAM_ROLL_KP)
-        attitude_pid_controller().set_roll_proportional(p.getValue());
-    else if (param_id == attitude_pid::PARAM_ROLL_KD)
-        attitude_pid_controller().set_roll_derivative(p.getValue());
-    else if (param_id == attitude_pid::PARAM_ROLL_KI)
-        attitude_pid_controller().set_roll_integral(p.getValue());
-    else if (param_id == attitude_pid::PARAM_PITCH_KP)
-        attitude_pid_controller().set_pitch_proportional(p.getValue());
-    else if (param_id == attitude_pid::PARAM_PITCH_KD)
-        attitude_pid_controller().set_pitch_derivative(p.getValue());
-    else if (param_id == attitude_pid::PARAM_PITCH_KI)
-        attitude_pid_controller().set_pitch_integral(p.getValue());
 
-    else if (param_id == PARAM_MIX_ROLL)
-        set_roll_mix(p.getValue());
-    else if (param_id == PARAM_MIX_PITCH)
-        set_pitch_mix(p.getValue());
-//	else if (param_id == CONTROL_MODE)
-//		set_controller_mode(static_cast<heli::Controller_Mode>(p.getValue()));
-    else if (param_id == attitude_pid::PARAM_ROLL_TRIM)
-        attitude_pid_controller().set_roll_trim_degrees(p.getValue());
-    else if (param_id == attitude_pid::PARAM_PITCH_TRIM)
-        attitude_pid_controller().set_pitch_trim_degrees(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_X_KP)
-        translation_pid_controller().set_x_proportional(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_X_KD)
-        translation_pid_controller().set_x_derivative(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_X_KI)
-        translation_pid_controller().set_x_integral(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_Y_KP)
-        translation_pid_controller().set_y_proportional(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_Y_KD)
-        translation_pid_controller().set_y_derivative(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_Y_KI)
-        translation_pid_controller().set_y_integral(p.getValue());
-    else if (param_id == translation_outer_pid::PARAM_TRAVEL)
-        translation_pid_controller().set_scaled_travel_degrees(p.getValue());
-
-    else if (param_id == tail_sbf::PARAM_TRAVEL)
-        x_y_sbf_controller.set_scaled_travel_degrees(p.getValue());
-    else if (param_id == tail_sbf::PARAM_X_KP)
-        x_y_sbf_controller.set_x_proportional(p.getValue());
-    else if (param_id == tail_sbf::PARAM_X_KD)
-        x_y_sbf_controller.set_x_derivative(p.getValue());
-    else if (param_id == tail_sbf::PARAM_X_KI)
-        x_y_sbf_controller.set_x_integral(p.getValue());
-    else if (param_id == tail_sbf::PARAM_Y_KP)
-        x_y_sbf_controller.set_y_proportional(p.getValue());
-    else if (param_id == tail_sbf::PARAM_Y_KD)
-        x_y_sbf_controller.set_y_derivative(p.getValue());
-    else if (param_id == tail_sbf::PARAM_Y_KI)
-        x_y_sbf_controller.set_y_integral(p.getValue());
-
-    else if (param_id == circle::PARAM_HOVER_TIME)
-        circle_trajectory.set_hover_time(p.getValue());
-    else if (param_id == circle::PARAM_RADIUS)
-        circle_trajectory.set_radius(p.getValue());
-    else if (param_id == circle::PARAM_SPEED)
-        circle_trajectory.set_speed(p.getValue());
-
-    else if (param_id == line::PARAM_HOVER_TIME)
-        line_trajectory.set_hover_time(p.getValue());
-    else if (param_id == line::PARAM_SPEED)
-        line_trajectory.set_speed(p.getValue());
-    else if (param_id == line::PARAM_X_TRAVEL)
-        line_trajectory.set_x_travel(p.getValue());
-    else if (param_id == line::PARAM_Y_TRAVEL)
-        line_trajectory.set_y_travel(p.getValue());
-
-    else
+    // Make sure the param id is in the map.
+    if(parameterSetMap.find(param_id) == parameterSetMap.end())
     {
         warning() << "Control::setParameter - unknown parameter: " << p;
         return false;
     }
+
+    parameterSetMap[param_id](p.getValue());
     saveFile();
     writeToSystemState();
     return true;
