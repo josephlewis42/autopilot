@@ -198,7 +198,7 @@ void TCPSerial::tcpListen(TCPSerial* instance)
             {
                 if(send(tcp_client_fd, buffer, serin, 0) == -1)
                 {
-                    instance->warning() << "Error sendings: " + errno;
+                    instance->warning() << "Error sendings: " << strerror(errno);
                     break; // problem sending
                 }
             }
@@ -208,7 +208,7 @@ void TCPSerial::tcpListen(TCPSerial* instance)
             {
                 if(write(instance->ser_fd, buffer, tcpin) == -1)
                 {
-                    instance->warning() << "Error recvingr: " + errno;
+                    instance->warning() << "Error recvingr: " << strerror(errno);
                     break; // problem writing
                 }
             }
