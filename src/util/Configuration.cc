@@ -23,11 +23,7 @@
 #include <string.h>
 #include <utility>
 #include <boost/lexical_cast.hpp>
-//#include <thread>
 #include <boost/algorithm/string.hpp>
-//#include <map>
-
-
 
 
 // Static Class variable instantiation
@@ -38,7 +34,6 @@ std::mutex Configuration::_propertiesLock;
 // Variables
 std::string ROOT_ELEMENT = "configuration.";
 std::string DEFAULT_XML_FILE_PATH = "config.xml";
-const char NEWLINE_CHARACTER = '\n';
 
 const Logger LOG("Configuration: ");
 
