@@ -323,8 +323,6 @@ private:
         message() << "Inertia z set to " << jz;
     }
 
-    ///Serializes access to the controller parameter file
-    mutable std::mutex config_file_lock;
     /// Save the configuration to the file heli::physical_param_filename
     void saveFile();
 };

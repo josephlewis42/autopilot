@@ -35,6 +35,7 @@
 #include "line.h"
 #include "circle.h"
 #include "heli.h"
+#include "Singleton.h"
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>
@@ -57,11 +58,11 @@ namespace blas = boost::numeric::ublas;
  * @date February 10, 2012: Refactored to comply with ControllerInterface
  * @date September 27, 2012: Added Tail SBF Controller
  */
-class Control : public ControllerInterface
+class Control : public ControllerInterface, public Singleton<Control>
 {
-public:
+    friend class Singleton<Control>;
 
-    static Control* getInstance();
+public:
 
     /**
      * Writes all relevant values for this class to the unified System State object
@@ -237,12 +238,6 @@ private:
         PITCH = 1,
         CONTROLLED_CHANNELS
     };
-    /// Pointer to the instance of this class
-    static Control* _instance;
-    /// Make access to Control::_instance threadsafe
-    static std::mutex _instance_lock;
-
-
 
     /**
      * Stores the weighting used to calculate the pilot mix with the controller output.
@@ -263,18 +258,6 @@ private:
      * This function is threadsafe.
      */
     void set_pitch_mix(double pitch_mix);
-
-    /**
-     * Stores the contents of the xml configuration file
-     */
-    char *config_file_buffer;
-
-
-
-    /**
-     * Serializes access to the controller paramter file
-     */
-    mutable std::mutex config_file_lock;
 
     /**
      * Reads the configuration file stored in heli::controller_param_filename and

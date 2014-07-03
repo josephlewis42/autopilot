@@ -45,7 +45,6 @@ const std::string Control::LOG_SBF_TRANS_ATTITUDE_REF = "Translation SBF Attitud
 
 Control::Control()
     :pilot_mix(6,1), // fill pilot_mix with 1s
-     config_file_buffer(NULL),
      controller_mode(heli::Mode_Position_Hold_PID),
      mode_connection(QGCLink::getInstance()->control_mode.connect(
                          boost::bind(&Control::set_controller_mode, this, _1))),
@@ -91,16 +90,6 @@ Control::Control()
     parameterSetMap[line::PARAM_Y_TRAVEL] = [](double val){Control::getInstance()->line_trajectory.set_y_travel(val);};
 }
 
-Control* Control::_instance = NULL;
-std::mutex Control::_instance_lock;
-
-Control* Control::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-    if (!_instance)
-        _instance = new Control();
-    return _instance;
-}
 
 /* Set the parameter name strings */
 const std::string Control::PARAM_MIX_ROLL = "MIX_ROLL";
