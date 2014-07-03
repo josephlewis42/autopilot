@@ -108,7 +108,7 @@ Debug::~Debug()
         if(strcmp(last_message.c_str(), message.c_str()) == 0)
         {
             message_count++;
-            std::cerr << "\r" << message << " x" << message_count;
+            std::cerr << "\r" << linecolor << message << "\x1b[0m" << " x" << message_count;
         }
         else
         {
