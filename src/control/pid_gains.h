@@ -89,26 +89,17 @@ public:
         _integral = value;
     }
 
-
-    /** proportional gain as lvalue */
-    //double& proportional() {return gains[0];}
-    /** proportional gain as rvalue */
-    //const double& proportional() const {return gains[0];}
-    //double& derivative() {return gains[1];}
-    //const double& derivative() const {return gains[1];}
-    //double& integral() {return gains[2];}
-    //const double& integral() const {return gains[2];}
     /**
      * Stream insertion for Debug object
      */
     friend Debug& operator<<(Debug& dbg, const pid_gains& gains);
-private:
-    //std::array<double, 3> gains;
 
+private:
     std::atomic<double> _proportional;
     std::atomic<double> _derivative;
     std::atomic<double> _integral;
 };
 
 Debug& operator<<(Debug& dbg, const pid_gains& gains);
+
 #endif

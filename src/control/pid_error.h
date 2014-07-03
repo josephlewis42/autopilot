@@ -92,9 +92,6 @@ public:
         _integral = ni;
         return ni;
     }
-    //double& proportional() {return error[0];}
-    //double& derivative() {return error[1];}
-    //double& integral() {return error[2];}
 
     /**
      * Easy way to increment integral error
