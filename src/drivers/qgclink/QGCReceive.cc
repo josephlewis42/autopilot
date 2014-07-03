@@ -31,11 +31,12 @@
 #include "mavlink.h"
 
 /* Boost Headers */
-#include <boost/array.hpp>
 #include <boost/asio.hpp>
 using boost::asio::ip::udp;
 using boost::asio::ip::address;
 
+/* STL Headers */
+#include <vector>
 
 void QGCLink::QGCReceive::receive()
 {
@@ -45,7 +46,7 @@ void QGCLink::QGCReceive::receive()
 	if (qgc == NULL)
 		qgc = QGCLink::getInstance();
 
-	std::array<char, 128> recv_buf;
+	std::vector<char> recv_buf(2048);
 	for (;;)
 	{
 		// pull a datagram from the socket

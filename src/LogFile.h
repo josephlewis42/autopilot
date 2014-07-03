@@ -23,18 +23,12 @@
 
 /* STL Headers */
 #include <sstream>
-#include <map>
 #include <exception>
-#include <queue>
-#include <mutex>
+#include <string>
+#include <chrono>
 
 /* boost headers */
-#include <thread>
-#include <boost/signals2.hpp>
-#include <boost/array.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp> //include all types plus i/o
 
 /* c headers */
 #include <stdint.h>
@@ -42,6 +36,7 @@
 
 #include "Driver.h"
 #include "ThreadSafeVariable.h"
+#include "Singleton.h"
 
 
 /**
@@ -108,16 +103,11 @@
    \todo Add the ability to set a base directory
  */
 
-class LogFile
+class LogFile : public Singleton<LogFile>
 {
-public:
-    /// Destructor: frees memory used by the internal data structures
-    ~LogFile();
+    friend Singleton<LogFile>;
 
-    /** Returns the instance of the LogFile object using the singleton
-        design pattern
-    */
-    static LogFile* getInstance();
+public:
 
     /**
        Assigns a header to a log file
@@ -140,24 +130,26 @@ public:
      */
     void logMessage(const std::string& name, const std::string& msg);
 
-    boost::posix_time::ptime getStartTime()
-    {
-        return startTime;
-    }
     boost::filesystem::path getLogFolder()
     {
         return log_folder;
     }
 private:
+
+    long getMsSinceInit()
+    {
+        std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - startTime;
+        return (long)(elapsed_seconds.count() * 1000);
+    }
+
     /// Singleton constructor: allocates memory for internal data structures
     LogFile();
-    /// stores a pointer to the instance of this class
-    static LogFile* _instance;
-    /// Mutex to make class instantiation threadsafe
-    static std::mutex _instance_lock;
+
+    /// Destructor: frees memory used by the internal data structures
+    ~LogFile();
 
     /// Stores the time when the class is instantiated (i.e., the program starts)
-    boost::posix_time::ptime startTime;
+    std::chrono::time_point<std::chrono::system_clock> startTime;
     /// Stores the folder name to store the log files in
     boost::filesystem::path log_folder;
 };
@@ -170,7 +162,7 @@ void LogFile::logData(const std::string& name, const DataContainer& data)
 
     for (typename DataContainer::const_iterator it = data.begin(); it != data.end(); ++it)
     {
-        output << boost::lexical_cast<std::string>(*it);
+        output << std::to_string(*it);
         output << '\t';
     }
 

@@ -18,84 +18,47 @@
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+/* Project headers */
 #include "LogFile.h"
 #include "Debug.h"
-/* Project headers */
-#include "MainApp.h"
-#include "heli.h"
-#include "RateLimiter.h"
+#include "LogFileWriter.h"
 
 // System Headers
-#include <vector>
 #include <iostream>
 #include <fstream>
-
-// Boost:: headers
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-
-#include "LogFileWriter.h"
+#include <iomanip>
+#include <ctime>
 
 
 LogFile::LogFile()
-    :startTime(boost::posix_time::microsec_clock::local_time())
+:startTime(std::chrono::system_clock::now())
 {
-    std::stringstream ss;
-    ss.str("");
 
-    boost::posix_time::time_facet *tfacet(new boost::posix_time::time_facet("%Y-%m-%d_%H:%M:%S"));
-    ss.imbue(std::locale(ss.getloc(), tfacet));
-    ss << startTime;
-    std::string time_folder(ss.str());
+    std::time_t now_c = std::chrono::system_clock::to_time_t(startTime);
+    //std::string time_folder(std::put_time(std::localtime(&now_c), "%F_%T")); // TODO use this once compilers support full c++11 standard
 
-
+    char time_folder[1000];
+    std::strftime(time_folder, sizeof(time_folder), "%F_%T", std::localtime(&now_c));
 
     log_folder = boost::filesystem::current_path();
     log_folder /= time_folder;
 
-    if (boost::filesystem::exists(log_folder))
+    try
     {
-        // remove the contents of the directory
-        for (boost::filesystem::directory_iterator it(log_folder);
-                it != boost::filesystem::directory_iterator();
-                it++)
-        {
-            boost::filesystem::remove(*it);
-        }
+        boost::filesystem::remove_all(log_folder);
+        boost::filesystem::create_directories(log_folder);
+        std::cout << "Logging in: " << log_folder.c_str();
     }
-    else // Create the new directory.
+    catch (boost::filesystem::filesystem_error& fserr)
     {
-        try
-        {
-            boost::filesystem::create_directory(log_folder);
-            std::cout << "Logging in: " << log_folder.c_str();
-        }
-        catch (boost::filesystem::filesystem_error& fserr)
-        {
-            std::cout << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
-        }
+        std::cout << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
     }
-
 }
 
 LogFile::~LogFile()
 {
 }
 
-LogFile* LogFile::_instance = NULL;
-std::mutex LogFile::_instance_lock;
-
-LogFile* LogFile::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-
-    if (NULL == _instance)
-    {
-        _instance = new LogFile;
-    }
-
-    return _instance;
-}
 
 void LogFile::logHeader(const std::string& name, const std::string& header)
 {
@@ -106,8 +69,7 @@ void LogFile::logMessage(const std::string& name, const std::string& msg)
 {
     std::stringstream dataStr;
 
-    boost::posix_time::ptime time(boost::posix_time::microsec_clock::local_time());
-    dataStr << ((time-startTime).total_milliseconds()) << '\t';
+    dataStr << getMsSinceInit() << '\t';
     dataStr << msg;
     dataStr << std::endl;
 
