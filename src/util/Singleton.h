@@ -25,6 +25,7 @@
 #define SINGLETON_H
 
 #include <mutex>
+#include <atomic>
 
 template <class T>
 class Singleton
@@ -36,7 +37,7 @@ public:
   {
     std::lock_guard<std::mutex> lock(instance_lock_);
 
-    if (!instance_)
+    if (instance_.load() == nullptr)
       {
         instance_ = new T(std::forward<Args>(args)...);
       }
@@ -44,19 +45,35 @@ public:
     return instance_;
   }
 
+  /**
+   * Returns an instance of the singleton if it is constructed, otherwise returns
+   * the null pointer.
+   */
+  template <typename... Args>
+  static
+  T* getInstanceIfConstructed(Args... args)
+  {
+      if(instance_.load() == nullptr)
+      {
+          return nullptr;
+      }
+
+      return getInstance(std::forward<Args>(args)...);
+  }
+
   static
   void destroyInstance()
   {
-    delete instance_;
-    instance_ = nullptr;
+    delete instance_.load();
+    instance_.store(nullptr);
   }
 
 private:
-    static T* instance_;
+    static std::atomic<T*> instance_;
     static std::mutex instance_lock_;
 };
 
-template <class T> T*  Singleton<T>::instance_ = nullptr;
+template <class T> std::atomic<T*>  Singleton<T>::instance_(nullptr);
 template <class T> std::mutex Singleton<T>::instance_lock_;
 
 

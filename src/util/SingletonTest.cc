@@ -35,3 +35,18 @@ TEST(Singleton, Diff_After_Delete)
     EXPECT_EQ(SingletonTestClass::getInstance()->value, 0);
 }
 
+TEST(Singleton, Instance_if_constructed)
+{
+    SingletonTestClass::destroyInstance();
+    auto c = SingletonTestClass::getInstanceIfConstructed();
+    EXPECT_EQ(c, nullptr);
+}
+
+TEST(Singleton, Instance_if_constructed_equal)
+{
+    auto a = SingletonTestClass::getInstance();
+    auto b = SingletonTestClass::getInstanceIfConstructed();
+
+    EXPECT_EQ(a, b);
+}
+
