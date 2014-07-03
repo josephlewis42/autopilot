@@ -33,8 +33,6 @@
 
 
 
-const std::string ALTIMETER_ENABLED = "mdl_altimeter.enabled";
-const bool ALTIMETER_ENABLED_DEFAULT = true;
 const std::string ALTIMETER_PATH = "mdl_altimeter.device";
 const std::string ALTIMETER_PATH_DEFAULT = "/dev/ttyUSB0";
 
