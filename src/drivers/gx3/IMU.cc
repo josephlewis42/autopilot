@@ -96,7 +96,7 @@ IMU::IMU()
     configDescribe("use_external_gps",
                    "true/false",
                    "Defines if IMU should use external GPS data.");
-    externGPS = IMU::getInstance()->configGetb("use_external_gps", true);
+    externGPS = configGetb("use_external_gps", true);
 
     if(! isEnabled())
     {
