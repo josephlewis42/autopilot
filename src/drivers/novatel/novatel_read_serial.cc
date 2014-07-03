@@ -30,6 +30,7 @@
 #include <bitset>
 #include <thread>
 #include <chrono>
+#include <string>
 
 /* C Headers */
 #include <termios.h>
@@ -399,7 +400,7 @@ std::string GPS::ReadSerial::solStatusToString(uint32_t status)
     case UNAUTHORIZED :
         return "Unauthorized Position Type";
     default:
-        return "Autopilot ERROR unknown status "+status;
+        return "Autopilot ERROR unknown status " + std::to_string(status);
     }
 
 }
@@ -441,7 +442,7 @@ std::string GPS::ReadSerial::posVelTypeToString(uint32_t type)
     case OMNISTAR_XP:
         return "OmniSTAR XP";
     default:
-        return "AUTOPILOT ERROR unknown: " +type;
+        return "AUTOPILOT ERROR unknown: " + std::to_string(type);
     }
 }
 
