@@ -25,12 +25,13 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <atomic>
 
 /* Project Headers */
 #include "Parameter.h"
 #include "pid_channel.h"
 #include "ControllerInterface.h"
-
+#include "AutopilotMath.hpp"
 /* Boost Headers */
 #include <boost/array.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -121,13 +122,11 @@ public:
 
     inline double scaled_travel_degrees()
     {
-        std::lock_guard<std::mutex> lock(scaled_travel_lock);
         return scaled_travel;
     }
     inline double scaled_travel_radians()
     {
-        std::lock_guard<std::mutex> lock(scaled_travel_lock);
-        return scaled_travel*boost::math::constants::pi<double>()/180;
+        return AutopilotMath::degreesToRadians(scaled_travel);
     }
     inline void set_scaled_travel_degrees(double travel)
     {
@@ -135,7 +134,7 @@ public:
     }
     inline void set_scaled_travel_radians(double travel)
     {
-        set_scaled_travel(travel*boost::math::constants::pi<double>()/180);
+        set_scaled_travel(AutopilotMath::radiansToDegrees(travel));
     }
 
     // various getters to go with the setters
@@ -178,9 +177,8 @@ private:
      * translational control into an angle reference.  This value is stored in degrees.
      * @note Roll and pitch use the same value.
      */
-    double scaled_travel;
-    /// serializes access to scaled_travel
-    mutable std::mutex scaled_travel_lock;
+    std::atomic<double> scaled_travel;
+
     /**
      * Set the scaled travel used to represent the pilot stick position
      * @param travel new travel value in degrees

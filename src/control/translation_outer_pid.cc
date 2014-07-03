@@ -59,8 +59,7 @@ translation_outer_pid::translation_outer_pid(const translation_outer_pid& other)
         y = other.y;
     }
     {
-        std::lock_guard<std::mutex> lock(other.scaled_travel_lock);
-        scaled_travel = other.scaled_travel;
+        scaled_travel = other.scaled_travel.load();
     }
 }
 
@@ -143,9 +142,7 @@ std::vector<Parameter> translation_outer_pid::getParameters()
         plist.push_back(Parameter(PARAM_Y_KD, y.gains().getDerivative(), heli::CONTROLLER_ID));
         plist.push_back(Parameter(PARAM_Y_KI, y.gains().getIntegral(), heli::CONTROLLER_ID));
     }
-    scaled_travel_lock.lock();
-    plist.push_back(Parameter(PARAM_TRAVEL, scaled_travel, heli::CONTROLLER_ID));
-    scaled_travel_lock.unlock();
+    plist.push_back(Parameter(PARAM_TRAVEL, scaled_travel.load(), heli::CONTROLLER_ID));
     return plist;
 }
 
@@ -205,10 +202,7 @@ void translation_outer_pid::set_y_integral(double ki)
 
 void translation_outer_pid::set_scaled_travel(double travel)
 {
-    {
-        std::lock_guard<std::mutex> lock(scaled_travel_lock);
-        scaled_travel = travel;
-    }
+    scaled_travel = travel;
     message() << "Set travel to: " << travel;
 }
 
