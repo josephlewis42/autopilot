@@ -53,7 +53,7 @@ TEST(MainTest, Positive)
     EXPECT_EQ(0, 0);
 }
 
-Logger mainLogger("Main");
+Logger mainLogger("Main: ");
 
 int main(int argc, char* argv[])
 {

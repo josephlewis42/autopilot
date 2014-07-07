@@ -137,6 +137,14 @@ private:
     std::string _prefix;
     Debug::DEBUG_LEVEL _ignore_level; /// all levels less than this won't be printed.
 
+    Debug log(std::string initial_value, Debug::DEBUG_LEVEL desired_level) const
+    {
+        auto lvl = (desired_level < _ignore_level)? Debug::IGNORE : desired_level;
+        auto dbg = Debug(lvl, _prefix);
+        dbg << initial_value;
+        return dbg;
+    }
+
 public:
     Logger(std::string prefix)
     :_prefix(prefix),
@@ -148,77 +156,39 @@ public:
         _ignore_level = (Debug::DEBUG_LEVEL) log_level;
     }
 
-    Debug ignore() const
+    Debug ignore(std::string init = "") const
     {
-        auto lvl = (Debug::IGNORE < _ignore_level)? Debug::IGNORE : Debug::IGNORE;
-        return Debug(lvl, _prefix);
+        return log(init, Debug::IGNORE);
     }
 
-    Debug trace() const
+    Debug trace(std::string init = "") const
     {
-        auto lvl = (Debug::IGNORE < _ignore_level)? Debug::IGNORE : Debug::IGNORE;
-        return Debug(lvl, _prefix);
+        return log(init, Debug::IGNORE);
     }
 
-    Debug debug() const
+    Debug debug(std::string init = "") const
     {
-        auto lvl = (Debug::DEBUG < _ignore_level)? Debug::IGNORE : Debug::DEBUG;
-        return Debug(lvl,  _prefix);
+        return log(init, Debug::DEBUG);
     }
-    Debug message() const
+    Debug message(std::string init = "") const
     {
-        auto lvl = (Debug::MESSAGE < _ignore_level)? Debug::IGNORE : Debug::MESSAGE;
-        return Debug(lvl, _prefix);
+        return log(init, Debug::MESSAGE);
     }
 
-    Debug info() const
+    Debug info(std::string init = "") const
     {
-        return message();
+        return log(init, Debug::MESSAGE);
     }
 
-    Debug warning() const
+    Debug warning(std::string init = "") const
     {
-        auto lvl = (Debug::WARNING < _ignore_level)? Debug::IGNORE : Debug::WARNING;
-        return Debug(lvl, _prefix);
+        return log(init, Debug::WARNING);
     }
 
-    Debug critical() const
+    Debug critical(std::string init = "") const
     {
-        auto lvl = (Debug::CRITICAL < _ignore_level)? Debug::IGNORE : Debug::CRITICAL;
-        return Debug(lvl, _prefix);
+        return log(init, Debug::CRITICAL);
     }
-
-    void ignore(std::string value) const
-    {
-        auto lvl = (Debug::IGNORE < _ignore_level)? Debug::IGNORE : Debug::IGNORE;
-        Debug(lvl, _prefix) << value;
-    }
-    void debug(std::string value) const
-    {
-        auto lvl = (Debug::DEBUG < _ignore_level)? Debug::IGNORE : Debug::DEBUG;
-        Debug(lvl,  _prefix) << value;
-    }
-    void message(std::string value) const
-    {
-        auto lvl = (Debug::MESSAGE < _ignore_level)? Debug::IGNORE : Debug::MESSAGE;
-        Debug(lvl, _prefix) << value;
-    }
-    void info(std::string value) const
-    {
-        message(value);
-    }
-
-    void warning(std::string value) const
-    {
-        auto lvl = (Debug::WARNING < _ignore_level)? Debug::IGNORE : Debug::WARNING;
-        Debug(lvl, _prefix) << value;
-    }
-    void critical(std::string value) const
-    {
-        auto lvl = (Debug::CRITICAL < _ignore_level)? Debug::IGNORE : Debug::CRITICAL;
-        Debug(lvl, _prefix) << value;
-    }
-
 };
 
 
