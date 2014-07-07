@@ -29,7 +29,6 @@
 
 /* Boost Headers */
 #include <thread>
-#include <boost/array.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
@@ -131,6 +130,18 @@ private:
     void appendLevel();
 };
 
+/** Logger is a general-purpose logging mechanism in the style of the Apache Commons
+Logging framework.
+
+Loggers must be instantiated before using any of the debugging methods.
+
+Each logger can have an individual prefix which is prepended to all messages coming
+from the logger.
+
+Additinally, loggers can have individual levels set, all levels below a given level
+are ignored.
+
+**/
 class Logger
 {
 private:
@@ -146,45 +157,87 @@ private:
     }
 
 public:
-    Logger(std::string prefix)
-    :_prefix(prefix),
-     _ignore_level(Debug::DEBUG)
+    /** Constructs a new logger with the given prefix to prepend.
+
+    @param prefix - a prefix to prepend to all messages
+    @param level - the default level to start printing messages
+    at. Default: DEBUG
+
+    @note prefixes are automatically  seperated from the rest of
+    the text using a colon and space.
+    **/
+    Logger(std::string prefix, Debug::DEBUG_LEVEL level = Debug::DEBUG)
+    :_prefix(prefix+ ": "),
+     _ignore_level(level)
      {}
 
+    /**
+     * Sets the logging level of this logger.
+     **/
     void setLoggingLevel(int log_level)
     {
         _ignore_level = (Debug::DEBUG_LEVEL) log_level;
     }
 
+    /** Sends an ignore message. **/
     Debug ignore(std::string init = "") const
     {
         return log(init, Debug::IGNORE);
     }
 
+    /** Sends a trace message, good for things like hex
+    dumps.
+
+    **/
     Debug trace(std::string init = "") const
     {
         return log(init, Debug::IGNORE);
     }
 
+    /** Sends a debug message.
+
+    Good for fine-grained messages, like locations in code or notification
+    that a method ran.
+    **/
     Debug debug(std::string init = "") const
     {
         return log(init, Debug::DEBUG);
     }
+
+    /**
+    @deprecated - this message is deprecated in favor of info()
+    **/
     Debug message(std::string init = "") const
     {
         return log(init, Debug::MESSAGE);
     }
 
+    /** Logs an info message.
+     *
+     * Good for notifications that the user generally doesn't care about, but
+     * should be noted in case of a larger problem, i.e. names of files that
+     * are being opened for settings/reading/writing.
+     */
     Debug info(std::string init = "") const
     {
         return log(init, Debug::MESSAGE);
     }
 
+    /** Logs a warning message.
+     *
+     * Warning messages denote a problem that has occured in the software that
+     * may lead to unstable operation.
+     */
     Debug warning(std::string init = "") const
     {
         return log(init, Debug::WARNING);
     }
 
+    /** Logs a critical message.
+     *
+     * Critical messages denote a bad problem that has occured in the software
+     * these errors are not recoverable and the system is unstable.
+     */
     Debug critical(std::string init = "") const
     {
         return log(init, Debug::CRITICAL);
