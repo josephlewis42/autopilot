@@ -30,7 +30,7 @@ using boost::asio::ip::address;
 #include <boost/signals2/signal.hpp>
 #include "heli.h"
 #include "Driver.h"
-
+#include "Singleton.h"
 
 
 /* STL Headers */
@@ -51,13 +51,11 @@ using boost::asio::ip::address;
  *  @date February 6, 2012: Broke class into multiple files
   */
 
-class QGCLink : public Driver
+class QGCLink : public Driver, public Singleton<QGCLink>
 {
+    friend class Singleton<QGCLink>;
 
 public:
-	/// returns the running instance of QGCLink
-	static QGCLink* getInstance();
-
 	/// emitted when a shutdown message is received
 	boost::signals2::signal<void ()> shutdown;
 	/// emitted when a filter reset message is received
@@ -88,10 +86,6 @@ private:
 	QGCLink(const QGCLink &) = delete;
 	QGCLink& operator = (const QGCLink &) = delete;
 
-	/// Pointer to instance of QGCLink
-	static QGCLink* _instance;
-	/// Mutex to make class instantiation threadsafe
-	static std::mutex _instance_lock;
 	/// creates the udp socket to qgc and spawns the receive and send threads
 	void init();
 

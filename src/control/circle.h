@@ -25,7 +25,6 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <thread>
 
 /* STL Headers */
@@ -38,6 +37,7 @@ namespace blas = boost::numeric::ublas;
 #include "Debug.h"
 #include "Parameter.h"
 #include "heli.h"
+#include "Timer.hpp"
 
 /**
  * This class defines a circular reference trajectory.  The helicopter
@@ -45,7 +45,7 @@ namespace blas = boost::numeric::ublas;
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date October 25, 2012: Class creation
  */
-class circle : public Logger
+class circle : public Logger, protected Timer
 {
 public:
     circle();
@@ -122,26 +122,6 @@ protected:
 
     /// time to hover before manouever in seconds
     std::atomic<double> hover_time;
-
-    /// time the trajectory started
-    boost::posix_time::ptime start_time;
-    /// serialize access to start_time
-    mutable std::mutex start_time_lock;
-    /// set the start_time to the current time
-    void set_start_time()
-    {
-        {
-            std::lock_guard<std::mutex>  lock(start_time_lock);
-            start_time = boost::posix_time::microsec_clock::local_time();
-        }
-        message() << "Circle Trajectory Started";
-    }
-    /// get the start_Time
-    boost::posix_time::ptime get_start_time() const
-    {
-        std::lock_guard<std::mutex>  lock(start_time_lock);
-        return start_time;
-    }
 
     /// initial angle (where the helicopter started in polar)
     std::atomic<double> initial_angle;

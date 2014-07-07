@@ -31,7 +31,6 @@
 
 /* Boost Headers */
 #include <thread>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 /**
  * Send data over UDP to QGroundControl
@@ -129,8 +128,5 @@ private:
 	inline bool message_queue_empty() const {std::lock_guard<std::mutex> lock(message_queue_lock); return message_queue.empty();}
 	/// threadsafe pop message
 	std::string message_queue_pop();
-
-	/// Stores the time when the class is instantiated (i.e., the program starts)
-	boost::posix_time::ptime startTime;
 };
 #endif

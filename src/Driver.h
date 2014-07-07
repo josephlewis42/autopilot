@@ -174,7 +174,7 @@ public:
     /**
      * Gets the number of milliseconds since this driver was instnatiated.
      **/
-    long getMsSinceInit();
+    long getMsSinceInit() const;
 
     /**
     * Alerts the user and system that the initialization of this driver failed, if

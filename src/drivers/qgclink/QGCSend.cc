@@ -53,15 +53,13 @@ QGCLink::QGCSend::QGCSend(QGCLink* parent)
      pilot_mode(heli::NUM_PILOT_MODES),
      filter_state(IMU::NUM_GX3_MODES),
      control_mode(heli::Num_Controller_Modes),
-     attitude_source(true),
-     startTime(boost::posix_time::microsec_clock::local_time())
+     attitude_source(true)
 {
     send_queue = new std::queue<std::vector<uint8_t> >();
 }
 
 QGCLink::QGCSend::QGCSend(const QGCSend& other)
-    :qgc(other.qgc),
-     startTime(other.startTime)
+    :qgc(other.qgc)
 {
     servo_source = other.get_servo_source();
     pilot_mode = other.get_pilot_mode();
@@ -153,7 +151,7 @@ void QGCLink::QGCSend::send()
         		send_queue->push(buf);
         	}
         }
-        
+
         /* actually send data to qgc */
         try
         {
@@ -174,7 +172,7 @@ void QGCLink::QGCSend::send()
         {
             qgc->warning() << e.what();
         }
-        
+
         /* Increment loop count */
         loop_count++;
 

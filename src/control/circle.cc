@@ -74,7 +74,7 @@ std::vector<Parameter> circle::getParameters() const
 
 blas::vector<double> circle::get_reference_position() const
 {
-    double elapsed_time = (boost::posix_time::microsec_clock::local_time() - get_start_time()).total_milliseconds()/1000.0;
+    double elapsed_time = getMsSinceInit() / 1000.0;
     double period = (get_speed() > 0 ? get_circumference()/get_speed() : 0);
     double hover_time = get_hover_time();
     if (period == 0 || elapsed_time <= hover_time)

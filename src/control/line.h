@@ -24,7 +24,6 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <thread>
 
 /* STL Headers */
@@ -36,13 +35,14 @@ namespace blas = boost::numeric::ublas;
 /* Project Headers */
 #include "Debug.h"
 #include "Parameter.h"
+#include "Timer.hpp"
 
 /**
  * Reference line trajectory generator
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date October 24, 2012: Class creation
  */
-class line : public Logger
+class line : public Logger, protected Timer
 {
 public:
     line();
@@ -161,26 +161,6 @@ protected:
     std::atomic<double> y_travel;  /// distance to travel in body y direction in m
     std::atomic<double> speed;     /// average speed to fly trajectory in m/s
     std::atomic<double> hover_time;  // time to hover before manouever in seconds
-
-    /// time the trajectory started
-    boost::posix_time::ptime start_time;
-    /// serialize access to start_time
-    mutable std::mutex start_time_lock;
-    /// set the start_time to the current time
-    void set_start_time()
-    {
-        {
-            std::lock_guard<std::mutex> lock(start_time_lock);
-            start_time = boost::posix_time::microsec_clock::local_time();
-        }
-        message() << "Line trajectory started";
-    }
-    /// get the start_Time
-    boost::posix_time::ptime get_start_time() const
-    {
-        std::lock_guard<std::mutex> lock(start_time_lock);
-        return start_time;
-    }
 
     /// return trajectory length
     double get_distance() const;

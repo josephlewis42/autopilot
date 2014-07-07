@@ -40,7 +40,6 @@
 #include "SystemState.h"
 #include "CommonMessages.h"
 #include "WaypointManager.h"
-#include <boost/date_time.hpp>
 
 
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";

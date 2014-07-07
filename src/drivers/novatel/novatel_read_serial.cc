@@ -157,15 +157,17 @@ bool GPS::ReadSerial::synchronize()
     uint8_t currentByte;
     int position = 0;
 
-    last_data = boost::posix_time::second_clock::local_time();
+    last_data = gps->getMsSinceInit();
 
     while(!gps->terminateRequested())
     {
         // Check for overall timeout.
-        if ((boost::posix_time::second_clock::local_time() - last_data).total_seconds() > 10)
+
+        auto ms_since_init = gps->getMsSinceInit();
+        if (ms_since_init - last_data / 1000 > 10)
         {
             gps->warning() << "NovAtel: Stopped receiving data, attempting restart.";
-            last_data = boost::posix_time::second_clock::local_time();
+            last_data = ms_since_init;
             send_unlog_command();
             std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 
@@ -334,7 +336,7 @@ void GPS::ReadSerial::readPort()
                 std::vector<double> log;
                 parse_header(header, log);
                 parse_log(log_data, log);
-                last_data = boost::posix_time::second_clock::local_time();
+                last_data = gps->getMsSinceInit();
                 //GPS::getInstance()->gps_updated();
                 LogFile::getInstance()->logData(gps->LOG_NOVATEL_GPS, log);
             }

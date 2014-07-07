@@ -8,18 +8,14 @@
 #ifndef RATELIMITER_H_
 #define RATELIMITER_H_
 
-
-// Boost:: headers
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/asio.hpp>
+#include <thread>
+#include <chrono>
 
 class RateLimiter
 {
 private:
-    boost::posix_time::millisec _msToWait;
-    boost::asio::io_service _io;
-    boost::asio::deadline_timer _timer;
-    boost::posix_time::ptime _nextTime;
+    std::chrono::milliseconds _msToWait;
+    std::chrono::time_point<std::chrono::high_resolution_clock> _nextTime;
 
 public:
     /**

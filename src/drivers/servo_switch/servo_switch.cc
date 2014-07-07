@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <bitset>
 #include <mutex>
+#include <fcntl.h>
 
 // stl headers
 #include "Debug.h"

@@ -24,7 +24,6 @@
 #include <boost/signals2.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 /* STL Headers */
 #include <vector>
@@ -297,20 +296,16 @@ private:
     }
 
     /// store the last time data was successfully received
-    boost::posix_time::ptime last_data;
-    /// serialize access to last_data
-    mutable std::mutex last_data_lock;
+    std::atomic<long> last_data;
     /// set last_data to the current time
     inline void set_last_data()
     {
-        std::lock_guard<std::mutex> lock(last_data_lock);
-        last_data = boost::posix_time::second_clock::local_time();
+        last_data = getMsSinceInit();
     }
     /// get the number of seconds since data was received
     inline int seconds_since_last_data() const
     {
-        std::lock_guard<std::mutex> lock(last_data_lock);
-        return (boost::posix_time::second_clock::local_time() - last_data).total_seconds();
+        return (getMsSinceInit() - last_data.load()) / 1000;
     }
 
 

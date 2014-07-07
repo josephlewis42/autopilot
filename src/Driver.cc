@@ -309,7 +309,7 @@ bool Driver::terminalSettings(int fd,
 
 
 
-long Driver::getMsSinceInit()
+long Driver::getMsSinceInit() const
 {
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _driverInit;
     return (long)(elapsed_seconds.count() * 1000);

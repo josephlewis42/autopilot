@@ -35,10 +35,10 @@ using namespace boost::assign;
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 /* Project Headers */
 #include "GPS.h"
+#include "ThreadSafeVariable.h"
 
 /**
  * @brief Class to send commands to, and receive data from the GPS unit.
@@ -618,7 +618,7 @@ private:
     static bool is_response(const std::vector<uint8_t>& header);
 
     /// stores the last time data was successfully received (for error handling)
-    boost::posix_time::ptime last_data;
+    long last_data;
 
     /**
      * Creates and sends a generic log signal to the NovAtel
