@@ -35,6 +35,7 @@
 
 /* STL Headers */
 #include <vector>
+#include <exception>
 
 /* Boost Headers */
 #include <boost/bind.hpp>
@@ -44,6 +45,8 @@
 namespace blas = boost::numeric::ublas;
 #include <boost/algorithm/string.hpp>
 
+
+#include <asio.hpp>
 
 #define NDEBUG
 
@@ -163,12 +166,12 @@ void QGCLink::QGCSend::send()
                 uint8_t msgid = send_queue->front().at(5);
                 qgc->debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
                 #endif
-                qgc->socket.send_to(boost::asio::buffer(send_queue->front()), qgc->qgc);
+                qgc->socket.send_to(asio::buffer(send_queue->front()), qgc->qgc);
                 send_queue->pop();
             }
 
         }
-        catch (boost::system::system_error e)
+        catch (std::exception e)
         {
             qgc->warning() << e.what();
         }

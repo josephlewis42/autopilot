@@ -31,12 +31,13 @@
 #include "mavlink.h"
 
 /* Boost Headers */
-#include <boost/asio.hpp>
-using boost::asio::ip::udp;
-using boost::asio::ip::address;
+#include <asio.hpp>
+using asio::ip::udp;
+using asio::ip::address;
 
 /* STL Headers */
 #include <vector>
+#include <exception>
 
 void QGCLink::QGCReceive::receive()
 {
@@ -53,12 +54,13 @@ void QGCLink::QGCReceive::receive()
 		int bytes_received = 0;
 		try
 		{
-			bytes_received = qgc->socket.receive_from(boost::asio::buffer(recv_buf), qgc->qgc);
+			bytes_received = qgc->socket.receive_from(asio::buffer(recv_buf), qgc->qgc);
 		}
-		catch (boost::system::system_error e)
+		catch (std::exception &err)
 		{
-			std::cerr << e.what() << std::endl;
+			qgc->warning() << "Error recieving data: " << err.what();
 		}
+
 		for (int i=0; i<bytes_received; i++)
 		{
 			if(mavlink_parse_char(MAVLINK_COMM_0, recv_buf[i], &msg, &status))

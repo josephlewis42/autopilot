@@ -35,7 +35,6 @@
 #include "Debug.h"
 
 /* Boost Headers */
-#include <boost/array.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/signals2/signal.hpp>
 

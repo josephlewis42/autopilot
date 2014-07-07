@@ -31,7 +31,6 @@
  */
 
 
-/* Boost Headers */
 #include <string>
 #include <stdio.h>
 #include <sys/types.h>

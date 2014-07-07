@@ -24,13 +24,12 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <thread>
 
 /* Boost Headers */
-#include <boost/array.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 namespace blas = boost::numeric::ublas;
-#include <thread>
 
 /* Project Headers */
 #include <servo_switch.h>

@@ -28,10 +28,6 @@
 
 #include <mutex>
 
-
-// Boost Headers
-#include <boost/bind.hpp>
-
 GPS* GPS::_instance = NULL;
 std::mutex GPS::_instance_lock;
 

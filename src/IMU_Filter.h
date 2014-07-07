@@ -22,7 +22,6 @@
 
 /* Boost Headers*/
 #include <boost/circular_buffer.hpp>
-#include <boost/array.hpp>
 
 class IMU_Filter
 {

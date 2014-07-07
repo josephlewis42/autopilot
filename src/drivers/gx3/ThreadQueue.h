@@ -21,8 +21,6 @@
 #ifndef COMMANDQUEUE_H_
 #define COMMANDQUEUE_H_
 
-//#include <thread>
-//#include <boost/signals2.hpp>
 #include <queue>
 #include <mutex>
 

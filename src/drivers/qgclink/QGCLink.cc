@@ -25,8 +25,7 @@
 #include "QGCSend.h"
 #include "Configuration.h"
 
-/* Boost Headers */
-#include <boost/asio.hpp>
+#include <asio.hpp>
 
 /* Mavlink Headers */
 #include <mavlink.h>
@@ -62,14 +61,14 @@ void QGCLink::init()
 		Configuration* cfg = Configuration::getInstance();
 		std::string ip_addr = cfg->gets(QGCLINK_HOST_ADDRESS_PARAM, QGCLINK_HOST_ADDRESS_DEFAULT);
 
-		qgc.address(boost::asio::ip::address::from_string(ip_addr));
+		qgc.address(asio::ip::address::from_string(ip_addr));
 		debug() << "QGCLink: Opening socket to " << qgc.address().to_string();
 
 
 		qgc.port(cfg->geti(QGCLINK_HOST_PORT_PARAM, QGCLINK_HOST_PORT_DEFAULT));
 
 		// FIXME we didn't check to make sure the address is indeed IPV4 - Joseph
-		socket.open(boost::asio::ip::udp::v4());
+		socket.open(asio::ip::udp::v4());
 
 		receive_thread = std::thread(QGCReceive());
 

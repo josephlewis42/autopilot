@@ -27,7 +27,6 @@
 
 /* Boost Headers */
 #include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
 
 
 /**

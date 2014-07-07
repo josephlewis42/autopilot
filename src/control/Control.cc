@@ -32,8 +32,7 @@
 #include "Configuration.h"
 #include "LogFile.h"
 
-/* Boost Headers */
-#include <boost/bind.hpp>
+#include <functional>
 
 // constants
 std::string Control::XML_ROLL_MIX = "controller_params.mix.roll";
@@ -49,7 +48,7 @@ Control::Control()
     pilot_mix(6,1), // fill pilot_mix with 1s
      controller_mode(heli::Mode_Position_Hold_PID),
      mode_connection(QGCLink::getInstance()->control_mode.connect(
-                         boost::bind(&Control::set_controller_mode, this, _1))),
+                         std::bind(&Control::set_controller_mode, this, std::placeholders::_1))),
      reference_position(3),
      trajectory_type(heli::Point_Trajectory)
 {

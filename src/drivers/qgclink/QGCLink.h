@@ -24,9 +24,7 @@
 #include "Parameter.h"
 
 /* Boost Headers */
-#include <boost/asio.hpp>
-using boost::asio::ip::udp;
-using boost::asio::ip::address;
+#include <asio.hpp>
 #include <boost/signals2/signal.hpp>
 #include "heli.h"
 #include "Driver.h"
@@ -92,9 +90,9 @@ private:
 	/// mutex to make access to send_queue threadsafe
 //	std::mutex send_queue_lock;
 
-	udp::endpoint qgc;
-	boost::asio::io_service io_service;
-	udp::socket socket;
+	asio::ip::udp::endpoint qgc;
+	asio::io_service io_service;
+	asio::ip::udp::socket socket;
 
 	/// thread to receive data from qgc see QGCLink::QGCReceive
 	std::thread receive_thread;

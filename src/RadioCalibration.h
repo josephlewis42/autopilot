@@ -21,7 +21,6 @@
 #define RADIOCALIBRATION_H
 
 /* Boost Headers */
-#include <boost/array.hpp>
 #include <thread>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>

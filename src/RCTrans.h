@@ -20,9 +20,6 @@
 #ifndef RCTRANS_H
 #define RCTRANS_H
 
-/* Boost Headers */
-#include <boost/array.hpp>
-
 /* Project Headers */
 #include "servo_switch.h"
 #include "RadioCalibration.h"

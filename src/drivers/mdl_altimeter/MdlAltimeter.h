@@ -9,7 +9,6 @@
 #define MDLALTIMETER_H_
 
 #include "Driver.h"
-#include <boost/signals2.hpp>
 
 class MdlAltimeter: public Driver
 {

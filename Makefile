@@ -15,6 +15,7 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/include/ualberta \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/include/ \
 		-I$(PROJECT_ROOT)/../UDenverMavlink/missionlib \
+        -I$(PROJECT_ROOT)/extern/asio/include \
 		-I/usr/include/boost \
 		-I$(PROJECT_ROOT)/drivers \
 		-I$(PROJECT_ROOT)/extern \
@@ -23,7 +24,7 @@ INCLUDE := 	$(addprefix -I,$(HEADER_DIRS)) \
 		-I$(BUILD_DIR)
 
 CFLAGS:=  -pipe -std=c++11 -static ${INCLUDE} -c -g -Wall -Werror 
-LDFLAGS:=  -std=c++11  -g -L$(BUILD_DIR) -L/usr/lib -L/usr/include/boost -lboost_system -lgtest -lpthread
+LDFLAGS:=  -std=c++11  -g -L$(BUILD_DIR) -L/usr/lib -L/usr/include/boost -lgtest -lpthread
 # DON'T LINK STATIC WHEN USING PTHREADS
 # -lboost_thread
 SOURCES:=$(shell find $(SRC_PATH) -path $(SRC_PATH)/tests -prune -o -name '*.cc' -printf %f\  )
