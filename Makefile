@@ -1,5 +1,5 @@
-#CC=clang++
-CC=g++
+CC=clang++
+#CC=g++
 PROJECT_ROOT:=.
 BUILD_DIR:=${PROJECT_ROOT}/build
 DIST_DIR:=${PROJECT_ROOT}/dist

@@ -36,6 +36,7 @@ namespace blas = boost::numeric::ublas;
 #include "pid_channel.h"
 #include "ControllerInterface.h"
 #include "Parameter.h"
+#include "Debug.h"
 
 /* STL Headers */
 #include <vector>
@@ -44,7 +45,7 @@ namespace blas = boost::numeric::ublas;
 #include <atomic>
 
 
-class tail_sbf : public ControllerInterface
+class tail_sbf : public ControllerInterface, public Logger
 {
 public:
     tail_sbf();

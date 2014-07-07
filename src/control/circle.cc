@@ -39,15 +39,14 @@ const double XML_HOVER_PARAM_DEFAULT  = 7.0;
 const double XML_SPEED_PARAM_DEFAULT  = 0.30000001192092896;
 
 circle::circle()
-    : radius(XML_RADIUS_PARAM_DEFAULT),
+    : Logger("Circle"),
+      radius(XML_RADIUS_PARAM_DEFAULT),
       start_location(blas::zero_vector<double>(3)),
       center_location(blas::zero_vector<double>(3)),
       speed(XML_SPEED_PARAM_DEFAULT),
       hover_time(XML_HOVER_PARAM_DEFAULT),
       initial_angle(0)
 {
-
-
 }
 
 const std::string circle::PARAM_HOVER_TIME = "CIR_HOVER_TIME";

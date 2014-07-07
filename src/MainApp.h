@@ -28,6 +28,7 @@
 
 /* Project Headers */
 #include "heli.h"
+#include "Debug.h"
 
 /* Boost Headers */
 #include <boost/signals2.hpp>
@@ -42,7 +43,7 @@
  * by this class as it now is handled internally by all drivers
  */
 
-class MainApp
+class MainApp : public Logger
 {
 public:
 

@@ -45,7 +45,8 @@ const std::string XML_INERTIA_Z = XML_ROOT + "inertia.z";
 
 
 Helicopter::Helicopter()
-    :radio_cal_data(RadioCalibration::getInstance()),
+    :Logger("Helicopter"),
+     radio_cal_data(RadioCalibration::getInstance()),
      out(servo_switch::getInstance()),
      mass(13.65),
      gravity(9.8),

@@ -45,7 +45,8 @@ const std::string LOG_TRANS_SBF_ERROR_STATES = "Translation SBF Error States";
 
 
 tail_sbf::tail_sbf()
-    : ned_x(10),
+    : Logger("Tail SBF"),
+      ned_x(10),
       ned_y(10)
 {
     scaled_travel = 0;

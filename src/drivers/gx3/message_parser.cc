@@ -213,7 +213,7 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
                 if (!message.empty())
                 {
                     imu->set_gx3_status_message(message);
-                    ::message() << "GX3: " << message;
+                    imu->message() << message;
                 }
             }
             if (filter_state == RUNNING)

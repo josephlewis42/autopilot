@@ -37,15 +37,14 @@ const std::string XML_SPEED_PARAM = "controller_params.line.speed";
 
 
 line::line()
-    : start_location(blas::zero_vector<double>(3)),
+    : Logger("Line"),
+      start_location(blas::zero_vector<double>(3)),
       end_location(blas::zero_vector<double>(3)),
       x_travel(0),
       y_travel(0),
       speed(0),
       hover_time(0)
 {
-
-
 }
 
 const std::string line::PARAM_HOVER_TIME = "LIN_HOVER_TIME";

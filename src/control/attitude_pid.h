@@ -36,7 +36,7 @@ namespace blas = boost::numeric::ublas;
 #include "pid_channel.h"
 #include "ControllerInterface.h"
 #include "util/AutopilotMath.hpp"
-
+#include "Debug.h"
 
 /**
  * @brief track pilot reference attitude
@@ -46,7 +46,7 @@ namespace blas = boost::numeric::ublas;
  * @date October 26, 2011
  * @date February 10, 2012: Refactored into separate file and cleaned up
  */
-class attitude_pid : public ControllerInterface
+class attitude_pid : public ControllerInterface, public Logger
 {
 public:
     attitude_pid();

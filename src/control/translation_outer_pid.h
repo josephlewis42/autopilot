@@ -32,6 +32,8 @@
 #include "pid_channel.h"
 #include "ControllerInterface.h"
 #include "AutopilotMath.hpp"
+#include "Debug.h"
+
 /* Boost Headers */
 #include <boost/array.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -47,7 +49,7 @@
  * @date January 2012: Class Creation
  * @date February 10, 2012: Refactored into separate file
  */
-class translation_outer_pid : public ControllerInterface
+class translation_outer_pid : public ControllerInterface, public Logger
 {
 public:
     translation_outer_pid();

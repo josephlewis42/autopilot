@@ -131,23 +131,6 @@ private:
     void appendLevel();
 };
 
-static inline Debug debug()
-{
-    return Debug(Debug::DEBUG);
-}
-static inline Debug message()
-{
-    return Debug(Debug::MESSAGE);
-}
-static inline Debug warning()
-{
-    return Debug(Debug::WARNING);
-}
-static inline Debug critical()
-{
-    return Debug(Debug::CRITICAL);
-}
-
 class Logger
 {
 private:

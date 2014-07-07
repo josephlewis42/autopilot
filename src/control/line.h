@@ -42,7 +42,7 @@ namespace blas = boost::numeric::ublas;
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date October 24, 2012: Class creation
  */
-class line
+class line : public Logger
 {
 public:
     line();

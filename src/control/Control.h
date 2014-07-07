@@ -36,6 +36,7 @@
 #include "circle.h"
 #include "heli.h"
 #include "Singleton.h"
+#include "Debug.h"
 
 /* Boost Headers */
 #include <boost/numeric/ublas/vector.hpp>
@@ -58,7 +59,7 @@ namespace blas = boost::numeric::ublas;
  * @date February 10, 2012: Refactored to comply with ControllerInterface
  * @date September 27, 2012: Added Tail SBF Controller
  */
-class Control : public ControllerInterface, public Singleton<Control>
+class Control : public ControllerInterface, public Singleton<Control>, public Logger
 {
     friend class Singleton<Control>;
 

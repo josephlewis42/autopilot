@@ -44,7 +44,8 @@ const std::string Control::LOG_PID_TRANS_ATTITUDE_REF = "Translation PID Attitud
 const std::string Control::LOG_SBF_TRANS_ATTITUDE_REF = "Translation SBF Attitude Reference";
 
 Control::Control()
-    :pilot_mix(6,1), // fill pilot_mix with 1s
+    :Logger("Control"),
+    pilot_mix(6,1), // fill pilot_mix with 1s
      controller_mode(heli::Mode_Position_Hold_PID),
      mode_connection(QGCLink::getInstance()->control_mode.connect(
                          boost::bind(&Control::set_controller_mode, this, _1))),

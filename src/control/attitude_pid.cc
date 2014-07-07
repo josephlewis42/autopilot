@@ -53,7 +53,8 @@ const std::string attitude_pid::LOG_ATTITUDE_CONTROL_EFFORT = "Attitude PID Cont
 
 
 attitude_pid::attitude_pid()
-    :roll(5),
+    :Logger("Attitude PID"),
+     roll(5),
      pitch(5),
      control_effort(blas::zero_vector<double>(2)),
      roll_trim(0),
@@ -72,6 +73,7 @@ attitude_pid::attitude_pid()
 }
 
 attitude_pid::attitude_pid(const attitude_pid& other)
+    :Logger("Attitude PID")
 {
 
     {

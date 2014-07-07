@@ -21,7 +21,7 @@
 #include "MainApp.h"
 
 /* Project Headers */
-#include <servo_switch.h>
+#include "servo_switch.h"
 #include "heli.h"
 #include "LogFile.h"
 #include "QGCLink.h"
@@ -61,7 +61,8 @@ MainApp* MainApp::getInstance()
 
 
 MainApp::MainApp()
-    :autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
+    :Logger("MainApp"),
+     autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
 {
     this->_terminate = false;
 }

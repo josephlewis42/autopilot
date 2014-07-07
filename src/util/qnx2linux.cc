@@ -16,6 +16,9 @@
 #include <errno.h>
 #include <chrono>
 
+Logger qnx2LinuxLogger("QNX2Linux");
+
+
 int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeout)
 {
 
@@ -59,19 +62,19 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
             {
                 bytesRead = 0;
                 if(errno == EAGAIN || errno == EWOULDBLOCK)
-                    //debug() << "Tried to do a blocking read from a nonblocking socket";
-                    if(errno == EBADF)
-                        warning() << "Bad fd";
+                    qnx2LinuxLogger.trace() << "Tried to do a blocking read from a nonblocking socket";
+                if(errno == EBADF)
+                    qnx2LinuxLogger.warning() << "Bad fd";
                 if(errno == EFAULT)
-                    warning() << "buf is outside your address space";
+                    qnx2LinuxLogger.warning() << "buf is outside your address space";
                 if(errno == EINTR)
-                    warning() << "Call interrupted before data read";
+                    qnx2LinuxLogger.warning() << "Call interrupted before data read";
                 if(errno == EINVAL)
-                    warning() << "object is not suitable for reading";
+                    qnx2LinuxLogger.warning() << "object is not suitable for reading";
                 if(errno == EIO)
-                    warning() << "I/O error";
+                    qnx2LinuxLogger.warning() << "I/O error";
                 if(errno == EISDIR)
-                    warning() << "fd is a directory";
+                    qnx2LinuxLogger.warning() << "fd is a directory";
                 continue;
             }
             totalBytesRead += bytesRead;
@@ -112,19 +115,19 @@ int QNX2Linux::readUntilMin(int fd, void* buf, int n, int min)
         {
             bytesRead = 0;
             if(errno == EAGAIN || errno == EWOULDBLOCK)
-                //warning() << "Tried to do a blocking read from a nonblocking socket";
-                if(errno == EBADF)
-                    warning() << "Bad fd";
+                qnx2LinuxLogger.trace() << "Tried to do a blocking read from a nonblocking socket";
+            if(errno == EBADF)
+                qnx2LinuxLogger.warning() << "Bad fd";
             if(errno == EFAULT)
-                warning() << "buf is outside your address space";
+                qnx2LinuxLogger.warning() << "buf is outside your address space";
             if(errno == EINTR)
-                warning() << "Call interrupted before data read";
+                qnx2LinuxLogger.warning() << "Call interrupted before data read";
             if(errno == EINVAL)
-                warning() << "object is not suitable for reading";
+                qnx2LinuxLogger.warning() << "object is not suitable for reading";
             if(errno == EIO)
-                warning() << "I/O error";
+                qnx2LinuxLogger.warning() << "I/O error";
             if(errno == EISDIR)
-                warning() << "fd is a directory";
+                qnx2LinuxLogger.warning() << "fd is a directory";
             continue;
         }
 

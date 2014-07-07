@@ -40,7 +40,8 @@ const std::string LOG_TRANS_PID_ERROR_STATES = "Translation PID Error States";
 
 
 translation_outer_pid::translation_outer_pid()
-    : x(10),
+    : Logger("Translation Outer PID"),
+      x(10),
       y(10),
       scaled_travel(15)
 {
@@ -49,6 +50,7 @@ translation_outer_pid::translation_outer_pid()
 }
 
 translation_outer_pid::translation_outer_pid(const translation_outer_pid& other)
+    : Logger("Translation Outer PID")
 {
     {
         std::lock_guard<std::mutex> lock(other.x_lock);

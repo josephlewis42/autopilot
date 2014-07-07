@@ -45,7 +45,7 @@ namespace blas = boost::numeric::ublas;
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date October 25, 2012: Class creation
  */
-class circle
+class circle : public Logger
 {
 public:
     circle();

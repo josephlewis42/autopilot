@@ -51,7 +51,7 @@ namespace blas = boost::numeric::ublas;
     @date September 27, 2012: Added physical parameters
 */
 
-class Helicopter
+class Helicopter : public Logger
 {
 public:
     static Helicopter* getInstance();

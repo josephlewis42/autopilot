@@ -53,6 +53,7 @@ TEST(MainTest, Positive)
     EXPECT_EQ(0, 0);
 }
 
+Logger mainLogger("Main");
 
 int main(int argc, char* argv[])
 {
@@ -81,8 +82,8 @@ int main(int argc, char* argv[])
 
 
     // Show system information.
-    message() << "Running on: " <<  SystemInformation::uname_like();
-    message() << "Autopilot Version: " << __DATE__ << " " << __TIME__;
+    mainLogger.message() << "Running on: " <<  SystemInformation::uname_like();
+    mainLogger.message() << "Autopilot Version: " << __DATE__ << " " << __TIME__;
 
 
     // Start up the main application.
