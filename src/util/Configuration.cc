@@ -20,8 +20,6 @@
 #include <string>
 #include <string.h>
 #include <utility>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 
 // Static Class variable instantiation
@@ -144,12 +142,12 @@ void Configuration::set(const std::string &key, const std::string& value)
 
 void Configuration::setd(const std::string &key, const double value)
 {
-    set(key, boost::lexical_cast<std::string>(value));
+    set(key, std::to_string(value));
 }
 
 void Configuration::seti(const std::string &key, const int value)
 {
-    set(key, boost::lexical_cast<std::string>(value));
+    set(key, std::to_string(value));
 }
 
 void Configuration::save()

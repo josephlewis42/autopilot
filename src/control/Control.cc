@@ -23,6 +23,7 @@
 /* Project Headers */
 #include "SystemState.h"
 #include <servo_switch.h>
+#include <string>
 #include "bad_control.h"
 #include "RCTrans.h"
 #include "IMU.h"
@@ -171,7 +172,7 @@ blas::vector<double> Control::get_control_effort() const
 
     if (!(pilot_inputs.size() == control_effort.size() && pilot_inputs.size() == 6 && pilot_inputs.size() == pilot_mix.size()))
     {
-        bad_control b("At least one of the vectors are not of length 6", boost::lexical_cast<std::string>(__FILE__), __LINE__);
+        bad_control b("At least one of the vectors are not of length 6", std::string(__FILE__), __LINE__);
         throw b;
     }
 
@@ -182,7 +183,7 @@ blas::vector<double> Control::get_control_effort() const
     {
         if (!(pilot_mix[i] >= 0 && pilot_mix[i] <= 1))
         {
-            bad_control b(" Pilot mix values is out of range.", boost::lexical_cast<std::string>(__FILE__), __LINE__);
+            bad_control b(" Pilot mix values is out of range.", std::string(__FILE__), __LINE__);
             throw b;
         }
         control_output[i] = pilot_mix[i]*pilot_inputs[i] + (1-pilot_mix[i])*control_effort[i];

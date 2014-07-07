@@ -24,9 +24,6 @@
 #include <stdexcept>
 #include <string>
 
-/* Boost Headers */
-#include <boost/lexical_cast.hpp>
-
 /* Project Headers */
 #include "Debug.h"
 

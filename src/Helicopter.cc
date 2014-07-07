@@ -21,12 +21,9 @@
 #include "Configuration.h"
 #include "SystemState.h"
 
-/* Boost Headers */
-#include <boost/lexical_cast.hpp>
-
 /* STL Headers */
 #include <fstream>
-
+#include <string>
 
 // Configuration Headers
 const std::string XML_ROOT = "physical_params.";
@@ -167,22 +164,22 @@ void Helicopter::saveFile()
 {
     Configuration* config = Configuration::getInstance();
 
-    config->set(XML_MASS, boost::lexical_cast<std::string>(get_mass()));
+    config->set(XML_MASS, std::to_string(get_mass()));
 
     blas::vector<double> hub(get_main_hub_offset());
-    config->set(XML_MAIN_HUB_OFFSET_X, boost::lexical_cast<std::string>(hub(0)));
-    config->set(XML_MAIN_HUB_OFFSET_Y, boost::lexical_cast<std::string>(hub(1)));
-    config->set(XML_MAIN_HUB_OFFSET_Z, boost::lexical_cast<std::string>(hub(2)));
+    config->set(XML_MAIN_HUB_OFFSET_X, std::to_string(hub(0)));
+    config->set(XML_MAIN_HUB_OFFSET_Y, std::to_string(hub(1)));
+    config->set(XML_MAIN_HUB_OFFSET_Z, std::to_string(hub(2)));
 
     blas::vector<double> tail(get_tail_hub_offset());
-    config->set(XML_TAIL_HUB_OFFSET_X, boost::lexical_cast<std::string>(tail(0)));
-    config->set(XML_TAIL_HUB_OFFSET_Y, boost::lexical_cast<std::string>(tail(1)));
-    config->set(XML_TAIL_HUB_OFFSET_Z, boost::lexical_cast<std::string>(tail(2)));
+    config->set(XML_TAIL_HUB_OFFSET_X, std::to_string(tail(0)));
+    config->set(XML_TAIL_HUB_OFFSET_Y, std::to_string(tail(1)));
+    config->set(XML_TAIL_HUB_OFFSET_Z, std::to_string(tail(2)));
 
     blas::banded_matrix<double> inertia(get_inertia());
-    config->set(XML_INERTIA_X, boost::lexical_cast<std::string>(inertia(0,0)));
-    config->set(XML_INERTIA_Y, boost::lexical_cast<std::string>(inertia(1,1)));
-    config->set(XML_INERTIA_Z, boost::lexical_cast<std::string>(inertia(2,2)));
+    config->set(XML_INERTIA_X, std::to_string(inertia(0,0)));
+    config->set(XML_INERTIA_Y, std::to_string(inertia(1,1)));
+    config->set(XML_INERTIA_Z, std::to_string(inertia(2,2)));
 }
 
 void Helicopter::writeToSystemState()

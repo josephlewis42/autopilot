@@ -18,13 +18,14 @@
  *************************************************************************/
 
 #include "bad_control.h"
+#include <string>
 
 bad_control::bad_control(const std::string message, const std::string filename, const int line) throw()
 {
     if (!filename.empty())
         this->message += filename + ' ';
     if (line != -1)
-        this->message += boost::lexical_cast<std::string>(line) + ' ';
+        this->message += std::to_string(line) + ' ';
     this->message += message;
 }
 
