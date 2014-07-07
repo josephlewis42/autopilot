@@ -23,13 +23,13 @@
 #include "Driver.h"
 #include "LogFile.h"
 #include "ThreadSafeVariable.h"
+#include "Path.h"
 
 #include <sstream>
 #include <map>
 #include <string>
 #include <mutex>
 
-#include <boost/filesystem.hpp>
 
 /**
  * A basic file writer that accepts strings and writes them
@@ -57,7 +57,7 @@ private:
     void writeThread();
 
     /// gets the path to the log file
-    boost::filesystem::path getLogPath();
+    Path getLogPath();
 
     LogfileWriter(std::string path);
     ~LogfileWriter();

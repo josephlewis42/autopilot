@@ -73,10 +73,10 @@ LogfileWriter::~LogfileWriter()
     _ALL_LOGGERS_MUTEX.unlock();
 }
 
-boost::filesystem::path LogfileWriter::getLogPath()
+Path LogfileWriter::getLogPath()
 {
-    boost::filesystem::path filename;
-    if (!(boost::filesystem::path(_logName)).has_extension())
+    Path filename;
+    if (! Path(_logName).has_extension() )
     {
         filename = LogFile::getInstance()->getLogFolder() / (_logName + ".dat");
     }
@@ -115,46 +115,30 @@ void LogfileWriter::log(const std::string& message)
 
 void LogfileWriter::writeThread()
 {
-    boost::filesystem::path filename = getLogPath();
+    Path filename = getLogPath();
+
+
+    bool existed = filename.exists();
+    std::fstream output(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
+
+    if(! existed)
+    {
+        debug() << "Creating log file " << filename.c_str();
+        std::string header = _header;
+        output << "Time(ms)\t" << header << std::endl;
+    }
 
     RateLimiter rl(2);
-
-    try
+    while(! terminateRequested())
     {
-        bool existed = boost::filesystem::exists(filename);
-        std::fstream output(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
+        rl.wait();
 
-        if(! existed)
-        {
-            debug() << "Creating log file " << filename.c_str();
-            std::string header = _header;
-            output << "Time(ms)\t" << header << std::endl;
-        }
+        std::stringstream* writeBuffer = swapBuffers();
+        output << writeBuffer->str();
+        writeBuffer->str("");
 
-        while(! terminateRequested())
-        {
-            rl.wait();
-
-            std::stringstream* writeBuffer = swapBuffers();
-            output << writeBuffer->str();
-            writeBuffer->str("");
-
-            rl.finishedCriticalSection();
-        }
-
-        output.close();
+        rl.finishedCriticalSection();
     }
-    catch (boost::filesystem::filesystem_error& fserr)
-    {
-        critical() << fserr.what();
 
-        while(! terminateRequested())
-        {
-            rl.wait();
-            critical() << "Discarding: " << filename.c_str() << " data b/c the file could not be opened.";
-
-            swapBuffers()->str("");
-            rl.finishedCriticalSection();
-        }
-    }
+    output.close();
 }

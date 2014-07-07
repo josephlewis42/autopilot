@@ -31,7 +31,8 @@
 
 
 LogFile::LogFile()
-:startTime(std::chrono::system_clock::now())
+:startTime(std::chrono::system_clock::now()),
+ log_folder()
 {
 
     std::time_t now_c = std::chrono::system_clock::to_time_t(startTime);
@@ -40,19 +41,11 @@ LogFile::LogFile()
     char time_folder[1000];
     std::strftime(time_folder, sizeof(time_folder), "%F_%T", std::localtime(&now_c));
 
-    log_folder = boost::filesystem::current_path();
     log_folder /= time_folder;
 
-    try
-    {
-        boost::filesystem::remove_all(log_folder);
-        boost::filesystem::create_directories(log_folder);
-        std::cout << "Logging in: " << log_folder.c_str();
-    }
-    catch (boost::filesystem::filesystem_error& fserr)
-    {
-        std::cout << "LogFile: Could not create directory: " << log_folder.c_str() << "Error: " << fserr.what();
-    }
+    log_folder.remove_all();
+    log_folder.create_directories();
+    std::cout << "Logging in: " << log_folder.toString();
 }
 
 LogFile::~LogFile()

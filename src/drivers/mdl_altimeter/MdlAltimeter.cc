@@ -6,6 +6,7 @@
  */
 
 #include "MdlAltimeter.h"
+
 /* File Handling Headers */
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -21,14 +22,6 @@
 
 
 /* Project Headers */
-#include "Configuration.h"
-#include "Debug.h"
-#include "gx3_read_serial.h"
-#include "MainApp.h"
-#include "message_parser.h"
-#include "ack_handler.h"
-#include "gx3_send_serial.h"
-#include "QGCLink.h"
 #include "SystemState.h"
 
 

@@ -27,8 +27,6 @@
 #include <string>
 #include <chrono>
 
-/* boost headers */
-#include <boost/filesystem.hpp>
 
 /* c headers */
 #include <stdint.h>
@@ -37,7 +35,7 @@
 #include "Driver.h"
 #include "ThreadSafeVariable.h"
 #include "Singleton.h"
-
+#include "Path.h"
 
 /**
    \brief This class implements the logging facility for the avionics.
@@ -92,7 +90,7 @@
 	log->logHeader("normalized outputs", "CH1(us)\tCH2(us)\tCH3(us)\tCH4(us)\tCH5(us)\tCH6(us)\tCH7(us)\tCH8(us)");
 	for (int i=0; i<10; i++)
 	{
-		BOOST_FOREACH(float & norm, norms)
+		for(float & norm : norms)
 		{
 			norm = rand() % 1000 + 1000;
 		}
@@ -130,7 +128,7 @@ public:
      */
     void logMessage(const std::string& name, const std::string& msg);
 
-    boost::filesystem::path getLogFolder()
+    Path getLogFolder()
     {
         return log_folder;
     }
@@ -151,7 +149,7 @@ private:
     /// Stores the time when the class is instantiated (i.e., the program starts)
     std::chrono::time_point<std::chrono::system_clock> startTime;
     /// Stores the folder name to store the log files in
-    boost::filesystem::path log_folder;
+    Path log_folder;
 };
 
 

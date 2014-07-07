@@ -6,7 +6,7 @@
  *
 **/
 
-#include "Path.hpp"
+#include "Path.h"
 #include <gtest/gtest.h>
 
 
@@ -47,4 +47,14 @@ TEST(Path, append_paths)
     tmp = tmp / "a" / "b" / "c" / "d" / "e";
 
     EXPECT_EQ(tmp.toString(), std::string("/tmp/a/b/c/d/e"));
+}
+
+
+TEST(Path, append_paths_compound)
+{
+    Path tmp("/tmp");
+    tmp /= "a";
+    tmp /= "b";
+
+    EXPECT_EQ(tmp.toString(), std::string("/tmp/a/b"));
 }
