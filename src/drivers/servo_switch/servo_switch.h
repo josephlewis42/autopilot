@@ -28,6 +28,8 @@
 #include <atomic>
 #include <thread>
 
+#include <boost/signals2.hpp>
+
 /* Project Headers */
 #include "Driver.h"
 #include "heli.h"

@@ -62,7 +62,7 @@ void QGCLink::init()
 		std::string ip_addr = cfg->gets(QGCLINK_HOST_ADDRESS_PARAM, QGCLINK_HOST_ADDRESS_DEFAULT);
 
 		qgc.address(asio::ip::address::from_string(ip_addr));
-		debug() << "QGCLink: Opening socket to " << qgc.address().to_string();
+		info() << "Opening socket to " << qgc.address().to_string();
 
 
 		qgc.port(cfg->geti(QGCLINK_HOST_PORT_PARAM, QGCLINK_HOST_PORT_DEFAULT));
@@ -72,7 +72,9 @@ void QGCLink::init()
 
 		receive_thread = std::thread(QGCReceive());
 
-		send_thread = std::thread(QGCSend(this));
+        send_thread = std::thread([](){
+            QGCSend::getInstance()->send();
+        });
 	}
 	catch (std::exception& e)
 	{

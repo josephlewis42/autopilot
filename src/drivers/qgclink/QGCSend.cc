@@ -50,8 +50,8 @@ namespace blas = boost::numeric::ublas;
 
 #define NDEBUG
 
-QGCLink::QGCSend::QGCSend(QGCLink* parent)
-    :qgc(parent),
+QGCSend::QGCSend()
+    :qgc(NULL),
      servo_source(heli::NUM_AUTOPILOT_MODES),
      pilot_mode(heli::NUM_PILOT_MODES),
      filter_state(IMU::NUM_GX3_MODES),
@@ -61,39 +61,13 @@ QGCLink::QGCSend::QGCSend(QGCLink* parent)
     send_queue = new std::queue<std::vector<uint8_t> >();
 }
 
-QGCLink::QGCSend::QGCSend(const QGCSend& other)
-    :qgc(other.qgc)
-{
-    servo_source = other.get_servo_source();
-    pilot_mode = other.get_pilot_mode();
-    filter_state = other.get_filter_state();
-    control_mode = other.get_control_mode();
-    attitude_source = other.get_attitude_source();
 
-    send_queue = new std::queue<std::vector<uint8_t> >(*other.send_queue);
-}
-QGCLink::QGCSend::~QGCSend()
+QGCSend::~QGCSend()
 {
     delete send_queue;
 }
 
-QGCLink::QGCSend& QGCLink::QGCSend::operator=(const QGCLink::QGCSend& other)
-{
-    if (this == &other)
-    {
-        return *this;
-    }
-
-    servo_source = other.get_servo_source();
-    pilot_mode = other.get_pilot_mode();
-    filter_state = other.get_filter_state();
-    control_mode = other.get_control_mode();
-    attitude_source = other.get_attitude_source();
-
-    return *this;
-}
-
-void QGCLink::QGCSend::send()
+void QGCSend::send()
 {
     int send_rate = 200;
     RateLimiter rl(200);
@@ -112,19 +86,15 @@ void QGCLink::QGCSend::send()
 
     // connect signals to track system mode
     boost::signals2::scoped_connection control_mode_connection(Control::getInstance()->mode_changed.connect(
-                boost::bind(&QGCLink::QGCSend::set_control_mode, this, _1)));
+                boost::bind(&QGCSend::set_control_mode, this, _1)));
     boost::signals2::scoped_connection servo_source_connection(MainApp::mode_changed.connect(
-                boost::bind(&QGCLink::QGCSend::set_servo_source, this, _1)));
+                boost::bind(&QGCSend::set_servo_source, this, _1)));
     boost::signals2::scoped_connection pilot_mode_connection(servo_switch::getInstance()->pilot_mode_changed.connect(
-                boost::bind(&QGCLink::QGCSend::set_pilot_mode, this, _1)));
+                boost::bind(&QGCSend::set_pilot_mode, this, _1)));
     boost::signals2::scoped_connection gx3_state_connection(IMU::getInstance()->gx3_mode_changed.connect(
-                boost::bind(&QGCLink::QGCSend::set_filter_state, this, _1)));
+                boost::bind(&QGCSend::set_filter_state, this, _1)));
     attitude_source_connection = QGCLink::getInstance()->attitude_source.connect(
-                                     boost::bind(&QGCLink::QGCSend::set_attitude_source, this, _1));
-    boost::signals2::scoped_connection warning_connection(Debug::warningSignal.connect(
-                boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
-    boost::signals2::scoped_connection critical_connection(Debug::criticalSignal.connect(
-                boost::bind(&QGCLink::QGCSend::message_queue_push, this, _1)));
+                                     boost::bind(&QGCSend::set_attitude_source, this, _1));
 
     while(true)
     {
@@ -146,7 +116,7 @@ void QGCLink::QGCSend::send()
         for(Driver* driver : Driver::getDrivers())
         {
         	std::vector<mavlink_message_t> msgs;
-        	driver->sendMavlinkMsg(msgs, qgc->uasId, send_rate, loop_count);
+        	driver->sendMavlinkMsg(msgs, qgc->getUasId(), send_rate, loop_count);
         	for(mavlink_message_t &msg : msgs)
         	{
         		std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
@@ -160,13 +130,12 @@ void QGCLink::QGCSend::send()
         {
             while (!send_queue->empty())
             {
-                #ifndef NDEBUG
                 uint8_t sysid = send_queue->front().at(3);
                 uint8_t compid = send_queue->front().at(4);
                 uint8_t msgid = send_queue->front().at(5);
-                qgc->debug() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
-                #endif
-                qgc->socket.send_to(asio::buffer(send_queue->front()), qgc->qgc);
+                qgc->trace() << "Sending message system: " << sysid << " component: " << compid << " message: " << msgid;
+
+                qgc->send(send_queue->front());
                 send_queue->pop();
             }
 
@@ -183,14 +152,14 @@ void QGCLink::QGCSend::send()
     }
 }
 
-bool QGCLink::QGCSend::should_run(int stream_rate, int send_rate, int count)
+bool QGCSend::should_run(int stream_rate, int send_rate, int count)
 {
     if (stream_rate == 0 || stream_rate > send_rate)
         return false;
     return count%(send_rate/stream_rate) == 0;
 }
 
-void QGCLink::QGCSend::send_raw_imu(std::queue<std::vector<uint8_t> > *sendq)
+void QGCSend::send_raw_imu(std::queue<std::vector<uint8_t> > *sendq)
 {
 //	NavFilter *nav = NavFilter::getInstance();
 //
@@ -211,7 +180,7 @@ void QGCLink::QGCSend::send_raw_imu(std::queue<std::vector<uint8_t> > *sendq)
 
 }
 
-void QGCLink::QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)
+void QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)
 {
     int system_type = MAV_TYPE_HELICOPTER;
     int autopilot_type = MAV_AUTOPILOT_UALBERTA;
@@ -226,7 +195,7 @@ void QGCLink::QGCSend::send_heartbeat(std::queue<std::vector<uint8_t> > *sendq)
 
 }
 
-void QGCLink::QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
+void QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
 {
     // get elements of the system status
     heli::AUTOPILOT_MODE servo_source = get_servo_source();
@@ -319,7 +288,7 @@ void QGCLink::QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
     mavlink_message_t msg;
     std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
 
-    mavlink_msg_ualberta_sys_status_pack(qgc->uasId, 200, &msg,
+    mavlink_msg_ualberta_sys_status_pack(qgc->getUasId(), 200, &msg,
                                          qgc_servo_source, qgc_filter_state, qgc_pilot_mode, qgc_control_mode,(get_attitude_source()?UALBERTA_NAV_FILTER:UALBERTA_AHRS),
                                          servo_switch::getInstance()->get_engine_rpm(), servo_switch::getInstance()->get_main_rotor_rpm(), Helicopter::getInstance()->get_main_collective(), 0, 0, qgc_trajectory);
 
@@ -328,7 +297,7 @@ void QGCLink::QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
     sendq->push(buf);
 }
 
-std::string QGCLink::QGCSend::message_queue_pop()
+std::string QGCSend::message_queue_pop()
 {
     std::lock_guard<std::mutex> lock(message_queue_lock);
     std::string message(message_queue.front());
@@ -336,7 +305,7 @@ std::string QGCLink::QGCSend::message_queue_pop()
     return message;
 }
 
-void QGCLink::QGCSend::send_console_message(const std::string& message, std::queue<std::vector<uint8_t> > *sendq)
+void QGCSend::send_console_message(const std::string& message, std::queue<std::vector<uint8_t> > *sendq)
 {
     std::string console(message);
     console.resize(50);
@@ -344,7 +313,7 @@ void QGCLink::QGCSend::send_console_message(const std::string& message, std::que
     mavlink_message_t msg;
     std::vector<uint8_t> buf(MAVLINK_MAX_PACKET_LEN);
 
-    ::mavlink_msg_statustext_pack(qgc->uasId, 0, &msg, (boost::algorithm::starts_with(console, "Critical")?255:0), console.c_str());
+    ::mavlink_msg_statustext_pack(qgc->getUasId(), 0, &msg, (boost::algorithm::starts_with(console, "Critical")?255:0), console.c_str());
     buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
     sendq->push(buf);
 }

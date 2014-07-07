@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <errno.h>
 #include <chrono>
+#include <cstring>
 
 Logger qnx2LinuxLogger("QNX2Linux");
 

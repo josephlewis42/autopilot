@@ -33,9 +33,6 @@
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;
 #include <boost/numeric/ublas/io.hpp>
-#include <boost/signals2/signal.hpp>
-
-
 
 
 /** @brief Implements a debugging object similar to QDebug @see http://doc.qt.nokia.com/latest/qdebug.html
@@ -112,11 +109,6 @@ public:
     Debug& operator<<(const blas::vector<T>& v);
     template <typename T>
     Debug& operator<<(const blas::matrix<T>& m);
-
-    /// emitted when a warning message is created
-    static boost::signals2::signal<void (std::string)> warningSignal;
-    /// emitted when a critical message is created
-    static boost::signals2::signal<void (std::string)> criticalSignal;
 
 private:
     static std::mutex cerr_lock;

@@ -26,10 +26,10 @@
 #include "Debug.h"
 #include "LogFile.h"
 
+#include "QGCSend.h"
+
 // Variables
 std::mutex Debug::cerr_lock;
-boost::signals2::signal<void (std::string)> Debug::warningSignal;
-boost::signals2::signal<void (std::string)> Debug::criticalSignal;
 std::string Debug::last_message = "";
 int Debug::message_count = 0;
 
@@ -129,8 +129,7 @@ Debug::~Debug()
         {
             lf->logMessage(LOGFILE_NAME, message);
         }
-
-        Debug::warningSignal(message);
+        QGCSend::getInstance()->message_queue_push(message);
         break;
 
     case CRITICAL:
@@ -139,7 +138,7 @@ Debug::~Debug()
             lf->logMessage(LOGFILE_NAME, message);
         }
 
-        Debug::criticalSignal(message);
+        QGCSend::getInstance()->message_queue_push(message);
         break;
 
     case MESSAGE:

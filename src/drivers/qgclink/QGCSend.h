@@ -31,34 +31,35 @@
 
 /* Boost Headers */
 #include <thread>
+#include "Singleton.h"
 
 /**
  * Send data over UDP to QGroundControl
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  *
  */
-class QGCLink::QGCSend
+class QGCSend : public Singleton <QGCSend>
 {
-public:
-	QGCSend(QGCLink* parent = 0);
-	/// Threadsafe copy constructor
-	QGCSend(const QGCSend& other);
-	~QGCSend();
+    friend Singleton<QGCSend>;
 
-	/// threadsafe assignment operator
-	QGCSend& operator=(const QGCSend& other);
-	/// entry point into thread
-	void operator()(){send();}
+public:
+
+    /** queue stream messages and perform actual send */
+	void send();
+
+	/// threadsafe push message to the console
+	inline void message_queue_push(const std::string& message) {std::lock_guard<std::mutex> lock(message_queue_lock); message_queue.push(message);}
 
 private:
+    QGCSend();
+    ~QGCSend();
+
 	/// Pointer to QGCLink instance
 	QGCLink *qgc;
 
 	/// queue to store the message to be sent
 	std::queue<std::vector<uint8_t> > *send_queue;
 
-	/** queue stream messages and perform actual send */
-	void send();
 
 	/** queue up a heartbeat message
 	 * @param sendq queue to put heartbeat message in */
@@ -122,8 +123,6 @@ private:
 	std::queue<std::string> message_queue;
 	/// serialize access to message_queue
 	mutable std::mutex message_queue_lock;
-	/// threadsafe push message
-	inline void message_queue_push(const std::string& message) {std::lock_guard<std::mutex> lock(message_queue_lock); message_queue.push(message);}
 	/// threadsafe empty test
 	inline bool message_queue_empty() const {std::lock_guard<std::mutex> lock(message_queue_lock); return message_queue.empty();}
 	/// threadsafe pop message

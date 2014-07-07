@@ -36,7 +36,6 @@
 
 /* Boost Headers */
 #include <boost/math/constants/constants.hpp>
-#include <boost/signals2/signal.hpp>
 
 /**
  * @brief outer loop pid controller for body frame x-y control

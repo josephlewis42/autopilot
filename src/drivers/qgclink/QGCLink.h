@@ -71,10 +71,26 @@ public:
 	/// emitted when qgc requests a control mode change
 	boost::signals2::signal<void (heli::Controller_Mode)> control_mode;
 
+    /// Sends the given buffer out to QGroundControl
+    void send(std::vector<uint8_t> &buffer)
+    {
+        socket.send_to(asio::buffer(buffer), qgc);
+    }
+
+    /// Returns the uasid for this UAS
+    int getUasId()
+    {
+        return uasId;
+    }
+
+    inline int get_heartbeat_rate() const {return heartbeat_rate;}
+	inline int get_position_rate() const {return position_rate;}
+	inline int get_attitude_rate() const {return attitude_rate;}
+
+
 private:
 
 	class QGCReceive;
-	class QGCSend;
 
 	/// Construct QGCLink class
 	QGCLink();
@@ -87,9 +103,6 @@ private:
 	/// creates the udp socket to qgc and spawns the receive and send threads
 	void init();
 
-	/// mutex to make access to send_queue threadsafe
-//	std::mutex send_queue_lock;
-
 	asio::ip::udp::endpoint qgc;
 	asio::io_service io_service;
 	asio::ip::udp::socket socket;
@@ -101,18 +114,15 @@ private:
 
 	/// frequency to send heartbeat messages.  also used for system status messages
 	std::atomic_int heartbeat_rate;
-	inline int get_heartbeat_rate() const {return heartbeat_rate;}
 	inline void set_heartbeat_reate(int rate) {heartbeat_rate = rate;}
 
 	/// store frequency to send position measurement rate
 	std::atomic_int position_rate;
-	inline int get_position_rate() const {return position_rate;}
 	inline void set_position_rate(int rate) {position_rate = rate;}
 
 	/// Store desired transmission rate for attitude state estimate
 	std::atomic<int> attitude_rate;
-	inline void set_attitude_rate(int rate) {attitude_rate = rate;}
-	inline int get_attitude_rate() const {return attitude_rate;}
+    inline void set_attitude_rate(int rate) {attitude_rate = rate;}
 
 	int uasId;
 };
