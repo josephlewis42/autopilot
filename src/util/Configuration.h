@@ -16,14 +16,14 @@
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <vector>
 #include <map>
+#include "Singleton.h"
 
-class Configuration
+
+class Configuration : public Singleton<Configuration>
 {
-public:
+    friend class Singleton<Configuration>;
 
-    // Returns the existing instance of Configuration or creates one if it does
-    // not yet exist.
-    static Configuration* getInstance();
+public:
 
     // Loads the values from the given properties file.
     void loadProperties(std::string path);
@@ -42,11 +42,6 @@ public:
 
     // Returns a double from the configuration
     double getd(const std::string &key, double alt=0.0);
-
-    // Allows you to override the configuration with a vector of
-    // -key=value strings as you'd get from a cli
-    void overrideWith(const std::vector<std::string>& args);
-    void overrideWith(int argc, char* const argv[]);
 
     /**
      * Sets a path to be a value.
@@ -92,8 +87,6 @@ public:
     std::string getDescription();
 
 private:
-    static Configuration* _instance;
-    static std::mutex _instance_lock;
     boost::property_tree::ptree* _properties;
     static std::mutex _propertiesLock;
     std::map<std::string, std::string> _descriptions;

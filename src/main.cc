@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     printf("Autopilot Version: %s %s\n", __DATE__, __TIME__);
 
     // do unittesting if needed.
-    if(argc == 2 && strcmp(argv[1], "test") == 0)
+    if(argc >= 2 && strcmp(argv[1], "test") == 0)
     {
         ::testing::InitGoogleTest(&argc, argv);
         if(RUN_ALL_TESTS() != 0)
@@ -76,9 +76,6 @@ int main(int argc, char* argv[])
     }
 
     LogFile::getInstance();
-
-    // Set configuration params from CLI if applicable
-    Configuration::getInstance()->overrideWith(argc, argv);
 
 
     // Show system information.

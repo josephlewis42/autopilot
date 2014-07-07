@@ -13,8 +13,6 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 
 
 #include <map>
@@ -27,8 +25,6 @@
 
 
 // Static Class variable instantiation
-Configuration* Configuration::_instance = NULL;
-std::mutex Configuration::_instance_lock;
 std::mutex Configuration::_propertiesLock;
 
 // Variables
@@ -40,13 +36,12 @@ const Logger LOG("Configuration: ");
 Configuration::Configuration()
 {
     _properties = new boost::property_tree::ptree();
-    _instance = this;
 
     try
     {
         read_xml(DEFAULT_XML_FILE_PATH, *_properties, boost::property_tree::xml_parser::trim_whitespace);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         std::cout << "Could not find configuration file: " << DEFAULT_XML_FILE_PATH << std::endl;
     }
@@ -56,53 +51,6 @@ Configuration::~Configuration()
 {
 }
 
-void Configuration::overrideWith(const std::vector<std::string>& args)
-{
-    for(unsigned int i = 0; i < args.size(); ++i)
-    {
-        // check if argument is a key=value pair
-        std::string arg = args[i];
-        std::vector<std::string> strs;
-        boost::split(strs, arg, boost::is_any_of("="));
-
-        if(strs.size() == 2)
-        {
-            std::string key = strs[0];
-            // remove leading - if exists
-            if(key.substr(0,1) == "-")
-            {
-                key = key.substr(1);
-            }
-            set(ROOT_ELEMENT + key, strs[1]);
-        }
-    }
-}
-
-void Configuration::overrideWith(int argc, char* const argv[])
-{
-    std::vector<std::string> args;
-    for(int arg = 0; arg < argc; ++arg)
-    {
-        args.push_back(std::string(argv[arg]));
-    }
-
-    overrideWith(args);
-}
-
-
-Configuration* Configuration::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-
-    if(NULL == _instance)
-    {
-        _instance = new Configuration();
-    }
-
-    return _instance;
-}
-
-
 std::string Configuration::gets(const std::string &key, const std::string &alt)
 {
     std::lock_guard<std::mutex> lock(_propertiesLock);
@@ -110,7 +58,7 @@ std::string Configuration::gets(const std::string &key, const std::string &alt)
     {
         return _properties->get<std::string>(ROOT_ELEMENT + key);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         _properties->put(ROOT_ELEMENT + key, alt);
         save();
@@ -127,7 +75,7 @@ bool Configuration::getb(const std::string &key, bool alt)
     {
         return _properties->get<bool>(ROOT_ELEMENT + key);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         _properties->put(ROOT_ELEMENT + key, alt);
         save();
@@ -144,7 +92,7 @@ int Configuration::geti(const std::string &key, int alt)
     {
         return _properties->get<int>(ROOT_ELEMENT + key);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         _properties->put(ROOT_ELEMENT + key, alt);
         save();
@@ -161,7 +109,7 @@ double Configuration::getd(const std::string &key, double alt)
     {
         return _properties->get<double>(ROOT_ELEMENT + key);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         _properties->put(ROOT_ELEMENT + key, alt);
         save();
@@ -178,7 +126,7 @@ float Configuration::getf(const std::string &key, float alt)
     {
         return _properties->get<float>(ROOT_ELEMENT + key);
     }
-    catch(boost::exception const& e)
+    catch(...)
     {
         _properties->put(ROOT_ELEMENT + key, alt);
         save();
@@ -211,7 +159,7 @@ void Configuration::save()
         boost::property_tree::xml_writer_settings<char> settings('\t', 1);
         write_xml(DEFAULT_XML_FILE_PATH, *_properties, std::locale(), settings);
     }
-    catch(boost::exception const& ex)
+    catch(...)
     {
         LOG.warning() << "Can't save configuration";
     }
