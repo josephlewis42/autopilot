@@ -20,6 +20,9 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <algorithm>
+#include <string.h>
+#include <ctime>
+
 
 
 std::mutex Driver::_all_drivers_lock;

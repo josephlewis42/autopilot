@@ -28,11 +28,7 @@
 #include <mutex>
 
 /* Boost Headers */
-#include <thread>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-namespace blas = boost::numeric::ublas;
-#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/fwd.hpp>
 
 
 /** @brief Implements a debugging object similar to QDebug @see http://doc.qt.nokia.com/latest/qdebug.html
@@ -105,10 +101,10 @@ public:
     Debug& operator<<(const std::vector<uint8_t>& v);
     Debug& operator<<(std::ios_base& (*pf)(std::ios_base&));
     Debug& operator<<(std::ostream& (*pf)(std::ostream&));
-    template <typename T>
-    Debug& operator<<(const blas::vector<T>& v);
-    template <typename T>
-    Debug& operator<<(const blas::matrix<T>& m);
+    Debug& operator<<(const boost::numeric::ublas::vector<double>& v);
+    Debug& operator<<(const boost::numeric::ublas::matrix<double>& m);
+    Debug& operator<<(const boost::numeric::ublas::vector<float>& v);
+    Debug& operator<<(const boost::numeric::ublas::matrix<float>& m);
 
 private:
     static std::mutex cerr_lock;
@@ -262,20 +258,6 @@ Debug& Debug::operator<<(const std::vector<T>& v)
             ss << ", ";
     }
     ss << "]";
-    return *this;
-}
-
-template <typename T>
-Debug& Debug::operator<<(const blas::vector<T>& v)
-{
-    ss << v;
-    return *this;
-}
-
-template <typename T>
-Debug& Debug::operator<<(const blas::matrix<T>& m)
-{
-    ss << m;
     return *this;
 }
 #endif

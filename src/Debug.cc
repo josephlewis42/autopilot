@@ -21,6 +21,10 @@
 #include <string.h>
 #include <mutex> // c++11
 #include <iostream>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 
 /* Project Headers */
 #include "Debug.h"
@@ -226,5 +230,30 @@ Debug& Debug::operator<<(const std::vector<uint8_t>& v)
 Debug& Debug::operator<<(const void* ptr)
 {
     ss << std::hex << ptr << std::dec;
+    return *this;
+}
+
+
+Debug& Debug::operator<<(const boost::numeric::ublas::vector<float>& v)
+{
+    ss << v;
+    return *this;
+}
+
+Debug& Debug::operator<<(const boost::numeric::ublas::matrix<float>& m)
+{
+    ss << m;
+    return *this;
+}
+
+Debug& Debug::operator<<(const boost::numeric::ublas::vector<double>& v)
+{
+    ss << v;
+    return *this;
+}
+
+Debug& Debug::operator<<(const boost::numeric::ublas::matrix<double>& m)
+{
+    ss << m;
     return *this;
 }

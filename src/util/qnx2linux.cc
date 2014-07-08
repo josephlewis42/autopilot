@@ -12,10 +12,11 @@
 #include <unistd.h>
 #include <thread>
 #include "Debug.h"
-#include <stdint.h>
+#include <cstdint>
 #include <errno.h>
 #include <chrono>
 #include <cstring>
+#include <cassert>
 
 Logger qnx2LinuxLogger("QNX2Linux");
 

@@ -22,12 +22,7 @@
 #define PARAMETER_H_
 
 /* STL Headers */
-#include <iostream> // used only while quick debugging (to print to screen).
 #include <string>
-#include <vector>
-
-/* Boost Headers */
-#include <boost/algorithm/string.hpp>
 
 /* Project Headers */
 #include "Debug.h"
@@ -47,23 +42,26 @@ public:
     {
         this->value = value;
     }
+
+    /// Sets the component id for this parameter
     void setCompID(int value)
     {
         this->component_id = value;
     }
 
+    /// Gets the parameter id for this parameter
     std::string getParamID() const
     {
         return id;
     }
-    std::string getParamID_trimmed() const
-    {
-        return boost::trim_copy(id);
-    }
+
+    /// Gets the value for this parameter
     float getValue() const
     {
         return value;
     }
+
+    /// Gets the component id for this parameter
     int getCompID() const
     {
         return component_id;

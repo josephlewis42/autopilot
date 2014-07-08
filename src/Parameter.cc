@@ -22,6 +22,8 @@
 
 const int MAX_PARAM_ID_LENGTH = 14;
 
+Logger paramLogger("Parameter");
+
 Parameter::Parameter(std::string name, float value, int compid)
 {
     setParamID(name);
@@ -35,7 +37,7 @@ void Parameter::setParamID(std::string name)
 
     if(len == 0)
     {
-        std::cout << "Empty parameter name received. Please enter a parameter name" << std::endl;
+        paramLogger.warning() << "Empty parameter name received. Please enter a parameter name" << std::endl;
     }
 
     if(len > MAX_PARAM_ID_LENGTH)
