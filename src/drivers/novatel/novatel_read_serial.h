@@ -29,9 +29,6 @@
 #include <vector>
 
 /* Boost Headers */
-#include <boost/assign.hpp>
-// this scope only pollutes the global namespace in a minimal way consistent with the stl global operators
-using namespace boost::assign;
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 namespace blas = boost::numeric::ublas;

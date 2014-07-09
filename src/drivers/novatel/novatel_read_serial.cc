@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt
- * Copyright 2013 Joseph Lewis <joehms22@gmail.com>
+ * Copyright 2013 Joseph Lewis <joseph@josephlewis.net>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -43,6 +43,10 @@
 #include "MainApp.h"
 #include "qnx2linux.h"
 #include "LogFile.h"
+
+#include <boost/assign.hpp>
+// this scope only pollutes the global namespace in a minimal way consistent with the stl global operators
+using namespace boost::assign;
 
 
 
@@ -91,60 +95,20 @@ bool GPS::ReadSerial::initPort()
 {
     GPS* gps = GPS::getInstance();
 
+    std::string port = gps->configGets("serial_port", "/dev/ttyS1");
 
-    std::string serial_port = Configuration::getInstance()->gets(GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME, GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT);
+    gps->debug() << "port is " << port;
 
-    gps->trace() << "Opening serial";
-    fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY ); //| O_NDELAY);
-    gps->trace() << "Opened serial";
+    fd_ser = open(port.c_str(), O_RDWR | O_NOCTTY);// | O_NDELAY);
 
-    if(-1 == fd_ser)
+    if(fd_ser == -1)
     {
+        gps->critical() << "Unable to open port " << port;
         return false;
     }
 
-
-    // Set up the terminal configuration for the given port.
-    struct termios port_config;
-
-    tcgetattr(fd_ser, &port_config);                  // get the current port settings
-
-    // Set the baud rate
-    cfsetospeed(&port_config, B38400);
-    cfsetispeed(&port_config, B38400);
-
-    // Set the number of data bits
-    port_config.c_cflag &= ~(CSIZE);                  // Set terminal data length.
-    port_config.c_cflag |=  CS8;                      // 8 data bits
-
-    // Set the number of stop bits to 1
-    port_config.c_cflag &= ~(CSTOPB);                 // clear for one stop bit
-
-    // Set parity to none
-    port_config.c_cflag &= ~(PARENB );        // Set terminal parity.
-
-    //set for non-canonical (raw processing, no echo, etc.)
-    port_config.c_iflag = IGNPAR; // ignore parity check close_port(int
-    port_config.c_oflag = 0; // raw output
-    port_config.c_lflag = 0; // raw input
-
-
-    port_config.c_cflag |= (CLOCAL | CREAD);          // Enable the receiver and set local mode...
-
-    // Clear terminal output flow control.
-    if (tcsetattr(fd_ser, TCSADRAIN, &port_config) != 0)
-    {
-        gps->critical() << "NovAtel could not set serial port attributes";
-        return false;
-    }
-
-    if(tcflush(fd_ser, TCIOFLUSH) == -1)
-    {
-        gps->critical() << "could not purge the NovAtel serial port";
-        return false;
-    }
-
-    gps->trace() << "NovAtel initialized on " << serial_port;
+    gps->debug() << "opened";
+    gps->namedTerminalSettings("port", fd_ser, 38400, "8N1", false, true);
 
     return true;
 }
@@ -669,7 +633,6 @@ void GPS::ReadSerial::setupLogging()
     //_genericLog(OEM6_PORT_THISPORT, OEM6_LOG_REFSTATION, ONNEW, OEM6_LOG_4_HZ);
     _genericLog(OEM6_PORT_THISPORT, OEM6_LOG_BESTPOS, ONTIME, OEM6_LOG_4_HZ);
     _genericLog(OEM6_PORT_THISPORT, OEM6_LOG_BESTXYZ, ONTIME, OEM6_LOG_4_HZ);
-
 }
 
 std::vector<uint8_t> GPS::ReadSerial::compute_checksum(const std::vector<uint8_t>& message)
