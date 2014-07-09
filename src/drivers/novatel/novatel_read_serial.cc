@@ -95,7 +95,7 @@ bool GPS::ReadSerial::initPort()
     std::string serial_port = Configuration::getInstance()->gets(GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME, GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT);
 
     gps->trace() << "Opening serial";
-    fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+    fd_ser = open(serial_port.c_str(), O_RDWR | O_NOCTTY ); //| O_NDELAY);
     gps->trace() << "Opened serial";
 
     if(-1 == fd_ser)

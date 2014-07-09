@@ -48,6 +48,9 @@ public:
     // System state lock
     std::mutex state_lock;
 
+    // Generic IMU Data
+
+
     // gx3 data
     blas::vector<double> 	gx3_ned_origin;
     blas::vector<double> 	gx3_velocity;

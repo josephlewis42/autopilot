@@ -5,3 +5,5 @@ platform_settings.mk
 build/
 config.xml
 doc/
+*.o
+*.a

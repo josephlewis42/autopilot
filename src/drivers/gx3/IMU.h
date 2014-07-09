@@ -35,6 +35,7 @@
 #include "Driver.h"
 #include "ThreadQueue.h"
 #include "ThreadSafeVariable.h"
+#include "Singleton.h"
 
 namespace blas = boost::numeric::ublas;
 
@@ -48,10 +49,10 @@ namespace blas = boost::numeric::ublas;
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @date February 2, 2012
  */
-class IMU : public Driver
+class IMU : public Driver, public Singleton<IMU>
 {
+    friend Singleton<IMU>;
 public:
-    static IMU* getInstance();
     virtual ~IMU();
 
     class read_serial;
@@ -136,11 +137,47 @@ public:
     /// should we use an external gps?
     bool externGPS;
 
+
+
+
+    /// threadsafe set position
+    inline void set_position(const blas::vector<double>& position)
+    {
+        std::lock_guard<std::mutex> lock(position_lock);
+        this->position = position;
+    }
+    /// threadsafe get position
+    inline blas::vector<double> get_position() const
+    {
+        std::lock_guard<std::mutex> lock(position_lock);
+        return position;
+    }
+
+    /// threadsafe set ned origin @arg origin in llh
+    void set_ned_origin(const blas::vector<double>& origin);
+    /// threadsafe get ned origin (in llh)
+    inline blas::vector<double> get_ned_origin() const
+    {
+        std::lock_guard<std::mutex> lock(ned_origin_lock);
+        return ned_origin;
+    }
+
+    /// get ecef position
+    inline blas::vector<double> get_ecef_position() const // 2014-06-23 -- now only used internally
+    {
+        return llh2ecef(get_position());
+    }
+
+    /// get ecef ned origin
+    inline blas::vector<double> get_ecef_origin() const // 2014-06-23 -- now only used internally
+    {
+        return llh2ecef(get_ned_origin());
+    }
+
+
 private:
 
     IMU();
-    static IMU* _instance;
-    static std::mutex _instance_lock;
 
     send_serial* _send_serial;
     /// thread to receive data on serial port
@@ -192,31 +229,11 @@ private:
     blas::vector<double> position;
     /// serialize access to IMU::position
     mutable std::mutex position_lock;
-    /// threadsafe set position
-    inline void set_position(const blas::vector<double>& position)
-    {
-        std::lock_guard<std::mutex> lock(position_lock);
-        this->position = position;
-    }
-    /// threadsafe get position
-    inline blas::vector<double> get_position() const
-    {
-        std::lock_guard<std::mutex> lock(position_lock);
-        return position;
-    }
 
     /// store the current ned origin (in llh)
     blas::vector<double> ned_origin;
     /// serialize access to ned_origin
     mutable std::mutex ned_origin_lock;
-    /// threadsafe set ned origin @arg origin in llh
-    void set_ned_origin(const blas::vector<double>& origin);
-    /// threadsafe get ned origin (in llh)
-    inline blas::vector<double> get_ned_origin() const
-    {
-        std::lock_guard<std::mutex> lock(ned_origin_lock);
-        return ned_origin;
-    }
 
     /// store current velocity in ned coords
     blas::vector<double> velocity;
@@ -325,25 +342,15 @@ private:
     /// connection to allow use_nav_attitude to be set from qgc
     boost::signals2::scoped_connection attitude_source_connection;
 
-        /// get llh position
+    /// get llh position
     inline blas::vector<double> get_llh_position() const // 2014-06-23 -- now only used internally
     {
         return get_position();
-    }
-    /// get ecef position
-    inline blas::vector<double> get_ecef_position() const // 2014-06-23 -- now only used internally
-    {
-        return llh2ecef(get_position());
     }
     /// get llh ned origin
     inline blas::vector<double> get_llh_origin() const // 2014-06-23 -- now only used internally
     {
         return get_ned_origin();
-    }
-    /// get ecef ned origin
-    inline blas::vector<double> get_ecef_origin() const // 2014-06-23 -- now only used internally
-    {
-        return llh2ecef(get_ned_origin());
     }
 
     /// threadsafe get nav_euler
@@ -383,7 +390,6 @@ private:
         std::lock_guard<std::mutex> lock(nav_rotation_lock);
         return nav_rotation;
     }
-
 };
 
 #endif /* IMU_H_ */

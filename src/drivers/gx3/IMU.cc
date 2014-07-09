@@ -47,24 +47,11 @@
 /* Boost Headers */
 #include <boost/math/constants/constants.hpp>
 
-IMU* IMU::_instance = NULL;
-std::mutex IMU::_instance_lock;
 
 // path to serial device connected to gx3
 const std::string IMU_SERIAL_PORT_CONFIG_NAME = "serial_port";
 const std::string IMU_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser2";
 
-IMU* IMU::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-
-    if (!_instance)
-    {
-        _instance = new IMU;
-    }
-
-    return _instance;
-}
 
 IMU::IMU()
     :Driver("GX3 IMU", "gx3"),
@@ -109,6 +96,7 @@ IMU::IMU()
         initFailed("could not open serial port");
         return;
     }
+
 
     receive_thread = std::thread(read_serial());
     parse_thread = std::thread(message_parser());
@@ -189,7 +177,7 @@ blas::vector<double> IMU::get_euler_rate() const
 
 blas::vector<double> IMU::get_ned_position() const
 {
-    blas::vector<double> llh(get_llh_position());
+    blas::vector<double> llh(get_position());
     llh[0] = AutopilotMath::degreesToRadians(llh[0]);
     llh[1] = AutopilotMath::degreesToRadians(llh[1]);
 

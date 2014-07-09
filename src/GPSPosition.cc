@@ -21,6 +21,14 @@
 #include "AutopilotMath.hpp"
 #include <cmath>
 
+// GeoLib
+#include <GeographicLib/Geocentric.hpp>
+#include <GeographicLib/LocalCartesian.hpp>
+
+
+#include <boost/numeric/ublas/matrix.hpp>
+
+
 GPSPosition::GPSPosition()
 :_latitudeDD(0),
 _longitudeDD(0),
@@ -40,24 +48,15 @@ _accuracyM(accuracyM)
 
 ublas::vector<double> GPSPosition::ecef() const
 {
-    double lat = AutopilotMath::degreesToRadians(_latitudeDD);
-    double lon = AutopilotMath::degreesToRadians(_longitudeDD);
-    double height = _heightM;
-
-
-    // wgs84 constants
-    static const double equatorial_radius = 6378137;
-    static const double flatness = 1/298.257223563;
-    static double eccentricity = sqrt(flatness*(2-flatness));
-
-    double normal_radius = equatorial_radius/sqrt(1 - pow(eccentricity, 2)*pow(sin(lat),2));
+    double x=0, y=0, z=0;
+    GeographicLib::Geocentric::WGS84.Forward(_latitudeDD, _longitudeDD, _heightM, x, y, z);
 
     ublas::vector<double> ecef(3);
     ecef.clear();
 
-    ecef[0] = (normal_radius + height)*cos(lat)*cos(lon);
-    ecef[1] = (normal_radius + height)*cos(lat)*sin(lon);
-    ecef[2] = (normal_radius*(1-pow(eccentricity,2)) + height)*sin(lat);
+    ecef[0] = x;
+    ecef[1] = y;
+    ecef[2] = z;
 
     return ecef;
 }
@@ -95,5 +94,26 @@ double GPSPosition::distanceTo(GPSPosition* other, bool useCurrentAltitude)
 
     var d = R * c;
     **/
+}
+
+
+
+ublas::vector<double> GPSPosition::ned(GPSPosition &origin) const
+{
+    auto originCoords = GeographicLib::LocalCartesian::LocalCartesian(origin._latitudeDD,
+                                                                      origin._longitudeDD,
+                                                                      origin._heightM);
+
+
+    double x=0, y=0, z=0;
+    originCoords.Forward(_latitudeDD, _longitudeDD, _heightM, x, y, z);
+
+    ublas::vector<double> ned(3);
+    ned.clear();
+    ned[0] = x;
+    ned[1] = y;
+    ned[2] = -z;
+
+    return ned;
 }
 

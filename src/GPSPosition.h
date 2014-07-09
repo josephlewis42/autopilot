@@ -27,6 +27,9 @@ using namespace boost::numeric;
 /** GPSPosition represents a single point in the geographic reference system
 for Earth. It provides utilities for converting this reference to other formats
 as well.
+
+We use the WGS84 Standard For Coordinates, although we could optionally use
+anything else.
  */
 class GPSPosition
 {
@@ -53,6 +56,15 @@ class GPSPosition
          * TODO - add tests for this to ensure correctness of calculations.
          **/
         ublas::vector<double> ecef() const;
+
+        /**
+         * Converts the lat/long/height coordinates to North East Down (NED)
+         * position.
+         *
+         * @param origin - the origin for the ned position
+         * @return a vector of n,e,d
+         **/
+        ublas::vector<double> ned(GPSPosition &origin) const;
 
         /// Returns the latitude in decimal degrees
         const double getLatitudeDD(){return _latitudeDD;};
