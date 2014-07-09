@@ -25,40 +25,7 @@
 #include "MainApp.h"
 #include "LogFile.h"
 #include "SystemState.h"
-
-#include <mutex>
-
-GPS* GPS::_instance = NULL;
-std::mutex GPS::_instance_lock;
-
-/// path to serial device connected to Novatel
-std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_NAME = "novatel.serial_port";
-std::string GPS::GPS_SERIAL_PORT_CONFIGURATION_DEFAULT = "/dev/ser1";
-
-std::string GPS::LOG_NOVATEL_GPS = "Novatel GPS (Invalid Solutions Removed)";
-std::string GPS::LOG_NOVATEL_GPS_ALL = "Novatel GPS (All Measurements)";
-
-
-bool GPS::GPS_ENABLED_DEFAULT = true;
-
-const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
-                                       "V-sol_status vel_type V-X V-Y V-Z V-X_stddev V-Y_stddev V-Z_stddev "
-                                       "#obs";
-
-const std::string READ_GPS_THREAD_NAME = "Novatel GPS";
-
-
-GPS* GPS::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-
-    if (!_instance)
-    {
-        _instance = new GPS();
-    }
-
-    return _instance;
-}
+#include "heli.h"
 
 
 GPS::GPS()
@@ -69,8 +36,6 @@ GPS::GPS()
      pos_sigma(blas::vector<double>(0,3)),
      vel_sigma(blas::vector<double>(0,3))
 {
-    trace() << "Generating log headers";
-    LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 }
 
 
@@ -110,4 +75,31 @@ void GPS::writeToSystemState()
     state->novatel_num_sats = num_sats;
     state->novatel_gps_time = _gps_time;
     state->state_lock.unlock();
+}
+
+void GPS::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
+{
+    if(msgNumber % (sendRateHz / 10) == 0)
+    {
+        auto gps = GPS::getInstance();
+        gps->trace() << "Sending novatel gps raw message";
+
+        blas::vector<double> _pos_error(get_pos_sigma());
+        std::vector<float> pos_error(_pos_error.begin(), _pos_error.end());
+        blas::vector<double> _vel_error(get_vel_sigma());
+        std::vector<float> vel_error(_vel_error.begin(), _vel_error.end());
+
+        mavlink_message_t msg;
+        mavlink_msg_novatel_gps_raw_pack(uasId,
+                                         heli::NOVATEL_ID,
+                                         &msg,
+                                         get_position_type(),
+                                         get_position_status(),
+                                         get_num_sats(),
+                                         &pos_error[0],
+                                         get_velocity_type(),
+                                         &vel_error[0],
+                                         getMsSinceInit());
+        msgs.push_back(msg);
+    }
 }

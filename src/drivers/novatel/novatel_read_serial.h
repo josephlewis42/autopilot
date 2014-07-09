@@ -638,6 +638,31 @@ private:
      */
     bool synchronize();
 
+    /// convert a raw string of bytes to a signed integer
+    template <typename ReturnType, typename IteratorType>
+    static ReturnType raw_to_int(IteratorType first, IteratorType last);
+
+    /**
+     * @code
+     * uint16_t message_id = raw_to_int<uint16_t>(header.begin() + 1);
+     * @endcode
+     */
+    template <typename ReturnType, typename IteratorType>
+    static inline ReturnType raw_to_int(IteratorType first)
+    {
+        return raw_to_int<ReturnType>(first, first + sizeof(ReturnType));
+    }
+
+    template <typename FloatingType, typename IteratorType>
+    static FloatingType raw_to_float(IteratorType first, IteratorType last);
+
+    /// convert an integer type (signed or unsigned) to raw
+    template <typename IntegerType>
+    static std::vector<uint8_t> int_to_raw(const IntegerType i);
+
+    /// convert a floating point type to raw
+    template <typename FloatingType>
+    static std::vector<uint8_t> float_to_raw(const FloatingType f);
 
 };
 template<typename FloatingType>
@@ -667,5 +692,60 @@ blas::vector<FloatingType> GPS::ReadSerial::ecef_to_ned(const blas::vector<Float
 
     return prod(ned_rotation, ecef);
 }
+
+
+
+template <typename ReturnType, typename IteratorType>
+ReturnType GPS::ReadSerial::raw_to_int(IteratorType first, IteratorType last)
+{
+    uint32_t data = 0; // int is largest int type from novatel
+    for (IteratorType it = last - 1; it != first - 1; --it)
+    {
+        data <<= 8;
+        data += *it;
+    }
+    return *reinterpret_cast<ReturnType*>(&data);
+
+}
+
+template <typename FloatingType, typename IteratorType>
+FloatingType GPS::ReadSerial::raw_to_float(IteratorType first, IteratorType last)
+{
+    uint64_t result = 0;
+    for (IteratorType it = last - 1; it != first - 1; --it)
+    {
+        result <<= 8;
+        result += *it;
+    }
+    if (last - first == 8)
+        return *reinterpret_cast<double*>(&result);
+    else
+        return *reinterpret_cast<float*>(&result);
+
+}
+
+template <typename IntegerType>
+std::vector<uint8_t> GPS::ReadSerial::int_to_raw(const IntegerType i)
+{
+    std::vector<uint8_t> result(sizeof(IntegerType));
+    const uint8_t* byte = reinterpret_cast<const uint8_t*>(&i);
+    for (uint32_t i=0; i<sizeof(IntegerType); i++)
+    {
+        result[i] = byte[i];
+    }
+    return result;
+}
+
+template <typename FloatingType>
+std::vector<uint8_t> GPS::ReadSerial::float_to_raw(const FloatingType f)
+
+{
+    std::vector<uint8_t> result(sizeof(FloatingType));
+    const uint8_t* byte = reinterpret_cast<const uint8_t*>(&f);
+    for (size_t i = 0; i< sizeof(FloatingType); i++)
+        result[i] = byte[i];
+    return result;
+}
+
 
 #endif

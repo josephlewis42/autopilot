@@ -61,9 +61,16 @@ const uint8_t GPS::ReadSerial::HEADER_SYNC_BYTES_LENGTH = 3;
 const uint8_t GPS::ReadSerial::HEADER_LENGTH_BYTES = 25;
 
 
+const std::string LOG_NOVATEL_GPS = "Novatel GPS (Invalid Solutions Removed)";
+const std::string GPS_LOGFILE_HEADER = "Time_Status Week Milliseconds P-sol_status pos_type P-X P-Y P-Z P-X_stddev P-Y_stddev P-Z_stddev "
+                                       "V-sol_status vel_type V-X V-Y V-Z V-X_stddev V-Y_stddev V-Z_stddev "
+                                       "#obs";
+
+
 /* read_serial functions */
 GPS::ReadSerial::ReadSerial()
 {
+    LogFile::getInstance()->logHeader(LOG_NOVATEL_GPS, GPS_LOGFILE_HEADER);
 }
 
 void GPS::ReadSerial::operator()()
@@ -302,7 +309,7 @@ void GPS::ReadSerial::readPort()
                 parse_log(log_data, log);
                 last_data = gps->getMsSinceInit();
                 //GPS::getInstance()->gps_updated();
-                LogFile::getInstance()->logData(gps->LOG_NOVATEL_GPS, log);
+                LogFile::getInstance()->logData(LOG_NOVATEL_GPS, log);
             }
             break;
 
