@@ -278,6 +278,9 @@ void IMU::send_serial::reset_filter()
     {
         IMU::getInstance()->set_gx3_status_message("Error resetting nav filter");
     }
+
+    // Now re-init.
+    init_filter();
 }
 
 void IMU::send_serial::init_filter()

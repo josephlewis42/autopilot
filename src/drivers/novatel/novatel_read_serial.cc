@@ -106,7 +106,7 @@ bool GPS::ReadSerial::initPort()
 
     gps->debug() << "port is " << port;
 
-    fd_ser = open(port.c_str(), O_RDWR | O_NOCTTY);// | O_NDELAY);
+    fd_ser = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
     if(fd_ser == -1)
     {
@@ -135,14 +135,14 @@ bool GPS::ReadSerial::synchronize()
         // Check for overall timeout.
 
         auto ms_since_init = gps->getMsSinceInit();
-        if (ms_since_init - last_data / 1000 > 10)
+        if ((ms_since_init - last_data) / 1000 > 10)
         {
             gps->warning() << "NovAtel: Stopped receiving data, attempting restart.";
-            last_data = ms_since_init;
             send_unlog_command();
             std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 
             setupLogging();
+            last_data = ms_since_init; // reset the last time
         }
 
         // Check for local timeout
@@ -158,7 +158,7 @@ bool GPS::ReadSerial::synchronize()
 
             if(position == HEADER_SYNC_BYTES_LENGTH)
             {
-                //gps->trace() << "Got sync!";
+                gps->trace() << "Got sync!";
                 return true;
             }
 
@@ -179,29 +179,30 @@ void GPS::ReadSerial::readPort()
     GPS* gps = GPS::getInstance();
 
     setupLogging();
+    last_data = gps->getMsSinceInit(); // reset the last time
     while(synchronize())
     {
         // Read the header
         std::vector<uint8_t> header(HEADER_LENGTH_BYTES);
         int bytes = gps->readDevice(fd_ser, &header[0], HEADER_LENGTH_BYTES);
-        //gps->trace() << "got header bytes: " << bytes << " " << header;
+        gps->trace() << "got header bytes: " << bytes << " " << header;
         if (bytes < HEADER_LENGTH_BYTES)
         {
             gps->warning("Received valid sync bytes, but could not read header ");
             continue;
         }
 
-        //gps->trace() << "Received Header: " << header;
+        gps->trace() << "Received Header: " << header;
 
         int data_size = raw_to_int<uint16_t>(header.begin() + 5);
 
 
-        //gps->trace() << "Fetching data";
+        gps->trace() << "Fetching data";
 
         std::vector<uint8_t> log_data(data_size);
         bytes = gps->readDevice(fd_ser, &log_data[0], data_size);
 
-        //gps->trace() << "received data bytes: " << bytes << " " << log_data;
+        gps->trace() << "received data bytes: " << bytes << " " << log_data;
 
         if (bytes < data_size)
         {
@@ -210,12 +211,12 @@ void GPS::ReadSerial::readPort()
         }
 
 
-        //gps->trace() << "looking up checksum";
+        gps->trace() << "looking up checksum";
         int checksum_size = 4;
         std::vector<uint8_t> checksum(checksum_size);
         bytes = gps->readDevice(fd_ser, &checksum[0], checksum_size);
 
-        //gps->trace() << "got checksum bytes " << bytes << " " << checksum;
+        gps->trace() << "got checksum bytes " << bytes << " " << checksum;
 
         if (bytes < checksum_size)
         {
@@ -248,7 +249,7 @@ void GPS::ReadSerial::readPort()
             gps->debug() << "response message: " << std::string(log_data.begin() + 4, log_data.end());
         }
 
-        //gps->debug() << "got message " << message_id;
+        gps->debug() << "got message " << message_id;
         switch (message_id)
         {
         case OEM6_COMMAND_LOG: // log command (response)
