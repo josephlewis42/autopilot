@@ -56,8 +56,8 @@ const std::string IMU_SERIAL_PORT_CONFIG_DEFAULT = "/dev/ser2";
 IMU::IMU()
     :Driver("GX3 IMU", "gx3"),
      fd_ser(-1),
-     position(blas::zero_vector<double>(3)),
-     ned_origin(blas::zero_vector<double>(3)),
+     _position(),
+     _ned_origin(),
      velocity(blas::zero_vector<double>(3)),
      use_nav_attitude(true),
      nav_euler(blas::zero_vector<double>(3)),
@@ -98,9 +98,9 @@ IMU::IMU()
     }
 
 
-    receive_thread = std::thread(read_serial());
-    parse_thread = std::thread(message_parser());
-    _send_serial = new send_serial(this);
+    new std::thread(read_serial());
+    new std::thread(message_parser());
+    new send_serial(this);
 }
 
 IMU::~IMU()
@@ -154,7 +154,7 @@ void IMU::set_gx3_mode(IMU::GX3_MODE mode)
         {
             if (mode == RUNNING && gx3_mode != ERROR) // just came out of init or startup
             {
-                set_ned_origin();
+                setNedOrigin(getPosition()); // set the origin to where we are
             }
 
             gx3_mode = mode;
@@ -167,56 +167,7 @@ void IMU::set_gx3_mode(IMU::GX3_MODE mode)
         gx3_mode_changed(mode);
     }
 }
-/**
-blas::vector<double> IMU::get_euler_rate() const
-{
-    // just return the angular rate since the yaw gyro measurement is not reliable
-    return get_angular_rate();
-}
-**/
 
-blas::vector<double> IMU::get_ned_position() const
-{
-    blas::vector<double> llh(get_position());
-    llh[0] = AutopilotMath::degreesToRadians(llh[0]);
-    llh[1] = AutopilotMath::degreesToRadians(llh[1]);
-
-    blas::matrix<double> rot(3,3);
-    rot.clear();
-    rot(0,0) = -sin(llh[0])*cos(llh[1]);
-    rot(0,1) = -sin(llh[0])*sin(llh[1]);
-    rot(0,2) = cos(llh[0]);
-    rot(1,0) = -sin(llh[1]);
-    rot(1,1) = cos(llh[1]);
-    rot(2,0) = -cos(llh[0])*cos(llh[1]);
-    rot(2,1) = -cos(llh[0])*sin(llh[1]);
-    rot(2,2) = -sin(llh[0]);
-
-    return prod(rot, get_ecef_position() - get_ecef_origin());  // take advantage of matrix expression type
-}
-
-blas::vector<double> IMU::llh2ecef(const blas::vector<double>& llh_deg)
-{
-
-    // wgs84 constants
-    blas::vector<double> llh(llh_deg);
-    llh[0] = AutopilotMath::degreesToRadians(llh[0]);
-    llh[1] = AutopilotMath::degreesToRadians(llh[1]);
-    static const double equatorial_radius = 6378137;
-    static const double flatness = 1/298.257223563;
-    static double eccentricity = sqrt(flatness*(2-flatness));
-
-    double normal_radius = equatorial_radius/sqrt(1 - pow(eccentricity, 2)*pow(sin(llh[0]),2));
-
-    blas::vector<double> ecef(3);
-    ecef.clear();
-
-    ecef[0] = (normal_radius + llh[2])*cos(llh[0])*cos(llh[1]);
-    ecef[1] = (normal_radius + llh[2])*cos(llh[0])*sin(llh[1]);
-    ecef[2] = (normal_radius*(1-pow(eccentricity,2)) + llh[2])*sin(llh[0]);
-
-    return ecef;
-}
 
 void IMU::set_use_nav_attitude(bool attitude_source)
 {
@@ -258,15 +209,6 @@ blas::matrix<double> IMU::get_heading_rotation() const
     return Rz;
 }
 
-void IMU::set_ned_origin(const blas::vector<double>& origin)
-{
-    {
-        std::lock_guard<std::mutex> lock(ned_origin_lock);
-        ned_origin = origin;
-    }
-    message() << "Origin set to: " << origin;
-}
-
 
 void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
@@ -277,19 +219,19 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
         //trace() << "Sending mavlink_msg_ualberta_position_pack";
 
         // get llh pos
-        blas::vector<double> _llh_pos(get_llh_position());
+        std::vector<double> _llh_pos = getPosition().toLLH();
         std::vector<float> llh_pos(_llh_pos.begin(), _llh_pos.end());
 
         // get ned pos
-        blas::vector<double> _ned_pos(get_ned_position());
+        blas::vector<double> _ned_pos = get_ned_position();
         std::vector<float> ned_pos(_ned_pos.begin(), _ned_pos.end());
 
         // get ned vel
-        blas::vector<double> _ned_vel(get_velocity());
+        blas::vector<double> _ned_vel(get_ned_velocity());
         std::vector<float> ned_vel(_ned_vel.begin(), _ned_vel.end());
 
         // get ned origin
-        blas::vector<double> _ned_origin(get_llh_origin());
+        std::vector<double> _ned_origin = getNedOriginPosition().toLLH();
         std::vector<float> ned_origin(_ned_origin.begin(), _ned_origin.end());
 
         Control *control = Control::getInstance();
@@ -366,22 +308,19 @@ void IMU::writeToSystemState()
 
     // no need to lock for the position because it uses SystemStateObjParams
     {
-        blas::vector<double> llh_position = get_position();
-
         double accuracy = externGPS ? 0 : 50; // high if we are using our own as it isn't very precise.
-        GPSPosition pos(llh_position[0], llh_position[1], llh_position[2], accuracy);
-        state->position.set(pos, accuracy);
+        state->position.set(getPosition(), accuracy);
     }
 
+    state->nedOrigin.set(getNedOriginPosition(), 0);
 
     state->state_lock.lock();
-    state->gx3_ned_origin = ned_origin;
     state->gx3_velocity = velocity;
-    state->gx3_nav_euler = nav_euler;
+    state->gx3_nav_euler = get_nav_euler();
     state->gx3_ahrs_euler = ahrs_euler;
-    state->gx3_nav_rotation = nav_rotation;
-    state->gx3_nav_angular_rate = nav_angular_rate;
-    state->gx3_ahrs_angular_rate = ahrs_angular_rate;
+    state->gx3_nav_rotation = get_nav_rotation();
+    state->gx3_nav_angular_rate = get_nav_angular_rate();
+    state->gx3_ahrs_angular_rate = get_ahrs_angular_rate();
     state->gx3_use_nav_attitude = use_nav_attitude;
     state->gx3_mode = gx3_mode;
     state->state_lock.unlock();

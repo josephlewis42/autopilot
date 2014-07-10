@@ -19,7 +19,9 @@
 
 #include "GPSPosition.h"
 #include "AutopilotMath.hpp"
+
 #include <cmath>
+#include <sstream>      // std::stringstream
 
 // GeoLib
 #include <GeographicLib/Geocentric.hpp>
@@ -115,5 +117,35 @@ ublas::vector<double> GPSPosition::ned(GPSPosition &origin) const
     ned[2] = -z;
 
     return ned;
+}
+
+
+std::string GPSPosition::toString() const
+{
+    std::stringstream ss;
+    ss << "[Lat: " << _latitudeDD << " dd, ";
+    ss << "Lon: " << _longitudeDD << " dd, ";
+    ss << "Height: " << _heightM << " m]";
+
+    return ss.str();
+}
+
+std::vector<double> GPSPosition::toLLH() const
+{
+    std::vector<double> llh_pos {_latitudeDD, _longitudeDD, _heightM};
+    return llh_pos;
+}
+
+
+bool GPSPosition::operator==(const GPSPosition& rhs) const
+{
+    // ignore the accuracy.
+    return _latitudeDD == rhs._latitudeDD && _longitudeDD == rhs._longitudeDD && _heightM == rhs._heightM;
+}
+
+bool GPSPosition::operator!=(const GPSPosition& rhs) const
+{
+    // ignore the accuracy.
+    return _latitudeDD != rhs._latitudeDD || _longitudeDD != rhs._longitudeDD || _heightM != rhs._heightM;
 }
 

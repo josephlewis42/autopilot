@@ -228,17 +228,14 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
                 if (status_flags[4] && status_flags[4] != nav_status_flags[4])
                 {
                     message += "Pos cov high";
-                    IMU::getInstance()->pos_cov_high();
                 }
                 if (status_flags[5] && status_flags[5] != nav_status_flags[5])
                 {
                     message += "Vel cov high";
-                    IMU::getInstance()->vel_cov_high();
                 }
                 if (status_flags[6] && status_flags[6] != nav_status_flags[6])
                 {
                     message += "Att cov high";
-                    IMU::getInstance()->att_cov_high();
                 }
                 if (status_flags[7] && status_flags[7] != nav_status_flags[7])
                     message += "NAN in soln";
@@ -255,19 +252,20 @@ void IMU::message_parser::parse_nav_message(const std::vector<uint8_t>& message)
         }
         case 0x01: // LLH Position
         {
-            blas::vector<double> llh(3);
-            llh[0] = raw_to_double((*it).begin()+2, (*it).begin()+10);
-            llh[1] = raw_to_double((*it).begin()+10, (*it).begin()+18);
-            llh[2] = raw_to_double((*it).begin()+18, (*it).begin()+26);
+            double lat = raw_to_double((*it).begin()+2, (*it).begin()+10);
+            double lon = raw_to_double((*it).begin()+10, (*it).begin()+18);
+            double height = raw_to_double((*it).begin()+18, (*it).begin()+26);
             uint8_t valid = (*it)[27];
-            std::vector<double> log(llh.begin(), llh.end());
-            log.push_back(static_cast<double>(valid));
+
+            GPSPosition pos(lat, lon, height);
+
+            std::vector<double> log {lat, lon, height, static_cast<double>(valid)};
             LogFile::getInstance()->logData(LOG_LLH_POS, log);
 
             if (valid)
             {
                 // update current position measurement
-                IMU::getInstance()->set_position(llh);
+                IMU::getInstance()->setPosition(pos);
             }
 
             break;

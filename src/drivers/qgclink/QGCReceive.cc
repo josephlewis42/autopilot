@@ -137,7 +137,8 @@ void QGCLink::QGCReceive::receive()
 					case UALBERTA_SET_ORIGIN:
 					{
 						qgc->debug() << "Set Origin";
-						IMU::getInstance()->set_ned_origin();
+                        auto inst = IMU::getInstance();
+                        inst->setNedOrigin(inst->getPosition());
 						break;
 					}
 					case UALBERTA_SET_SERVO_SOURCE:

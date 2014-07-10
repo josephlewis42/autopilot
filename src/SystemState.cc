@@ -20,7 +20,8 @@
 
 SystemState::SystemState()
 :batteryVoltage_mV(0),
- position(1000 , GPSPosition(0,0,0,500))
+ position(1000 , GPSPosition(0,0,0,500)),
+ nedOrigin(0, GPSPosition(0,0,0,500))
 {
 }
 

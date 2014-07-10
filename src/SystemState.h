@@ -111,6 +111,9 @@ public:
     /// The position of the helicopter on Earth, defaults to accepting a less precise position in one second.
     SystemStateObjParam<GPSPosition> position;
 
+    /// The origin of the ned reference frame.
+    SystemStateObjParam<GPSPosition> nedOrigin;
+
 private:
     SystemState();
     static SystemState* _instance;

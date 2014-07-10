@@ -36,6 +36,7 @@
 #include "ThreadQueue.h"
 #include "ThreadSafeVariable.h"
 #include "Singleton.h"
+#include "GPSPosition.h"
 
 namespace blas = boost::numeric::ublas;
 
@@ -81,16 +82,38 @@ public:
     };
 
     /// get position in local ned frame (origin must be set)
-    blas::vector<double> get_ned_position() const;
-    /// public interface to set the origin
-    inline void set_ned_origin()
+    blas::vector<double> get_ned_position() const
     {
-        set_ned_origin(get_llh_position());
+        GPSPosition tmp = getNedOriginPosition();
+        return getPosition().ned(tmp);
     }
+
+
+    GPSPosition getPosition() const
+    {
+        std::lock_guard<std::mutex> lock(position_lock);
+        return _position;
+    }
+
+    GPSPosition getNedOriginPosition() const
+    {
+        std::lock_guard<std::mutex> lock(ned_origin_lock);
+        return _ned_origin;
+    }
+
+    void setNedOrigin(GPSPosition origin)
+    {
+        message() << "Origin set to: " << origin.toString();
+        std::lock_guard<std::mutex> lock(ned_origin_lock);
+        _ned_origin = origin;
+    }
+
+
     /// function to keep names symmetrical with position
     inline blas::vector<double> get_ned_velocity() const
     {
-        return get_velocity();
+        std::lock_guard<std::mutex> lock(velocity_lock);
+        return velocity;
     }
     /// get rotation matrix depending on use_nav_attitude
     inline blas::matrix<double> get_rotation() const
@@ -102,14 +125,14 @@ public:
     /// get the euler angles depending on use_nav_attitude
     inline blas::vector<double> get_euler() const
     {
-        return (get_use_nav_attitude()?get_nav_euler():get_ahrs_euler());
+        return (get_use_nav_attitude()) ? get_nav_euler() : get_ahrs_euler();
     }
 
     /// get the euler angle derivatives
     blas::vector<double> get_euler_rate() const
     {
         // just return the angular rate since the yaw gyro measurement is not reliable
-        return (get_use_nav_attitude()?get_nav_angular_rate():get_ahrs_angular_rate());
+        return (get_use_nav_attitude()) ? get_nav_angular_rate() : get_ahrs_angular_rate();
     }
 
     /// signal to notify when gx3 mode changes
@@ -137,53 +160,16 @@ public:
     /// should we use an external gps?
     bool externGPS;
 
-
-
-
     /// threadsafe set position
-    inline void set_position(const blas::vector<double>& position)
+    inline void setPosition(const GPSPosition& position)
     {
         std::lock_guard<std::mutex> lock(position_lock);
-        this->position = position;
+        _position = position;
     }
-    /// threadsafe get position
-    inline blas::vector<double> get_position() const
-    {
-        std::lock_guard<std::mutex> lock(position_lock);
-        return position;
-    }
-
-    /// threadsafe set ned origin @arg origin in llh
-    void set_ned_origin(const blas::vector<double>& origin);
-    /// threadsafe get ned origin (in llh)
-    inline blas::vector<double> get_ned_origin() const
-    {
-        std::lock_guard<std::mutex> lock(ned_origin_lock);
-        return ned_origin;
-    }
-
-    /// get ecef position
-    inline blas::vector<double> get_ecef_position() const // 2014-06-23 -- now only used internally
-    {
-        return llh2ecef(get_position());
-    }
-
-    /// get ecef ned origin
-    inline blas::vector<double> get_ecef_origin() const // 2014-06-23 -- now only used internally
-    {
-        return llh2ecef(get_ned_origin());
-    }
-
 
 private:
 
     IMU();
-
-    send_serial* _send_serial;
-    /// thread to receive data on serial port
-    std::thread receive_thread;
-    /// thread to parse messages received from imu
-    std::thread parse_thread;
 
     /// serial port file descriptor
     int fd_ser;
@@ -217,23 +203,16 @@ private:
         return gx3_mode;
     }
 
-
-    /// signal when covariance of position measurement is too high (pos measurement invalid)
-    boost::signals2::signal<void ()> pos_cov_high;
-    /// signal when covariance of velocity measurement is too high
-    boost::signals2::signal<void ()> vel_cov_high;
-    /// signal when covariance of attitude measruement is too high
-    boost::signals2::signal<void ()> att_cov_high;
-
-    /// store the current position
-    blas::vector<double> position;
+    /// Store the current position
+    GPSPosition _position;
     /// serialize access to IMU::position
     mutable std::mutex position_lock;
 
     /// store the current ned origin (in llh)
-    blas::vector<double> ned_origin;
+    GPSPosition _ned_origin;
     /// serialize access to ned_origin
     mutable std::mutex ned_origin_lock;
+
 
     /// store current velocity in ned coords
     blas::vector<double> velocity;
@@ -332,26 +311,12 @@ private:
     /// signal to notify imu it needs to reinitialize the serial connection
     boost::signals2::signal<void ()> initialize_imu;
 
-    /// convert llh to ecef
-    static blas::vector<double> llh2ecef(const blas::vector<double>& llh_deg);
-
 
     std::atomic_int _positionSendRateHz;
     std::atomic_int _attitudeSendRateHz;
 
     /// connection to allow use_nav_attitude to be set from qgc
     boost::signals2::scoped_connection attitude_source_connection;
-
-    /// get llh position
-    inline blas::vector<double> get_llh_position() const // 2014-06-23 -- now only used internally
-    {
-        return get_position();
-    }
-    /// get llh ned origin
-    inline blas::vector<double> get_llh_origin() const // 2014-06-23 -- now only used internally
-    {
-        return get_ned_origin();
-    }
 
     /// threadsafe get nav_euler
     inline blas::vector<double> get_nav_euler() const // 2014-06-23 -- now only used internally
@@ -378,12 +343,7 @@ private:
         std::lock_guard<std::mutex> lock(ahrs_angular_rate_lock);
         return ahrs_angular_rate;
     }
-        /// threadsafe get velocity (ned)
-    inline blas::vector<double> get_velocity() const // 2014-06-23 -- now only used internally
-    {
-        std::lock_guard<std::mutex> lock(velocity_lock);
-        return velocity;
-    }
+
     /// threadsafe get rotation
     inline blas::matrix<double> get_nav_rotation() const // 2014-06-23 -- not used
     {

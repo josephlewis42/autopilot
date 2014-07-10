@@ -21,6 +21,7 @@
 #define GPS_POSITION_H
 
 #include <boost/numeric/ublas/vector.hpp>
+#include <vector>
 
 using namespace boost::numeric;
 
@@ -87,6 +88,21 @@ class GPSPosition
          * @return the number of meters between the two points.
          **/
         double distanceTo(GPSPosition* other, bool useCurrentAltitude=true);
+
+        /**
+         * Returns a string representation of this position.
+         **/
+        std::string toString() const;
+
+        /** Returns the latitude, longitude, height representation of this position.
+         */
+        std::vector<double> toLLH() const;
+
+        /** Equality test on two positions, ignoring the accuracy **/
+        bool operator==(const GPSPosition& rhs) const;
+
+        /** inequality test on two positions, ignoring the accuracy **/
+        bool operator!=(const GPSPosition& rhs) const;
 
 
     private:
