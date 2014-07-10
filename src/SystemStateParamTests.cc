@@ -58,3 +58,17 @@ TEST(SystemStateParam, AcceptEqualBeforeTimeout)
 
 }
 
+
+
+TEST(SystemStateParam, observer)
+{
+    SystemStateParam<double> ssp(0);
+    SystemStateParam<double> ssp2(0);
+    ssp2.set(400, 0);
+
+    ssp.notifySet(ssp2);
+    ssp.set(100, 0);
+
+    EXPECT_EQ(ssp2.get(), 100);
+}
+

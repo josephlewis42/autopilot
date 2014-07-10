@@ -104,7 +104,6 @@ class GPSPosition
         /** inequality test on two positions, ignoring the accuracy **/
         bool operator!=(const GPSPosition& rhs) const;
 
-
     private:
         double _latitudeDD, _longitudeDD, _heightM, _accuracyM;
 };

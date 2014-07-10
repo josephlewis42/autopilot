@@ -33,3 +33,21 @@ TEST(SystemStateObjParam, Toss_Worse)
     EXPECT_EQ(ssp.set(two, -1), false); // test negative
     EXPECT_EQ(ssp.set(two, 0), true); // test equal
 }
+
+
+TEST(SystemStateObjParam, observer)
+{
+    std::vector<int> in = {1,1,1};
+    std::vector<int> two = {2,2,2};
+    SystemStateObjParam<std::vector<int> > ssp(0, in);
+    SystemStateObjParam<std::vector<int> > ssp2(0, in);
+
+    ssp.notifySet(ssp2);
+    ssp.set(two, 0);
+
+    auto other = ssp2.get();
+    EXPECT_EQ(other.size(), two.size());
+    EXPECT_EQ(other[0], two[0]);
+    EXPECT_EQ(other[1], two[1]);
+    EXPECT_EQ(other[2], two[2]);
+}

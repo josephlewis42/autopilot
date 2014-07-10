@@ -16,6 +16,9 @@
 #include <chrono>
 
 
+#include <boost/signals2.hpp>
+
+
 /** SystemStateParam represents a system state parameter.
 
 Parameters automatically become invalid after a certain time, have a value a min and max value
@@ -74,6 +77,8 @@ public:
     **/
     bool set(T value, double error)
     {
+        onSet(value, error);
+
         if(error < 0)
         {
             error *= -1;
@@ -105,6 +110,15 @@ public:
     {
         return _value.load();
     }
+
+    void notifySet(SystemStateParam<T> & other)
+    {
+        // the & captures all variables inside lambda by reference
+        onSet.connect([&](T val, double err){other.set(val, err);});
+    }
+
+    boost::signals2::signal<void (T, double)> onSet;
+
 
 private:
     T _min;

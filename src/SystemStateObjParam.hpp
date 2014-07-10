@@ -14,6 +14,10 @@
 #include <chrono>
 #include <mutex>
 
+
+#include <boost/signals2.hpp>
+
+
 /** SystemStateObjParam represents a system state parameter that is a copyable object,
 unlike SystemStateParam it uses mutexes to sync reading and writing not atomics.
 
@@ -60,6 +64,9 @@ public:
     **/
     bool set(T value, double error)
     {
+        // call all listeners.
+        onSet(value, error);
+
         std::lock_guard<std::mutex> lock(_lock);
 
         if(error < 0)
@@ -76,6 +83,7 @@ public:
             _value = value;
             _currentError = error;
             _lastTime = currtime;
+
             return true;
         }
 
@@ -89,6 +97,15 @@ public:
         std::lock_guard<std::mutex> lock(_lock);
         return _value;
     }
+
+    void notifySet(SystemStateObjParam<T> & other)
+    {
+        // the & captures all variables inside lambda by reference
+        onSet.connect([&](T val, double err){other.set(val, err);});
+    }
+
+    boost::signals2::signal<void (T, double)> onSet;
+
 
 private:
     std::mutex _lock;
