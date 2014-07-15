@@ -167,14 +167,14 @@ Error message and password prompt
 <!--~~ Ordinary tiddlers ~~-->
 
 <div id="storeArea" style="display:none;">
-<div created="20140715180139238" modified="20140715184224000" tags="hardware box ubuntu autopilot" title="Autopilot Hardware">
+<div created="20140715180139238" modified="20140715205929203" tags="hardware box ubuntu autopilot" title="Autopilot Hardware">
 <pre>The computer itself is a mini motherboard ([ext[Commell LS-37B|http://www.commell.com.tw/product/SBC/LS-37B.HTM]]) running a stock version of the Ubuntu Linux operating system. 
 
 The computer interacts with the helicopter via the [[Servo Switch]] and the [[Engine Control Unit]] (both via serial) as well as with any other hardware devices through serial/USB ports or network ports.
 
 The following is an overview of the hardware devices and I/O for the autopilot computer:
 
-Motherboard ([ext[Commell LS-37B|http://www.commell.com.tw/product/SBC/LS-37B.HTM]])
+;Motherboard ([ext[Commell LS-37B|http://www.commell.com.tw/product/SBC/LS-37B.HTM]])
 
 * Serial port(s)
 ** [[Servo Switch]]
@@ -195,16 +195,29 @@ Motherboard ([ext[Commell LS-37B|http://www.commell.com.tw/product/SBC/LS-37B.HT
 *** -&gt; [2x parallel: Pololu 3.3V 500mA ~Step-Down circuit boards]
 **** -&gt; Novatel GPS
 
-3D Printed Box Enclosure
+;3D Printed Box Enclosure
 
-* Provides housing for the mini motherboard, the [[Novatel GPS]], [[Servo Switch]], [[Microhard Radio]]
+* Provides housing for: 
+** Mini motherboard
+** [[Novatel GPS]]
+** [[Servo Switch]]
+** [[Microhard Radio]]
+* Additional enclosure details:
+** Hole for servo switch breakout
+** Hole for onboard USB ports
+** Hole for momentary reset switch
+** Holes for radio antennae
+** Hole for Novatel GPS antenna
+** Top holes for ventilation (CPU fan)
+** Other holes for cabling
 * 3D Printers Available:
 ** Stratasys 3D printer: Located in DU Metallurgy building
 ** Makerbot: ??
 * Sketchup file for box located in autopilot repository:
 **autopilot/hardware/box3.skp
+** Enclosure requires some additional routing/dremel-ing to fit everything
 
-Ubuntu Linux System
+;Ubuntu Linux System
 
 *Radio communication requires that the autopilot computer be setup with a static IP address
 * Verified working with Ubuntu 13.10, Mint 17</pre>
@@ -4033,7 +4046,7 @@ autopilot/doc/html/index.html
 <div created="20140715205205369" modified="20140715205211940" title="$:/DefaultTiddlers">
 <pre>[[Getting Started]]</pre>
 </div>
-<div created="20140715172628008" modified="20140715194339764" tags="[[getting started]] overview FAQ" title="Getting Started">
+<div created="20140715172628008" modified="20140715210038314" tags="[[getting started]] overview FAQ" title="Getting Started">
 <pre>Welcome to the University of Denver Helicopter Autopilot Project.
 
 Overview Links:
@@ -4056,9 +4069,9 @@ To setup for basic development and use:
 
 * Clone each repository so that the individual folders for all repositories are within the same parent directory. e.g.:
 ```
-project/autopilot
-project/UDenverQGC
-project/UDenverMavlink
+project/autopilot/...
+project/UDenverQGC/...
+project/UDenverMavlink/...
 ```
 * In each repository, consult the README.md file for instructions on compiling and running the individual subsystem</pre>
 </div>
@@ -4115,7 +4128,7 @@ UDenverQGC/src/uas/UAlbertaMAV.cc
 ;How to get plugins in dropdown menu?
 :Not sure yet.</pre>
 </div>
-<div current-tiddler="$:/ControlPanel" modified="20140715205203003" title="$:/HistoryList" type="application/json">
+<div current-tiddler="Getting Started" modified="20140715210038315" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -4410,6 +4423,49 @@ UDenverQGC/src/uas/UAlbertaMAV.cc
             &quot;bottom&quot;: 152.63333129882812,
             &quot;height&quot;: 28.149993896484375
         }
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Hardware&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 237.43333435058594,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 117.16667175292969,
+            &quot;right&quot;: 241.8000030517578,
+            &quot;bottom&quot;: 255.8000030517578,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Hardware&quot;
+    },
+    {
+        &quot;title&quot;: &quot;$:/ControlPanel&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 124.48333740234375,
+            &quot;left&quot;: 799.3333129882812,
+            &quot;width&quot;: 29.333343505859375,
+            &quot;right&quot;: 828.6666259765625,
+            &quot;bottom&quot;: 152.63333129882812,
+            &quot;height&quot;: 28.149993896484375
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Getting Started'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Getting Started'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
     }
 ]</pre>
 </div>
@@ -4468,7 +4524,7 @@ UDenverMavlink/mavgenerate.py
 <div modified="20140715172606972" title="$:/state/tab/sidebar-{312696086}">
 <pre>$:/core/ui/SideBar/Recent</pre>
 </div>
-<div list="$:/ControlPanel [[Getting Started]]" title="$:/StoryList">
+<div list="[[Getting Started]]" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20140715171824962" modified="20140715202740219" title="$:/temp/NewTagName">
