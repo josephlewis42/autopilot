@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <title>Autopilot Overview</title>
+        <script type='text/javascript' src='inc/jquery-2.1.1.min.js'></script>
+        <link href="/inc/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class='container'>
+
+        <h1><img src="/inc/dusri.png" height="50px"/>University of Denver Autopilot Control 2.0</h1>
+
+        {{if .alert}}
+        <div class="alert alert-warning">{{.alert}}</div>
+
+        <script type='text/javascript'>
+            setTimeout(function(){location.replace("/");}, 3000);
+        </script>
+        {{end}}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Autopilot Control</div>
+            <div class="panel-body">
+                {{if .proc}}
+                        <h2>Running</h2>
+                        <a class="btn btn-danger" href="/autopilot/stop/">Stop Autopilot</a>
+                {{else}}
+                    <form action="/autopilot/start/" method="post">
+                        Select A Pilot:<br>
+
+                        {{range .pilots}}
+                        <input type="radio" name="autopilot" value="{{.}}">{{.}}</input><br>
+                        {{end}}
+
+                        Select A Configuration<br>
+
+                        {{range .configurations}}
+                        <input type="radio" name="configuration" value="{{.}}">{{.}}</input><br>
+                        {{end}}
+                        <input class="btn btn-success" type="submit" value="Start Autopilot" />
+                    </form>
+                {{end}}
+
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Logs</div>
+    <div class="panel-body">
+        <table cellpadding="10">
+            <tr><th>Log Name</th><th>Download</th><th>Delete</th></tr>
+            {{range .runs}}
+            <tr>
+                <td>{{.}}</td>
+                <td><a href='/log/download/{{.}}'>Download</a></td>
+                <td><a href='/log/delete/{{.}}'>Delete</a></td>
+            </tr>
+            {{end}}
+        </table>
+
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Autopilot Manager</div>
+    <div class="panel-body">
+        <h3>Upload New</h3>
+        <form action="/autopilot/upload/" method="post" enctype="multipart/form-data">
+            Name: <input type="text" name="name"><br>
+            File: <input type="file" name="path"><br>
+            <input type="submit" value="Submit">
+        </form>
+
+        <hr>
+        <h3>Manage Existing</h3>
+        <table cellpadding="10">
+            <tr><th>Name</th><th>Download</th><th>Delete</th></tr>
+            {{range .pilots}}
+            <tr>
+                <td>{{.}}</td>
+                <td><a href='/autopilot/download/{{.}}'>Download</a></td>
+                <td><a href='/autopilot/delete/{{.}}'>Delete</a></td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Configuration Manager</div>
+    <div class="panel-body">
+        <h3>Upload New</h3>
+        <form action="/configuration/upload/" method="post" enctype="multipart/form-data">
+            Name: <input type="text" name="name"><br>
+            File: <input type="file" name="path"><br>
+            <input type="submit" value="Submit">
+        </form>
+
+        <hr>
+        <h3>Manage Existing</h3>
+        <table cellpadding="10">
+            <tr><th>Name</th><th>Download</th><th>Delete</th></tr>
+            {{range .configurations}}
+            <tr>
+                <td>{{.}}</td>
+                <td><a href='/configuration/download/{{.}}'>Download</a></td>
+                <td><a href='/configuration/delete/{{.}}'>Delete</a></td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</div>
+</body>
+</html>
