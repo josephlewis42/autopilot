@@ -167,7 +167,7 @@ Error message and password prompt
 <!--~~ Ordinary tiddlers ~~-->
 
 <div id="storeArea" style="display:none;">
-<div created="20140715180139238" modified="20140715205929203" tags="hardware box ubuntu autopilot" title="Autopilot Hardware">
+<div created="20140715180139238" modified="20140715211035943" tags="hardware box ubuntu autopilot" title="Autopilot Hardware">
 <pre>The computer itself is a mini motherboard ([ext[Commell LS-37B|http://www.commell.com.tw/product/SBC/LS-37B.HTM]]) running a stock version of the Ubuntu Linux operating system. 
 
 The computer interacts with the helicopter via the [[Servo Switch]] and the [[Engine Control Unit]] (both via serial) as well as with any other hardware devices through serial/USB ports or network ports.
@@ -194,6 +194,8 @@ The following is an overview of the hardware devices and I/O for the autopilot c
 *** -&gt; [[Microhard Radio]]
 *** -&gt; [2x parallel: Pololu 3.3V 500mA ~Step-Down circuit boards]
 **** -&gt; Novatel GPS
+* Power/Reset Switch
+** Connects to 5th set of jumpers from the outside edge of the motherboard
 
 ;3D Printed Box Enclosure
 
@@ -222,7 +224,7 @@ The following is an overview of the hardware devices and I/O for the autopilot c
 *Radio communication requires that the autopilot computer be setup with a static IP address
 * Verified working with Ubuntu 13.10, Mint 17</pre>
 </div>
-<div created="20140715184422019" modified="20140715195309351" tags="autopilot software drivers controller" title="Autopilot Software">
+<div created="20140715184422019" modified="20140715211227469" tags="autopilot software drivers controller" title="Autopilot Software">
 <pre>The autopilot software is written primarily in C++. The main components of the software are as follows:
 
 ;Main App
@@ -284,6 +286,7 @@ The following is an overview of the hardware devices and I/O for the autopilot c
 ```
 autopilot/utils/autopilot_web_2.0
 ```
+* Username/Password: otto/otto
 * Allows access/downloading of log files
 * Upload/manage different autopilot versions
 * Upload/modify config.xml files for different autopilot versions
@@ -4128,7 +4131,7 @@ UDenverQGC/src/uas/UAlbertaMAV.cc
 ;How to get plugins in dropdown menu?
 :Not sure yet.</pre>
 </div>
-<div current-tiddler="Getting Started" modified="20140715210038315" title="$:/HistoryList" type="application/json">
+<div current-tiddler="Autopilot Software" modified="20140715211227470" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -4466,6 +4469,55 @@ UDenverQGC/src/uas/UAlbertaMAV.cc
     },
     {
         &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Hardware&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 237.43333435058594,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 117.16667175292969,
+            &quot;right&quot;: 241.8000030517578,
+            &quot;bottom&quot;: 255.8000030517578,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Hardware&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Hardware'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Hardware&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Software&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 257.433349609375,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 112.10000610351562,
+            &quot;right&quot;: 236.73333740234375,
+            &quot;bottom&quot;: 275.8000183105469,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Software&quot;
     }
 ]</pre>
 </div>
