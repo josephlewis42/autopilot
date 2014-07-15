@@ -17,6 +17,19 @@
         {{end}}
 
         <div class="panel panel-default">
+            <div class="panel-heading">System Control</div>
+            <div class="panel-body">
+                <a class="btn btn-danger" href="/command/shutdown/">Shut Down System</a>
+                <a class="btn btn-info" href="/command/proc/">Processes</a>
+                <a class="btn btn-info" href="/command/ifconfig/">Network</a>
+                <a class="btn btn-info" href="/command/dmesg/">System Log</a>
+                <a class="btn btn-info" href="/command/w/">Users</a>
+                <a class="btn btn-info" href="/command/cpuinfo/">CPU Info</a>
+            </div>
+        </div>
+
+
+        <div class="panel panel-default">
             <div class="panel-heading">Autopilot Control</div>
             <div class="panel-body">
                 {{if .proc}}
