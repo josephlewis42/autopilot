@@ -123,13 +123,15 @@ Error message and password prompt
 
 <li>$:/core</li>
 
-<li>$:/DefaultTiddlers</li>
-
 <li>Getting Started</li>
+
+<li>Ground Control System</li>
 
 <li>$:/HistoryList</li>
 
 <li>$:/isEncrypted</li>
+
+<li>MAVLink Messages</li>
 
 <li>$:/plugins/tiddlywiki/fullscreen</li>
 
@@ -205,7 +207,7 @@ Ubuntu Linux System
 *Radio communication requires that the autopilot computer be setup with a static IP address
 * Verified working with Ubuntu 13.10, Mint 17</pre>
 </div>
-<div created="20140715184422019" modified="20140715193956603" tags="autopilot software drivers controller" title="Autopilot Software">
+<div created="20140715184422019" modified="20140715195309351" tags="autopilot software drivers controller" title="Autopilot Software">
 <pre>The autopilot software is written primarily in C++. The main components of the software are as follows:
 
 ;Main App
@@ -270,7 +272,8 @@ autopilot/utils/autopilot_web_2.0
 * Allows access/downloading of log files
 * Upload/manage different autopilot versions
 * Upload/modify config.xml files for different autopilot versions
-* Start/Stop Autopilot
+* Start/Stop autopilot software
+* Shutdown autopilot computer
 
 ;External Libraries
 :The following external libraries are included in 'autopilot/src/extern':
@@ -4025,9 +4028,6 @@ autopilot/doc/html/index.html
     }
 }</pre>
 </div>
-<div created="20140715194746866" modified="20140715194824239" title="$:/DefaultTiddlers">
-<pre>[[Getting Started]]</pre>
-</div>
 <div created="20140715172628008" modified="20140715194339764" tags="[[getting started]] overview FAQ" title="Getting Started">
 <pre>Welcome to the University of Denver Helicopter Autopilot Project.
 
@@ -4057,7 +4057,60 @@ project/UDenverMavlink
 ```
 * In each repository, consult the README.md file for instructions on compiling and running the individual subsystem</pre>
 </div>
-<div current-tiddler="$:/ControlPanel" modified="20140715194816936" title="$:/HistoryList" type="application/json">
+<div created="20140715195551897" modified="20140715202707015" tags="[[ground control]] QGC QGroundControl" title="Ground Control System">
+<pre>The ground control system consists of the following:
+
+* A Toughbook laptop running Ubuntu Linux
+* [[Microhard Radio]]
+* [[Novatel GPS]] (this is in addition to the GPS in the [[autopilot box|Autopilot Hardware]]).
+* Power Supply (12V)
+** -&gt; Novatel GPS
+** -&gt; Can power Microhard Radio
+** -&gt; Power supply breakout
+
+
+;Laptop ~WiFi / LAN
+:In order to get the [[Microhard Radio]] communication working, its necessary to tell Ubuntu to share the LAN connection (&quot;Wired&quot;) with other computers.
+* This can be done in Ubuntu via: 
+** Network Connections -&gt; 
+** Wired connection 1 -&gt; 
+** Edit -&gt;
+** IPv4 Settings -&gt;
+** Method -&gt; Share to other computers
+
+;~QGroundControl (QGC)
+:The Toughbook laptop runs a customized version of the ~QGroundControl software in order to track and control the helicopter autopilot. The ground control station and the autopilot box communicate via their own [[Microhard Radios|Microhard Radio]] using standard and custom [[MAVLink Messages]].
+
+;UDenver Plugins
+:These are the custom QGC plugins built for interacting with the UDenver autopilot:
+* Autopilot Control
+** Unified plugin to display statistics and send actions/commands to the autopilot software.
+** To modify the UI of this plugin requires QTCreator IDE. The UI file and plugin controller files are located at:
+```
+UDenverQGC/src/ui/ualberta/UAlbertaControlWidget.*
+```
+* Remote Autopilot
+** This is just a link to the web interface (golang server on autopilot computer)
+** This plugin is not necessarily working.
+** Files located at:
+```
+UDenverQGC/src/ui/ualberta/udenverremoteautopilot.*
+```
+
+;Adding support for new MAVLink messages
+:When new [[MAVLink Messages]] are added to the message definition XML files, and the autopilot is recompiled, the appropriate headers and functions will already be available to QGC. However, QGC needs to be told how to interpret and act upon the new messages once they are received. For receiving messages this can be done by updating the large switch statement in the following file to include the new MAVLink message IDs:
+```
+UDenverQGC/src/uas/UAlbertaMAV.cc
+```
+
+;Radio Calibration
+:Some modifications have been made to the RadioCalibration classes in QGC
+* More info is needed here...
+
+;How to get plugins in dropdown menu?
+:Not sure yet.</pre>
+</div>
+<div current-tiddler="MAVLink Messages" modified="20140715204812247" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -4237,37 +4290,137 @@ project/UDenverMavlink
         &quot;title&quot;: &quot;Getting Started&quot;
     },
     {
-        &quot;title&quot;: &quot;GettingStarted&quot;
-    },
-    {
-        &quot;title&quot;: &quot;$:/ControlPanel&quot;,
+        &quot;title&quot;: &quot;Autopilot Software&quot;,
         &quot;fromPageRect&quot;: {
-            &quot;top&quot;: 124.48333740234375,
-            &quot;left&quot;: 799.3333129882812,
-            &quot;width&quot;: 29.333343505859375,
-            &quot;right&quot;: 828.6666259765625,
-            &quot;bottom&quot;: 152.63333129882812,
-            &quot;height&quot;: 28.149993896484375
+            &quot;top&quot;: 257.433349609375,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 112.10000610351562,
+            &quot;right&quot;: 236.73333740234375,
+            &quot;bottom&quot;: 275.8000183105469,
+            &quot;height&quot;: 18.366668701171875
         }
     },
     {
-        &quot;title&quot;: &quot;Getting&quot;
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
     },
     {
-        &quot;title&quot;: &quot;$:/ControlPanel&quot;,
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Software&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;,
         &quot;fromPageRect&quot;: {
-            &quot;top&quot;: 124.48333740234375,
-            &quot;left&quot;: 799.3333129882812,
-            &quot;width&quot;: 29.333343505859375,
-            &quot;right&quot;: 828.6666259765625,
-            &quot;bottom&quot;: 152.63333129882812,
-            &quot;height&quot;: 28.149993896484375
+            &quot;top&quot;: 277.433349609375,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 143.76666259765625,
+            &quot;right&quot;: 268.3999938964844,
+            &quot;bottom&quot;: 295.8000183105469,
+            &quot;height&quot;: 18.366668701171875
         }
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 213.46665954589844,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 143.76666259765625,
+            &quot;right&quot;: 268.3999938964844,
+            &quot;bottom&quot;: 231.8333282470703,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Ground Control System'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Ground Control System'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;
+    },
+    {
+        &quot;title&quot;: &quot;MAVLink Messages&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 297.433349609375,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 122.23333740234375,
+            &quot;right&quot;: 246.86666870117188,
+            &quot;bottom&quot;: 315.8000183105469,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 277.433349609375,
+            &quot;left&quot;: 124.63333129882812,
+            &quot;width&quot;: 143.76666259765625,
+            &quot;right&quot;: 268.3999938964844,
+            &quot;bottom&quot;: 295.8000183105469,
+            &quot;height&quot;: 18.366668701171875
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;
+    },
+    {
+        &quot;title&quot;: &quot;MAVLink Messages&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;MAVLink Messages&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'MAVLink Messages'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;MAVLink Messages&quot;
     }
 ]</pre>
 </div>
 <div title="$:/isEncrypted">
 <pre>no</pre>
+</div>
+<div created="20140715202757045" modified="20140715204812246" tags="MAVLink mavlink" title="MAVLink Messages">
+<pre>MAVLink is a standardized messaging protocol for communicating between autopilots and control stations. The MAVLink repository includes many pre-made default (common) messages, as well as the ability to define and add custom messages.
+
+;Usage
+:MAVLink message definitions and code are found in the '~UDenverMavlink' repository. Both the 'autopilot' and '~UDenverQGC' repositories reference the '~UDenverMavlink' repo when compiling, which is why the directory structure needs to be maintained (all 3 repos within the same parent). Messages are packed by either QGC or the autopilot software before being sent over the network, and then are unpacked and interpreted when they are received on the other end.
+
+;Modifying/adding messages
+:Messages are described in XML files in the 'message_definitions' folder in the '~UDenverMavlink' repository. The common messages may have been slightly altered from the defaults, and any custom messages are defined in the following file:
+```
+UDenverMavlink/message_definitions/ualberta.xml
+```
+:Before actually using the messages, the XML files need to be converted to C++ classes by an included generator (written in Python):
+```
+UDenverMavlink/mavgenerate.py
+```
+: the C++ classes are also auto-generated when the autopilot is compiled with 'make'.
+
+;Using the new messages
+:Once the new messages are implemented and the classes are generated, either QGC or the autopilot software, or both, need to be updated to use and interpret the new messages. What needs to be modified and where will depend on the usage of the new messages but the following are likely to be places that might need updating in order to use the new classes, functions, and message IDs:
+* A new Driver's sendMavlinkMsg() method
+* autopilot/src/drivers/qgclink/~QGC_Send.cc
+* autopilot/src/drivers/qgclink/~QGC_Receive.cc
+* ~UDenverQGC/src/uas/~UAlbertaMAV.cc
+* QGC class for sending messages?</pre>
 </div>
 <div author="JeremyRuston" core-version="&gt;=5.0.0" dependents="" description="Adds support for HTML5 full screen mode" plugin-type="plugin" title="$:/plugins/tiddlywiki/fullscreen" type="application/json" version="5.0.13-beta">
 <pre>{
@@ -4296,10 +4449,10 @@ project/UDenverMavlink
 <div modified="20140715172606972" title="$:/state/tab/sidebar-{312696086}">
 <pre>$:/core/ui/SideBar/Recent</pre>
 </div>
-<div list="" title="$:/StoryList">
+<div list="[[Getting Started]]" title="$:/StoryList">
 <pre></pre>
 </div>
-<div created="20140715171824962" modified="20140715184404600" title="$:/temp/NewTagName">
+<div created="20140715171824962" modified="20140715202740219" title="$:/temp/NewTagName">
 <pre></pre>
 </div>
 <div created="20140715171811348" modified="20140715171812257" title="$:/temp/search">
