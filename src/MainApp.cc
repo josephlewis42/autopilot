@@ -84,7 +84,7 @@ void MainApp::run()
     WaypointManager::getInstance();
 
     message() << "Setting up system state object";
-    SystemState::getInstance();
+    SystemState* systemState = SystemState::getInstance();
 
     message() << "Setting up common messages";
     CommonMessages::getInstance();
@@ -138,13 +138,16 @@ void MainApp::run()
                 boost::bind(&MainApp::change_pilot_mode, this, _1)));
 
     message() << "Started main loop";
-    RateLimiter rl(100);
+    RateLimiter rl(100, true); // 100 times a second and report percent of time used.
 
     while(! _terminate.load())
     {
 
         /* Dequeue messages & pulses on a channel with MsgReceivev(). Threads Receive-block & queue on channel for a msg/pulse to arrive.  */
-        rl.wait();
+        float amt = rl.wait();
+        info() << "used " << amt << "time";
+        systemState->main_loop_load.set(amt, 0);
+
 
         // Pilot Flight log marker.
         ch7PulseWidth = servo_board->getRaw(heli::CH7);
@@ -206,8 +209,6 @@ void MainApp::run()
             request_mode(heli::MODE_DIRECT_MANUAL);
             break;
         }
-
-        rl.finishedCriticalSection();
     }
 
     Driver::terminateAll();

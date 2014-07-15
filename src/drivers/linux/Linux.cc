@@ -19,11 +19,14 @@
 
 #include "Linux.h"
 #include <sys/sysinfo.h>
+#include "SystemState.h"
 
 Linux::Linux()
-:Plugin("Linux CPU Info","linux_cpu_info", 1)
+:Plugin("Linux CPU Info","linux_cpu_info", 1),
+cpu_utilization(0)
 {
     start(); // Start the plugin
+    cpu_utilization.notifySet(SystemState::getInstance()->cpu_load);
 }
 
 bool Linux::init()
@@ -43,7 +46,7 @@ void Linux::loop()
 
     float util = 0;
 
-    cpu_utilization = sysinf.loads[0] / (float)(1 << SI_LOAD_SHIFT); // set our utilization at 5 min.
+    cpu_utilization.set(sysinf.loads[0] / (float)(1 << SI_LOAD_SHIFT), 0); // set our utilization at 5 min.
     uptime_seconds = sysinf.uptime;
     totalram = (sysinf.totalram * sysinf.mem_unit) / (1024 * 1024);
     freeram = (sysinf.freeram * sysinf.mem_unit) / (1024 * 1024);
@@ -61,7 +64,7 @@ void Linux::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int 
         debug() << "Sending CPU Utilization";
 
         mavlink_message_t msg;
-        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, cpu_utilization.load(), totalram.load(), freeram.load());
+        mavlink_msg_udenver_cpu_usage_pack(uasId, 40, &msg, cpu_utilization.get(), totalram.load(), freeram.load());
         msgs.push_back(msg);
     }
 };

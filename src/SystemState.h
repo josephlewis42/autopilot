@@ -114,6 +114,13 @@ public:
     /// The origin of the ned reference frame.
     SystemStateObjParam<GPSPosition> nedOrigin;
 
+    /// The CPU load as a proportion
+    SystemStateParam<float> cpu_load;
+
+    /// The mainloop load as a proportion
+    SystemStateParam<float> main_loop_load;
+
+
 private:
     SystemState();
     static SystemState* _instance;

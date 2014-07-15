@@ -24,11 +24,15 @@
 
 #include "Debug.h"
 
-#define NDEBUG
+Logger rateLimiterLogger("RateLimiter");
 
-RateLimiter::RateLimiter(int hz)
+//#define NDEBUG
+
+RateLimiter::RateLimiter(int hz, bool ckload)
     :_msToWait(1000 / hz),
-     _nextTime()
+     _nextTime(),
+    _checkload(ckload),
+    _msPerLoop(1000.0 / hz)
 {
     _nextTime = std::chrono::high_resolution_clock::now();
     _nextTime = _nextTime + _msToWait;
@@ -38,8 +42,17 @@ RateLimiter::~RateLimiter()
 {
 }
 
-void RateLimiter::wait()
+float RateLimiter::wait()
 {
+    float ret = 0;
+
+    if(_checkload)
+    {
+        std::chrono::high_resolution_clock::time_point const now = std::chrono::high_resolution_clock::now();
+        float used = std::chrono::duration_cast<std::chrono::milliseconds>(now - _nextTime).count() + _msPerLoop;
+        ret = used / _msPerLoop;
+    }
+
     std::chrono::high_resolution_clock::time_point const timeout = _nextTime;
     std::this_thread::sleep_until(timeout);
     _nextTime += _msToWait;
@@ -47,9 +60,11 @@ void RateLimiter::wait()
 #ifndef NDEBUG
     if(std::chrono::high_resolution_clock::now() > _nextTime)
     {
-        debug() << "RateLimiter: Fallen behind!";
+        rateLimiterLogger.warning() << "RateLimiter: Fallen behind!";
     }
 #endif
+
+    return ret;
 }
 
 void RateLimiter::finishedCriticalSection()
@@ -57,3 +72,4 @@ void RateLimiter::finishedCriticalSection()
     // yield the thread so others can execute now.
     std::this_thread::yield();
 }
+

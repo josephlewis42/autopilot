@@ -23,6 +23,7 @@
 #include <atomic>  // Used for atomic types
 #include "Plugin.h"
 #include "Singleton.h"
+#include "SystemStateParam.hpp"
 
 /**
  * Provides an interface to the performance of Linux.
@@ -42,7 +43,7 @@ private:
 
     static void cpuInfo(Linux* instance);
 
-    std::atomic<float> cpu_utilization;
+    SystemStateParam<float> cpu_utilization;
     std::atomic<long> uptime_seconds;
     std::atomic<long> load1, load5, load15, totalram, freeram;
     std::atomic<short> procs;

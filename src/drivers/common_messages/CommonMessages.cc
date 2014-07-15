@@ -166,12 +166,17 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
     // sys_status
     if(_sendSysStatus.load())
     {
+        uint16_t load = state->main_loop_load.get() * 100;
+
+        if(load > 1000)
+            warning() << "main loop is using too much time";
+
         mavlink_message_t msg;
         mavlink_msg_sys_status_pack(uasId, MAV_COMP_ID_ALL, &msg,
                                     0, // uint32_t onboard_control_sensors_present,
                                     0, // uint32_t onboard_control_sensors_enabled,
                                     0, // uint32_t onboard_control_sensors_health,
-                                    0, // uint16_t load,
+                                    load, // uint16_t load,
                                     state->batteryVoltage_mV.get(), // uint16_t voltage_battery,
                                     0, // int16_t current_battery,
                                     0, // int8_t battery_remaining,
