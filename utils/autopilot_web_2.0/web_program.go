@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-var templates = template.Must(template.ParseFiles("templates/root.html"))
+var templates = template.Must(template.ParseFiles("templates/root.html", "templates/command.html"))
 var started_proc *exec.Cmd = nil
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -353,6 +353,24 @@ func copyFileContents(src, dst string) (err error) {
 }
 
 
+func GenericCommand(command string, args ...string) func(http.ResponseWriter, *http.Request) {
+	return func (w http.ResponseWriter, r *http.Request) {
+
+		//go func(){
+			sp := exec.Command(command, args...)
+			bytes, err := sp.CombinedOutput()
+			//GenerateMainPage(w, "Running " + command)
+		//}()
+
+		err = templates.ExecuteTemplate(w, "command.html", string(bytes))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+	}
+}
+
+
 func main() {
 
 	err := GenerateFolders()
@@ -370,6 +388,15 @@ func main() {
 	http.HandleFunc("/autopilot/stop/", StopAutopilot)
 	http.HandleFunc("/configuration/upload/", GenericUploader("./autopilot/configurations/"))
 	http.HandleFunc("/configuration/delete/", GenericDeleter("./autopilot/configurations/"))
+	http.HandleFunc("/command/shutdown/", GenericCommand("/sbin/shutdown", "-H", "-P", "now"))
+	http.HandleFunc("/command/proc/", GenericCommand("/bin/ps", "-aux"))
+	http.HandleFunc("/command/ifconfig/", GenericCommand("/sbin/ifconfig"))
+	http.HandleFunc("/command/dmesg/", GenericCommand("/bin/dmesg"))
+	http.HandleFunc("/command/w/", GenericCommand("/usr/bin/w"))
+	http.HandleFunc("/command/cpuinfo/", GenericCommand("/bin/cat", "/proc/cpuinfo"))
+
+
+
 	http.Handle("/configuration/download/", http.StripPrefix("/configuration/download/", http.FileServer(http.Dir("./autopilot/configurations/"))))
 	http.Handle("/autopilot/download/", http.StripPrefix("/autopilot/download/", http.FileServer(http.Dir("./autopilot/pilots/"))))
 
