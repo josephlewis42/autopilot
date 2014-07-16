@@ -158,7 +158,7 @@ void IMU::message_parser::parse_ahrs_message(const std::vector<uint8_t>& message
             euler[2] = raw_to_float(first_data + 8);
             LogFile::getInstance()->logData(Log_AHRS_Euler, euler);
             imu->set_ahrs_euler(euler);
-//			debug() << "AHRS euler: " << euler;
+			imu->debug() << "AHRS Euler roll: " << euler[0] << " pitch: " << euler[1] << " yaw: " << euler[2];
             break;
         }
         default:

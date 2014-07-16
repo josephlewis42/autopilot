@@ -41,6 +41,9 @@ public:
     send_serial(IMU* parent = 0);
 //	void operator()();
 private:
+    /// Resets the IMU
+    void reset();
+
     /// send the sequence of messages necessary to initialize the imu
     void init_imu();
     /// ping the imu

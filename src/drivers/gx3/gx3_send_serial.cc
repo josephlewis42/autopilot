@@ -97,6 +97,8 @@ void IMU::send_serial::init_imu()
 {
     IMU* imu = IMU::getInstance();
 
+    //reset();
+
     imu->debug("Setting to idle");
     set_to_idle();
     imu->debug("Setting AHRS message format");
@@ -109,6 +111,14 @@ void IMU::send_serial::init_imu()
     reset_filter();
     imu->debug("enabling messages");
     enable_messages();
+    imu->debug("init filter");
+    init_filter();
+}
+
+void IMU::send_serial::reset()
+{
+    std::vector<uint8_t> reset_cmd = {0x75, 0x65, 0x01, 0x02, 0x02, 0x7E};
+    finish_packet_and_alert(reset_cmd, 0x7E, "reset device");
 }
 
 
@@ -278,9 +288,6 @@ void IMU::send_serial::reset_filter()
     {
         IMU::getInstance()->set_gx3_status_message("Error resetting nav filter");
     }
-
-    // Now re-init.
-    init_filter();
 }
 
 void IMU::send_serial::init_filter()
