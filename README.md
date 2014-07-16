@@ -20,6 +20,15 @@ been extensively tested in flight.
 Software Information
 ====================
 
+Usage
+-----
+
+To build and run the software, from the root directory:
+
+		$ make
+		$ cd build
+		$ ./autopilot
+
 Directory Structure
 -------------------
 
