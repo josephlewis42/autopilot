@@ -3906,10 +3906,10 @@ Error message and password prompt
     }
 }</pre>
 </div>
-<div created="20140715205205369" modified="20140716201934945" title="$:/DefaultTiddlers">
-<pre>[[Getting Started]][[Running the Autopilot]]</pre>
+<div created="20140715205205369" modified="20140716204036419" title="$:/DefaultTiddlers">
+<pre>[[Getting Started]]</pre>
 </div>
-<div current-tiddler="$:/ControlPanel" modified="20140716201931328" title="$:/HistoryList" type="application/json">
+<div current-tiddler="$:/ControlPanel" modified="20140716204032400" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -4316,6 +4316,78 @@ Error message and password prompt
             &quot;bottom&quot;: 152,
             &quot;height&quot;: 28
         }
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Software&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 215.28334045410156,
+            &quot;left&quot;: 125,
+            &quot;width&quot;: 115.88333129882812,
+            &quot;right&quot;: 240.88333129882812,
+            &quot;bottom&quot;: 231.78334045410156,
+            &quot;height&quot;: 16.5
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Getting Started'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Getting Started'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Autopilot Software'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Autopilot Software&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Running the Autopilot'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Running the Autopilot'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Running the Autopilot&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 278.2833251953125,
+            &quot;left&quot;: 125,
+            &quot;width&quot;: 147.5833282470703,
+            &quot;right&quot;: 272.58331298828125,
+            &quot;bottom&quot;: 294.7833251953125,
+            &quot;height&quot;: 16.5
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Ground Control System'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Ground Control System'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;
+    },
+    {
+        &quot;title&quot;: &quot;$:/ControlPanel&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 124.48333740234375,
+            &quot;left&quot;: 799.3333129882812,
+            &quot;width&quot;: 29.333343505859375,
+            &quot;right&quot;: 828.6666259765625,
+            &quot;bottom&quot;: 152.13333129882812,
+            &quot;height&quot;: 27.649993896484375
+        }
     }
 ]</pre>
 </div>
@@ -4352,10 +4424,10 @@ Error message and password prompt
 <div modified="20140716201923036" title="$:/state/tab/sidebar-{312696086}">
 <pre>$:/core/ui/SideBar/More</pre>
 </div>
-<div list="[[Running the Autopilot]] [[Getting Started]]" title="$:/StoryList">
+<div list="[[Getting Started]]" title="$:/StoryList">
 <pre></pre>
 </div>
-<div created="20140715171824962" modified="20140715202740219" title="$:/temp/NewTagName">
+<div created="20140715171824962" modified="20140716203824506" title="$:/temp/NewTagName">
 <pre></pre>
 </div>
 <div created="20140715171811348" modified="20140715171812257" title="$:/temp/search">
@@ -4461,8 +4533,12 @@ The following is an overview of the hardware devices and I/O for the autopilot c
 *Radio communication requires that the autopilot computer be setup with a static IP address
 * Verified working with Ubuntu 13.10, Mint 17</pre>
 </div>
-<div created="20140715184422019" modified="20140715211227469" tags="autopilot software drivers controller" title="Autopilot Software">
-<pre>The autopilot software is written primarily in C++. The main components of the software are as follows:
+<div created="20140715184422019" modified="20140716203718869" tags="autopilot software drivers controller" title="Autopilot Software">
+<pre>//For instructions on running the autopilot in the field, please see the following://
+
+* [[Running the Autopilot]]
+
+The autopilot software is written primarily in C++. The main components of the software are as follows:
 
 ;Main App
 :The software initializes and runs its main loop in the [[MainApp class]]. In this class all drivers are instantiated and then the autopilot goes into a control loop that communicates with the servo switch in the way designated by the current control mode (DIRECT_MANUAL, SCALED_MANUAL, AUTOMATIC_CONTROL).
@@ -4548,7 +4624,7 @@ autopilot/doc/html/index.html
 ```
 * Includes function call graph.</pre>
 </div>
-<div created="20140715172628008" modified="20140715210038314" tags="[[getting started]] overview FAQ" title="Getting Started">
+<div created="20140715172628008" modified="20140716203552152" tags="[[getting started]] overview FAQ" title="Getting Started">
 <pre>Welcome to the University of Denver Helicopter Autopilot Project.
 
 Overview Links:
@@ -4557,6 +4633,10 @@ Overview Links:
 * [[Autopilot Software]]
 * [[Ground Control System]]
 * [[MAVLink Messages]]
+
+For running the autopilot in the field please see the following:
+
+* [[Running the Autopilot]]
 
 Currently the code is maintained in 3 separate Git repositories:
 
@@ -4577,7 +4657,7 @@ project/UDenverMavlink/...
 ```
 * In each repository, consult the README.md file for instructions on compiling and running the individual subsystem</pre>
 </div>
-<div created="20140715195551897" modified="20140715202707015" tags="[[ground control]] QGC QGroundControl" title="Ground Control System">
+<div created="20140715195551897" modified="20140716204023044" tags="[[ground control]] QGC QGroundControl" title="Ground Control System">
 <pre>The ground control system consists of the following:
 
 * A Toughbook laptop running Ubuntu Linux
@@ -4588,6 +4668,7 @@ project/UDenverMavlink/...
 ** -&gt; Can power Microhard Radio
 ** -&gt; Power supply breakout
 
+[img[images/base.png]]
 
 ;Laptop ~WiFi / LAN
 :In order to get the [[Microhard Radio]] communication working, its necessary to tell Ubuntu to share the LAN connection (&quot;Wired&quot;) with other computers.
@@ -4655,7 +4736,7 @@ UDenverMavlink/mavgenerate.py
 * ~UDenverQGC/src/uas/~UAlbertaMAV.cc
 * QGC class for sending messages?</pre>
 </div>
-<div created="20140716201846670" modified="20140716201916049" title="Running the Autopilot" type="text/vnd.tiddlywiki">
+<div created="20140716201846670" modified="20140716203828184" tags="running field helicopter" title="Running the Autopilot" type="text/vnd.tiddlywiki">
 <pre>! Modern Way
 
 # Apply power to the ground station and heli systems
