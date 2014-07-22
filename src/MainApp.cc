@@ -40,7 +40,7 @@
 #include "SystemState.h"
 #include "CommonMessages.h"
 #include "WaypointManager.h"
-
+#include "ExternalMavlink.h"
 
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
@@ -118,6 +118,9 @@ void MainApp::run()
     message() << "Setting up Linux CPU Reader";
     Linux::getInstance();
 
+
+    message() << "setting up external mavlink source";
+    ExternalMavlink::getInstance();
 
     // broadcast the controller mode
     control->mode_changed(control->get_controller_mode());

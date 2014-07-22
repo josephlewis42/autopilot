@@ -9,6 +9,7 @@
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</servo>
 	<gx3>
 		<debug>true</debug>
@@ -34,7 +35,8 @@
 		<attitude_message_rate_hz>10</attitude_message_rate_hz>
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
-		<read_save_path></read_save_path>
+		<read_save_path/>
+		<logging_level>2</logging_level>
 	</gx3>
 	<qgroundcontrol>
 		<debug>false</debug>
@@ -48,6 +50,7 @@
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</qgroundcontrol>
 	<channels>
 		<two>
@@ -77,65 +80,65 @@
 	</channels>
 	<controller_params>
 		<mix>
-			<roll>1</roll>
-			<pitch>1</pitch>
+			<roll>0.500000</roll>
+			<pitch>0.500000</pitch>
 		</mix>
 		<mode>0</mode>
 		<trajectory>0</trajectory>
 		<attitude_pid>
 			<roll>
 				<gain>
-					<proportional>1</proportional>
-					<derivative>1</derivative>
-					<integral>1</integral>
+					<proportional>1.000000</proportional>
+					<derivative>1.000000</derivative>
+					<integral>1.000000</integral>
 				</gain>
-				<trim>0</trim>
+				<trim>0.000000</trim>
 			</roll>
 			<pitch>
 				<gain>
-					<proportional>1</proportional>
-					<derivative>1</derivative>
-					<integral>1</integral>
+					<proportional>1.000000</proportional>
+					<derivative>1.000000</derivative>
+					<integral>1.000000</integral>
 				</gain>
-				<trim>0</trim>
+				<trim>0.000000</trim>
 			</pitch>
 		</attitude_pid>
 		<translation_outer_pid>
 			<x>
-				<proportional>1</proportional>
-				<derivative>1</derivative>
-				<integral>1</integral>
+				<proportional>1.000000</proportional>
+				<derivative>1.000000</derivative>
+				<integral>1.000000</integral>
 			</x>
 			<y>
-				<proportional>1</proportional>
-				<derivative>1</derivative>
-				<integral>1</integral>
+				<proportional>1.000000</proportional>
+				<derivative>1.000000</derivative>
+				<integral>1.000000</integral>
 			</y>
-			<travel>15</travel>
+			<travel>15.000000</travel>
 		</translation_outer_pid>
 		<translation_outer_sbf>
 			<ned_x>
-				<proportional>1</proportional>
-				<derivative>1</derivative>
-				<integral>1</integral>
+				<proportional>1.000000</proportional>
+				<derivative>1.000000</derivative>
+				<integral>1.000000</integral>
 			</ned_x>
 			<ned_y>
-				<proportional>1</proportional>
-				<derivative>1</derivative>
-				<integral>1</integral>
+				<proportional>1.000000</proportional>
+				<derivative>1.000000</derivative>
+				<integral>1.000000</integral>
 			</ned_y>
-			<travel>0</travel>
+			<travel>0.000000</travel>
 		</translation_outer_sbf>
 		<line>
-			<xtravel>0</xtravel>
-			<ytravel>0</ytravel>
-			<hover>0</hover>
-			<speed>0</speed>
+			<xtravel>0.000000</xtravel>
+			<ytravel>0.000000</ytravel>
+			<hover>0.000000</hover>
+			<speed>0.000000</speed>
 		</line>
 		<circle>
-			<radius>0</radius>
-			<hover>7</hover>
-			<speed>0.30000001192092896</speed>
+			<radius>10.000000</radius>
+			<hover>7.000000</hover>
+			<speed>0.300000</speed>
 		</circle>
 	</controller_params>
 	<physical_params>
@@ -167,6 +170,7 @@
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</novatel>
 	<log>
 		<debug>false</debug>
@@ -175,6 +179,7 @@
 		<enable>true</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</log>
 	<mdl_altimeter>
 		<debug>true</debug>
@@ -193,6 +198,7 @@
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</mdl_altimeter>
 	<tcpserial>
 		<debug>false</debug>
@@ -213,6 +219,7 @@
 		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</tcpserial>
 	<linux_cpu_info>
 		<debug>false</debug>
@@ -221,6 +228,7 @@
 		<enable>true</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</linux_cpu_info>
 	<common_messages>
 		<debug>false</debug>
@@ -233,6 +241,8 @@
 		<radio_channel_send_rate_hz>10</radio_channel_send_rate_hz>
 		<control_effort_send_rate_hz>10</control_effort_send_rate_hz>
 		<read_save_path/>
+		<logging_level>2</logging_level>
+		<send_system_time_message>true</send_system_time_message>
 	</common_messages>
 	<waypoint_manager>
 		<debug>false</debug>
@@ -241,5 +251,25 @@
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<read_save_path/>
+		<logging_level>2</logging_level>
 	</waypoint_manager>
+	<external_mavlink>
+		<logging_level>0</logging_level>
+		<read_style>2</read_style>
+		<enable>true</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
+		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
+		<read_save_path/>
+		<use_external_gps>true</use_external_gps>
+		<use_external_imu>true</use_external_imu>
+		<read_path>/home/joseph/Desktop/mavlink</read_path>
+		<terminal>
+			<read_settings>
+				<baudrate>57600</baudrate>
+				<parity>8N1</parity>
+				<hardware_flow_control>false</hardware_flow_control>
+				<raw_mode>true</raw_mode>
+			</read_settings>
+		</terminal>
+	</external_mavlink>
 </configuration>
