@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-var templates = template.Must(template.ParseFiles("templates/root.html", "templates/command.html"))
+var templates = template.Must(template.ParseFiles("templates/root.html", "templates/command.html", "templates/edit.html"))
 var started_proc *exec.Cmd = nil
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -388,6 +388,7 @@ func main() {
 	http.HandleFunc("/autopilot/stop/", StopAutopilot)
 	http.HandleFunc("/configuration/upload/", GenericUploader("./autopilot/configurations/"))
 	http.HandleFunc("/configuration/delete/", GenericDeleter("./autopilot/configurations/"))
+	http.HandleFunc("/configuration/edit/", GenericDeleter("./autopilot/configurations/"))
 	http.HandleFunc("/command/shutdown/", GenericCommand("/sbin/shutdown", "-H", "-P", "now"))
 	http.HandleFunc("/command/proc/", GenericCommand("/bin/ps", "-aux"))
 	http.HandleFunc("/command/ifconfig/", GenericCommand("/sbin/ifconfig"))

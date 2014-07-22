@@ -177,6 +177,8 @@ Error message and password prompt
 
 <li>Running the Autopilot</li>
 
+<li>Servo Switch</li>
+
 </ul>
 </p>
 
@@ -3925,7 +3927,7 @@ Error message and password prompt
 <div created="20140715205205369" modified="20140716204036419" title="$:/DefaultTiddlers">
 <pre>[[Getting Started]]</pre>
 </div>
-<div current-tiddler="Autopilot Hardware" modified="20140722150555482" title="$:/HistoryList" type="application/json">
+<div current-tiddler="Servo Switch" modified="20140722235042271" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -5051,6 +5053,21 @@ Error message and password prompt
     },
     {
         &quot;title&quot;: &quot;Autopilot Hardware&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'New Tiddler'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Servo Switch&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Servo Switch'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Servo Switch&quot;
     }
 ]</pre>
 </div>
@@ -5110,16 +5127,16 @@ Error message and password prompt
 <div modified="20140721205429231" title="$:/state/tab/moresidebar-{947362856}">
 <pre>$:/core/ui/MoreSideBar/System</pre>
 </div>
-<div modified="20140722145535258" title="$:/state/tab/sidebar-{312696086}">
+<div modified="20140722234857617" title="$:/state/tab/sidebar-{312696086}">
 <pre>$:/core/ui/SideBar/Recent</pre>
 </div>
-<div list="[[Getting Started]]" title="$:/StoryList">
+<div list="[[Servo Switch]] [[Getting Started]]" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20140721214444409" modified="20140721214514914" title="$:/temp/newfieldname">
 <pre></pre>
 </div>
-<div created="20140715171824962" modified="20140721202645630" title="$:/temp/NewTagName">
+<div created="20140715171824962" modified="20140722234912785" title="$:/temp/NewTagName">
 <pre></pre>
 </div>
 <div created="20140715171811348" modified="20140722150110180" title="$:/temp/search">
@@ -5703,6 +5720,24 @@ running the autopilot
 ## If the autopilot is running, press &quot;Control + C&quot; to kill it.
 ## run the command `sudo shutdown now`
 ## Wait for 60 seconds for a full shutdown until unplugging the computer
+</pre>
+</div>
+<div created="20140722234900861" modified="20140722235042268" tags="box hardware" title="Servo Switch" type="text/x-markdown">
+<pre>Configuration
+-----------------
+
+This is a snapshot of the configuration that can be dumped over the serial interface when the device is started up in to configuration mode (typinng `ssconfig` on boot).
+
+    ---------- Start Of Image ----------
+    010008000000000002030220020302300203024002030202020302020203026002030270
+    020302800203028002030280020302800203028002030280020302800203028002030280
+    020304800203048002030480020304800203048002030480020304800203048005D705F5
+    044C05AA060E05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC
+    05DC05DC05DC05DC4E204E204E204E204E204E204E204E204E204E204E204E204E204E20
+    4E204E204E204E204E204E204E204E204E204E200000000000000000000000000A00000A
+    0A00AFC6
+
+    ----------  End Of Image  ----------
 </pre>
 </div>
 
