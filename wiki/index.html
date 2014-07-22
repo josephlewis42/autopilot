@@ -3925,7 +3925,7 @@ Error message and password prompt
 <div created="20140715205205369" modified="20140716204036419" title="$:/DefaultTiddlers">
 <pre>[[Getting Started]]</pre>
 </div>
-<div current-tiddler="Draft of 'markdowntest'" modified="20140721214746619" title="$:/HistoryList" type="application/json">
+<div current-tiddler="$:/ControlPanel" modified="20140722144847500" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -4700,6 +4700,68 @@ Error message and password prompt
     },
     {
         &quot;title&quot;: &quot;Draft of 'markdowntest'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Ground Control System&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 278.2833251953125,
+            &quot;left&quot;: 125,
+            &quot;width&quot;: 147.5833282470703,
+            &quot;right&quot;: 272.58331298828125,
+            &quot;bottom&quot;: 294.7833251953125,
+            &quot;height&quot;: 16.5
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Novatel GPS&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 450.816650390625,
+            &quot;left&quot;: 125,
+            &quot;width&quot;: 79.83332824707031,
+            &quot;right&quot;: 204.8333282470703,
+            &quot;bottom&quot;: 467.316650390625,
+            &quot;height&quot;: 16.5
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Novatel GPS'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Novatel GPS'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;NovAtel&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 387.683349609375,
+            &quot;left&quot;: 777,
+            &quot;width&quot;: 49.23333740234375,
+            &quot;right&quot;: 826.2333374023438,
+            &quot;bottom&quot;: 404.183349609375,
+            &quot;height&quot;: 16.5
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'NovAtel'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'NovAtel'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;NovAtel&quot;
+    },
+    {
+        &quot;title&quot;: &quot;$:/ControlPanel&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 124.48333740234375,
+            &quot;left&quot;: 799.3333129882812,
+            &quot;width&quot;: 29.333343505859375,
+            &quot;right&quot;: 828.6666259765625,
+            &quot;bottom&quot;: 152.13333129882812,
+            &quot;height&quot;: 27.649993896484375
+        }
     }
 ]</pre>
 </div>
@@ -4753,14 +4815,14 @@ Error message and password prompt
 <div modified="20140721213234641" title="$:/state/tab-{1296820639}">
 <pre>$:/themes/tiddlywiki/vanilla/themetweaks</pre>
 </div>
-<div modified="20140721214555318" title="$:/state/tab-{794734817}">
-<pre>$:/core/ui/ControlPanel/Plugins</pre>
+<div modified="20140722144850920" title="$:/state/tab-{794734817}">
+<pre>$:/core/ui/ControlPanel/Basics</pre>
 </div>
 <div modified="20140721205429231" title="$:/state/tab/moresidebar-{947362856}">
 <pre>$:/core/ui/MoreSideBar/System</pre>
 </div>
-<div modified="20140721214743707" title="$:/state/tab/sidebar-{312696086}">
-<pre>$:/core/ui/SideBar/Recent</pre>
+<div modified="20140722144844974" title="$:/state/tab/sidebar-{312696086}">
+<pre>$:/core/ui/SideBar/Open</pre>
 </div>
 <div list="[[Getting Started]]" title="$:/StoryList">
 <pre></pre>
@@ -5225,7 +5287,7 @@ to configure it at the ip addresses:
 * &lt;b&gt;if contacting support&lt;/b&gt;, set up an account with a password that you don't mind being leaked, because they store them in plaintext.
 * &lt;b&gt;if contacting support&lt;/b&gt;, remember to reply to their messages &lt;i&gt;through the microhard site&lt;/i&gt; not through the email you got as those don't properly forward</pre>
 </div>
-<div created="20140721200808872" modified="20140721202224451" tags="hardware novatel" title="NovAtel" type="text/vnd.tiddlywiki">
+<div created="20140721200808872" modified="20140722144824849" tags="hardware novatel" title="NovAtel" type="text/vnd.tiddlywiki">
 <pre>! Overview
 
 The NovAtel is a GPS device capable of producing DGPS signals and sending them to a remote station where they can be used to supplement a traditional GPS setup.
@@ -5267,7 +5329,7 @@ The `POSAVE` command sets the locking time of the base station. In this case it 
 
 ! Pinout
 
-The following diagram assumes you have the NovAtel facing up with the headers to the right side of the board.
+A pinout adapter is used on the NovAtel boards due to a non-standard pin spacing on the board's pinout. The following diagram assumes you have the NovAtel facing up with the headers to the right side of the board.
 
 ```
 pinout left        pinout right
@@ -5285,8 +5347,7 @@ pinout left        pinout right
 4                             3
 2                 GND         1
 ```
-
-
+[img[images/novatel_pin_adapter.jpg]]
 </pre>
 </div>
 <div created="20140716201846670" modified="20140716203828184" tags="running field helicopter" title="Running the Autopilot" type="text/vnd.tiddlywiki">
