@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"path"
 	"time"
+    "strings"
 )
 
 var templates = template.Must(template.ParseFiles("templates/root.html", "templates/command.html", "templates/edit.html"))
@@ -210,30 +211,42 @@ func GenerateMainPage(w http.ResponseWriter, notification string) {
 
 func GenericUploader(basepath string) func(http.ResponseWriter, *http.Request) {
 	return func (w http.ResponseWriter, r *http.Request) {
-		f, _, err := r.FormFile("path")
+        fmt.Println(r.URL)
+
 		n := r.FormValue("name")
 
-		if err != nil {
-			GenerateMainPage(w, err.Error())
-			return
-		}
-
+        // create the upload file.
 		t := time.Now().Local()
-
-
-		fd, err := os.Create(basepath + n + " " + t.Format("2006-01-02 15:04:05"))
+        path := basepath + n + " " + t.Format("2006-01-02 15:04:05")
+        fmt.Println(path) 
+        fd, err := os.Create(path)
 		if err != nil {
 			GenerateMainPage(w, err.Error())
 			return
 		}
 		defer fd.Close()
 
+        // try to get from a form file.
+		f, _, err := r.FormFile("path")
+
+
 		// Write file field from file to upload
-		_, err = io.Copy(fd, f)
 		if err != nil {
-			GenerateMainPage(w, err.Error())
-			return
-		}
+            fmt.Println("handling data")
+            dat := r.FormValue("data")
+            fmt.Println(dat)
+            _, err = io.Copy(fd, strings.NewReader(dat))
+
+		} else {
+            fmt.Println("handling path")
+		    _, err = io.Copy(fd, f)
+        }
+
+
+	    if err != nil {
+		    GenerateMainPage(w, err.Error())
+		    return
+	    }
 
 		GenerateMainPage(w, "Uploaded!")
 	}
@@ -370,6 +383,13 @@ func GenericCommand(command string, args ...string) func(http.ResponseWriter, *h
 	}
 }
 
+func EditConfiguration (w http.ResponseWriter, r *http.Request) {
+		err := templates.ExecuteTemplate(w, "edit.html", filepath.Base(r.URL.Path))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+}
+
 
 func main() {
 
@@ -388,7 +408,7 @@ func main() {
 	http.HandleFunc("/autopilot/stop/", StopAutopilot)
 	http.HandleFunc("/configuration/upload/", GenericUploader("./autopilot/configurations/"))
 	http.HandleFunc("/configuration/delete/", GenericDeleter("./autopilot/configurations/"))
-	http.HandleFunc("/configuration/edit/", GenericDeleter("./autopilot/configurations/"))
+	http.HandleFunc("/configuration/edit/", EditConfiguration)
 	http.HandleFunc("/command/shutdown/", GenericCommand("/sbin/shutdown", "-H", "-P", "now"))
 	http.HandleFunc("/command/proc/", GenericCommand("/bin/ps", "-aux"))
 	http.HandleFunc("/command/ifconfig/", GenericCommand("/sbin/ifconfig"))

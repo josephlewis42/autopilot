@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Autopilot Overview</title>
-        <script type='text/javascript' src='inc/jquery-2.1.1.min.js'></script>
+        <script type='text/javascript' src='/inc/jquery-2.1.1.min.js'></script>
         <link href="/inc/bootstrap.min.css" rel="stylesheet">
     </head>
     <body class='container'>
@@ -19,7 +19,13 @@
         <div class="panel panel-default">
             <div class="panel-heading">System Control</div>
             <div class="panel-body">
-                <a class="btn btn-danger" href="/command/shutdown/">Shut Down System</a>
+                <a class="btn btn-danger" id='shutdown' href="/command/shutdown/">Shut Down System</a>
+                <script type='text/javascript'>
+                $("#shutdown").click(function () {
+                    window.onbeforeunload = function () { window.onbeforeunload = undefined; return "Shutting down while operating is dangerous!" };
+                });        
+                </script>
+
                 <a class="btn btn-info" href="/command/proc/">Processes</a>
                 <a class="btn btn-info" href="/command/ifconfig/">Network</a>
                 <a class="btn btn-info" href="/command/dmesg/">System Log</a>
@@ -34,7 +40,13 @@
             <div class="panel-body">
                 {{if .proc}}
                         <h2>Running</h2>
-                        <a class="btn btn-danger" href="/autopilot/stop/">Stop Autopilot</a>
+                        <a class="btn btn-danger" id="stop" href="/autopilot/stop/">Stop Autopilot</a>
+
+                        <script type='text/javascript'>
+                        $("#stop").click(function () {
+                            window.onbeforeunload = function () { window.onbeforeunload = undefined; return "Shutting down while operating is dangerous!" };
+                        });
+                        </script>
                 {{else}}
                     <form action="/autopilot/start/" method="post">
                         Select A Pilot:<br>
@@ -64,7 +76,7 @@
             <tr>
                 <td>{{.}}</td>
                 <td><a href='/log/download/{{.}}'>Download</a></td>
-                <td><a href='/log/delete/{{.}}'>Delete</a></td>
+                <td><a href='/log/delete/{{.}}' class="delete">Delete</a></td>
             </tr>
             {{end}}
         </table>
@@ -90,7 +102,7 @@
             <tr>
                 <td>{{.}}</td>
                 <td><a href='/autopilot/download/{{.}}'>Download</a></td>
-                <td><a href='/autopilot/delete/{{.}}'>Delete</a></td>
+                <td><a href='/autopilot/delete/{{.}}' class="delete">Delete</a></td>
             </tr>
             {{end}}
         </table>
@@ -111,16 +123,23 @@
         <hr>
         <h3>Manage Existing</h3>
         <table cellpadding="10">
-            <tr><th>Name</th><th>Download</th><th>Delete</th></tr>
+            <tr><th>Name</th><th>Download</th><th>Delete</th><th>Edit</th></tr>
             {{range .configurations}}
             <tr>
                 <td>{{.}}</td>
                 <td><a href='/configuration/download/{{.}}'>Download</a></td>
-                <td><a href='/configuration/delete/{{.}}'>Delete</a></td>
+                <td><a href='/configuration/delete/{{.}}' class="delete">Delete</a></td>
+                <td><a href='/configuration/edit/{{.}}'>Edit</a></td>
             </tr>
             {{end}}
         </table>
     </div>
 </div>
+
+<script type="text/javascript">
+$(".delete").click(function () {
+    window.onbeforeunload = function () { window.onbeforeunload = undefined; return "Are you sure you want to delete this item?" };
+});        
+</script>
 </body>
 </html>
