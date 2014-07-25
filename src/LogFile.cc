@@ -34,9 +34,23 @@ LogFile::LogFile()
 :startTime(std::chrono::system_clock::now()),
  log_folder()
 {
+    setupLogFolder();
+}
 
+LogFile::~LogFile()
+{
+}
+
+void LogFile::newLogPoint()
+{
+    startTime = std::chrono::system_clock::now();
+    setupLogFolder();
+}
+
+
+void LogFile::setupLogFolder()
+{
     std::time_t now_c = std::chrono::system_clock::to_time_t(startTime);
-    //std::string time_folder(std::put_time(std::localtime(&now_c), "%F_%T")); // TODO use this once compilers support full c++11 standard
 
     char time_folder[1000];
     std::strftime(time_folder, sizeof(time_folder), "%F_%T", std::localtime(&now_c));
@@ -46,10 +60,6 @@ LogFile::LogFile()
     log_folder.remove_all();
     log_folder.create_directories();
     std::cout << "Logging in: " << log_folder.toString();
-}
-
-LogFile::~LogFile()
-{
 }
 
 

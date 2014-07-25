@@ -146,6 +146,8 @@ private:
     /// Destructor: frees memory used by the internal data structures
     ~LogFile();
 
+    void setupLogFolder();
+
     /// Stores the time when the class is instantiated (i.e., the program starts)
     std::chrono::time_point<std::chrono::system_clock> startTime;
     /// Stores the folder name to store the log files in

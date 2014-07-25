@@ -70,6 +70,8 @@ public:
         _header = header;
     }
 
+    void newLogPoint();
+
 };
 
 #endif /* LOGFILEWRITER_H_ */

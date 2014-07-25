@@ -53,7 +53,6 @@ LogfileWriter* LogfileWriter::getLogger(const std::string& path)
 }
 
 
-
 LogfileWriter::LogfileWriter(std::string path)
     :Driver("LogFile", "log")
 {
@@ -115,22 +114,23 @@ void LogfileWriter::log(const std::string& message)
 
 void LogfileWriter::writeThread()
 {
-    Path filename = getLogPath();
-
-
-    bool existed = filename.exists();
-    std::fstream output(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
-
-    if(! existed)
-    {
-        debug() << "Creating log file " << filename.c_str();
-        std::string header = _header;
-        output << "Time(ms)\t" << header << std::endl;
-    }
-
     RateLimiter rl(2);
+    std::fstream output;
+
     while(! terminateRequested())
     {
+        Path filename = getLogPath();
+        bool existed = ;
+        if(! filename.exists())
+        {
+            output.close();
+            output = std::fstream(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
+
+            debug() << "Creating log file " << filename.c_str();
+            std::string header = _header;
+            output << "Time(ms)\t" << header << std::endl;
+        }
+
         rl.wait();
 
         std::stringstream* writeBuffer = swapBuffers();
