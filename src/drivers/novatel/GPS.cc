@@ -60,7 +60,7 @@ void GPS::writeToSystemState()
         }
 
         GPSPosition pos(llh_position[0], llh_position[1], llh_position[2], max);
-        state->position.set(pos, max);
+        state->position.set(pos, 0); // TODO find a suitable number for this
     }
 
     state->state_lock.lock();

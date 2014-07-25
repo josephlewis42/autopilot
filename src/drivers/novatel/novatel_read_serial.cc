@@ -496,6 +496,7 @@ void GPS::ReadSerial::parse_log(const std::vector<uint8_t>& data, std::vector<do
     gps.set_vel_sigma(ecef_to_ned(velocity_error, llh));
     gps.set_num_sats(num_sats);
 
+    gps.writeToSystemState();
 
     gps.gps_updated();
 }
