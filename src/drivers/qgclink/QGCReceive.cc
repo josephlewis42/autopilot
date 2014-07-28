@@ -229,6 +229,10 @@ void QGCLink::QGCReceive::receive()
 						control->reset();
 						break;
 					}
+					case UALBERTA_NEW_LOG_POINT:
+					{
+						LogFile::getInstance()->newLogPoint();
+					}
 					}
 					break;
 				}

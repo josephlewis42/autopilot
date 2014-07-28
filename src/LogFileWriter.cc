@@ -53,7 +53,6 @@ LogfileWriter* LogfileWriter::getLogger(const std::string& path)
 }
 
 
-
 LogfileWriter::LogfileWriter(std::string path)
     :Driver("LogFile", "log")
 {
