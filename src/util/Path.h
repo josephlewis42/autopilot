@@ -39,6 +39,9 @@ class Path
     /// Check if the path exists
     bool exists ();
 
+    /// Reinitialize path
+    bool clear();
+
     /// Recursively removes a directory.
     int remove_all();
 

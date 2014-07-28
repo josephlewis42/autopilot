@@ -256,7 +256,7 @@
 	<external_mavlink>
 		<logging_level>0</logging_level>
 		<read_style>2</read_style>
-		<enable>true</enable>
+		<enable>false</enable>
 		<terminate_if_init_failed>true</terminate_if_init_failed>
 		<read_style_COMMENT>0:read until min, 1:readcond, 2:read(), 3:wait then read()</read_style_COMMENT>
 		<read_save_path/>

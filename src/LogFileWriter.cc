@@ -120,11 +120,10 @@ void LogfileWriter::writeThread()
     while(! terminateRequested())
     {
         Path filename = getLogPath();
-        bool existed = ;
         if(! filename.exists())
         {
             output.close();
-            output = std::fstream(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
+            output.open(filename.c_str(), std::fstream::out | std::fstream::ate | std::fstream::app);
 
             debug() << "Creating log file " << filename.c_str();
             std::string header = _header;

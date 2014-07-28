@@ -119,8 +119,8 @@ void MainApp::run()
     Linux::getInstance();
 
 
-    message() << "setting up external mavlink source";
-    ExternalMavlink::getInstance();
+    // message() << "setting up external mavlink source";
+    // ExternalMavlink::getInstance();
 
     // broadcast the controller mode
     control->mode_changed(control->get_controller_mode());

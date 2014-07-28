@@ -128,6 +128,11 @@ public:
      */
     void logMessage(const std::string& name, const std::string& msg);
 
+    /**
+     * Start a new set of log files with current date/time
+     */
+    void newLogPoint();
+
     Path getLogFolder()
     {
         return log_folder;

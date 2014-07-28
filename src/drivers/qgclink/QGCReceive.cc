@@ -26,6 +26,7 @@
 #include "Helicopter.h"
 #include "Driver.h"
 #include "CommonMessages.h"
+#include "LogFile.h"
 
 /* Mavlink Headers */
 #include "mavlink.h"
@@ -223,6 +224,10 @@ void QGCLink::QGCReceive::receive()
 						control->set_reference_position();
 						control->reset();
 						break;
+					}
+					case UALBERTA_NEW_LOG_POINT:
+					{
+						LogFile::getInstance()->newLogPoint();
 					}
 					}
 					break;

@@ -86,6 +86,20 @@ bool Path::has_extension()
     return get_extension().length() > 0;
 };
 
+bool Path::clear()
+{
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        _path = std::string(cwd);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool Path::exists ()
 {
     struct stat buffer;

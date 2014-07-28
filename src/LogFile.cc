@@ -50,11 +50,13 @@ void LogFile::newLogPoint()
 
 void LogFile::setupLogFolder()
 {
+
     std::time_t now_c = std::chrono::system_clock::to_time_t(startTime);
 
     char time_folder[1000];
     std::strftime(time_folder, sizeof(time_folder), "%F_%T", std::localtime(&now_c));
 
+    log_folder.clear();
     log_folder /= time_folder;
 
     log_folder.remove_all();
