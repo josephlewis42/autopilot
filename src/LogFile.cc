@@ -32,7 +32,8 @@
 
 LogFile::LogFile()
 :startTime(std::chrono::system_clock::now()),
- log_folder()
+ log_folder(),
+ _checkpoint(0)
 {
     setupLogFolder();
 }
@@ -43,23 +44,30 @@ LogFile::~LogFile()
 
 void LogFile::newLogPoint()
 {
-    startTime = std::chrono::system_clock::now();
+    _checkpoint = _checkpoint.load() + 1;
     setupLogFolder();
 }
 
 
 void LogFile::setupLogFolder()
 {
+    Path newFolder = Path();
     std::time_t now_c = std::chrono::system_clock::to_time_t(startTime);
 
     char time_folder[1000];
     std::strftime(time_folder, sizeof(time_folder), "%F_%T", std::localtime(&now_c));
 
-    log_folder /= time_folder;
+    newFolder /= time_folder;
+    newFolder /= std::to_string(_checkpoint.load());
 
-    log_folder.remove_all();
-    log_folder.create_directories();
+    newFolder.remove_all();
+    newFolder.create_directories();
     std::cout << "Logging in: " << log_folder.toString();
+
+    {
+        std::lock_guard<std::mutex> lg(_logFolderLock);
+        log_folder = newFolder;
+    }
 }
 
 

@@ -21,6 +21,12 @@ loopRateHz(requestedLoopFrequencyHZ)
 
 void Plugin::start()
 {
+    // If the user has disabled this component, don't start running
+    if(! isEnabled())
+    {
+        return;
+    }
+
      // Tell the user we made it up
     warning() << "Calling Init";
     bool initResult = init();
@@ -37,11 +43,6 @@ void Plugin::start()
         return;
     }
 
-    // If the user has disabled this component, don't start running
-    if(! isEnabled())
-    {
-        return;
-    }
 
     // Tell the user we made it up
     warning() << "Starting main loop";

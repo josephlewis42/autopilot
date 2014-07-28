@@ -26,6 +26,7 @@
 #include "Helicopter.h"
 #include "Driver.h"
 #include "CommonMessages.h"
+#include "LogFile.h"
 
 /* Mavlink Headers */
 #include "mavlink.h"
@@ -139,6 +140,10 @@ void QGCLink::QGCReceive::receive()
 						qgc->debug() << "Set Origin";
                         auto inst = IMU::getInstance();
                         inst->setNedOrigin(inst->getPosition());
+
+                        // TODO move me to a seperate message
+                        LogFile::getInstance()->newLogPoint();
+
 						break;
 					}
 					case UALBERTA_SET_SERVO_SOURCE:

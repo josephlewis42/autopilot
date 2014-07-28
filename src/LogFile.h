@@ -26,7 +26,8 @@
 #include <exception>
 #include <string>
 #include <chrono>
-
+#include <mutex>
+#include <atomic>
 
 /* c headers */
 #include <stdint.h>
@@ -130,8 +131,13 @@ public:
 
     Path getLogFolder()
     {
+        std::lock_guard<std::mutex> lg(_logFolderLock);
         return log_folder;
     }
+
+    /// Starts a new logging directory for the software
+    void newLogPoint();
+
 private:
 
     long getMsSinceInit()
@@ -152,6 +158,12 @@ private:
     std::chrono::time_point<std::chrono::system_clock> startTime;
     /// Stores the folder name to store the log files in
     Path log_folder;
+
+    /// Stores the log checkpoint for the current file.
+    std::atomic<int> _checkpoint;
+
+    /// The lock for the log folder.
+    std::mutex _logFolderLock;
 };
 
 
