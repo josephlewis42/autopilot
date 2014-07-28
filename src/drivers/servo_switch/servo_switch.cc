@@ -246,13 +246,19 @@ void servo_switch::read_serial::parse_message(uint8_t id, const std::vector<uint
         uint16_t status =  payload[1];
         // shift right to get command channel state
         status = (status & 0x6) >> 1;
+        /** Section 4.2.1.1 of Servo Switch/Controller Users Manual February 2, 2007
+        0 = signal not present
+        1 = 1ms
+        2 = 1.5ms
+        3 = 2ms
+        **/
         switch (status)
         {
-        case 1:
+        case 1: // 1ms
             servo->set_pilot_mode(heli::PILOT_MANUAL);
             break;
-        case 2:
-        case 3:
+        case 2: // 1.5ms
+        case 3: // 2ms
             servo->set_pilot_mode(heli::PILOT_AUTO);
             break;
         default:
