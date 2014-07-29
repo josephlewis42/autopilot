@@ -29,6 +29,7 @@
 /* Project Headers */
 #include "heli.h"
 #include "Debug.h"
+#include "Singleton.h"
 
 /* Boost Headers */
 #include <boost/signals2.hpp>
@@ -43,14 +44,10 @@
  * by this class as it now is handled internally by all drivers
  */
 
-class MainApp : public Logger
+class MainApp : public Logger, public Singleton<MainApp>
 {
+    friend Singleton<MainApp>;
 public:
-
-    /**
-    Returns the one allowed instance of this Driver
-    **/
-    static MainApp* getInstance();
 
     /// Function in which to place main program logic (replaces main()).
     void run();
@@ -70,8 +67,6 @@ public:
 
 private:
     static const std::string LOG_SCALED_INPUTS ;
-    static MainApp* _instance;
-    static std::mutex _instance_lock;
 
 
     /// default constructor (initializes terminate to false)

@@ -44,21 +44,6 @@
 
 const std::string MainApp::LOG_SCALED_INPUTS = "Scaled Inputs";
 
-
-MainApp* MainApp::_instance = NULL;
-std::mutex MainApp::_instance_lock;
-
-MainApp* MainApp::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-    if (_instance == NULL)
-    {
-        _instance = new MainApp;
-    }
-    return _instance;
-}
-
-
 MainApp::MainApp()
     :Logger("MainApp"),
      autopilot_mode(heli::MODE_AUTOMATIC_CONTROL)
