@@ -83,16 +83,6 @@ Helicopter::Helicopter()
     writeToSystemState();
 }
 
-Helicopter* Helicopter::_instance = NULL;
-
-Helicopter* Helicopter::getInstance()
-{
-    if(!_instance)
-        _instance = new Helicopter;
-
-    return _instance;
-}
-
 const std::string Helicopter::PARAM_MASS = "Mass";
 
 const std::string Helicopter::PARAM_MAIN_OFFSET_X = "Main_X";

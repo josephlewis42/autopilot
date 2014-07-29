@@ -38,6 +38,7 @@ namespace blas = boost::numeric::ublas;
 #include "heli.h"
 #include "Parameter.h"
 #include "Debug.h"
+#include "Singleton.h"
 
 /**
     \brief This class handles output pulse scaling from normalized values
@@ -50,10 +51,10 @@ namespace blas = boost::numeric::ublas;
     @date September 27, 2012: Added physical parameters
 */
 
-class Helicopter : public Logger
+class Helicopter : public Logger, public Singleton<Helicopter>
 {
+    friend Singleton<Helicopter>;
 public:
-    static Helicopter* getInstance();
 
     /**
      * Writes all relevant values for this class to the unified System State object
