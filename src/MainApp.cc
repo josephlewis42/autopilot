@@ -66,7 +66,6 @@ MainApp::MainApp()
     this->_terminate = false;
 }
 
-
 void MainApp::run()
 {
     signal(SIGINT, [](int signum)

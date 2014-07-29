@@ -1,5 +1,6 @@
 /**************************************************************************
  * Copyright 2012 Bryan Godbolt, Hasitha Senanayake
+ * Copyright 2014 Joseph Lewis <joseph@josephlewis.net>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -135,36 +136,20 @@ double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 5> setpoint)
     return normalizedPulse;
 }
 
+
 std::vector<double> RCTrans::getScaledVector()
 {
     std::vector<double> norms(6);
 
-    norms[AILERON] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH1),
-                          RadioCalibration::getInstance()->getAileron());
-    norms[ELEVATOR] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH2),
-                          RadioCalibration::getInstance()->getElevator());
-    norms[THROTTLE] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH3),
-                          RadioCalibration::getInstance()->getThrottle());
-    norms[RUDDER] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH4),
-                          RadioCalibration::getInstance()->getRudder());
-    norms[GYRO] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH5),
-                          RadioCalibration::getInstance()->getGyro());
-    norms[PITCH] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH6),
-                          RadioCalibration::getInstance()->getPitch());
+    auto ss = servo_switch::getInstance();
+    auto rc = RadioCalibration::getInstance();
+
+    norms[AILERON] =    pulse2norm(ss->getRaw(heli::CH1), rc->getAileron());
+    norms[ELEVATOR] =   pulse2norm(ss->getRaw(heli::CH2), rc->getElevator());
+    norms[THROTTLE] =   pulse2norm(ss->getRaw(heli::CH3), rc->getThrottle());
+    norms[RUDDER] =     pulse2norm(ss->getRaw(heli::CH4), rc->getRudder());
+    norms[GYRO] =       pulse2norm(ss->getRaw(heli::CH5), rc->getGyro());
+    norms[PITCH] =      pulse2norm(ss->getRaw(heli::CH6), rc->getPitch());
 
     return norms;
-}
-
-int RCTrans::flightMode(uint16_t pulse, std::array<uint16_t, 3> setpoint)
-{
-    int flightMode = 0;
-
-    if(pulse > setpoint[0] && pulse < setpoint[1])
-        flightMode = 0;     // Manual.
-    else if(pulse >= setpoint[1] && pulse < setpoint[2])
-        flightMode = 1;     // Autonomous.
-    else if(pulse >= setpoint[2])
-        flightMode = 2;     // Rotomotion.
-
-    return flightMode;
 }

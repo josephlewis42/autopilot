@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2012 Bryan Godbolt, Hasitha Senanayake
+ * Copyright 2014 Joseph Lewis <joseph@josephlewis.net>
  *
  * This file is part of ANCL Autopilot.
  *
@@ -66,18 +67,6 @@ private:
         @param setpoint an array that stores the calibrated end point pulse values of the Radio
         @return normalizedPulse a scaled value of the pulse with respect to end points */
     static double pulse2norm(uint16_t pulse, std::array<uint16_t, 5> setpoint);
-    /** Determine state of Pilot ready signal
-        @param pulse CH8 pulse from TX
-        @param setpoint set points to interpret mode state.
-        @return flightMode returns 0 = Manual, 1 = Autonomous, 2 = Rotomotion. */
-    static int flightMode(uint16_t pulse, std::array<uint16_t, 3> setpoint);
-
-    /** function to determine state of Pilot ready signal */
-    static inline int getFlightMode()
-    {
-        return flightMode(servo_switch::getInstance()->getRaw(heli::CH8),
-                          RadioCalibration::getInstance()->getFlightMode());
-    }
 
     /// Resolves Gyro mode to scaled value in RCTrans::pulse2norm.
     enum TailGyro
