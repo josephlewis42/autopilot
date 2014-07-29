@@ -20,14 +20,8 @@
 
 
 /* c headers */
-#include <unistd.h>
-#include <errno.h>
-#include <cstdlib>
 #include <stdint.h>
-#include <time.h>
-#include <signal.h>
 #include <bitset>
-#include <mutex>
 #include <fcntl.h>
 
 // stl headers
@@ -149,15 +143,7 @@ std::vector<uint8_t> servo_switch::compute_checksum(uint8_t id, uint8_t count, c
     return checksum;
 }
 
-int servo_switch::read_serial::readSerialBytes(int fd, void * buf, int n)
-{
-    // TODO enable this to see if it works for servo.
-    servo_switch* servo = servo_switch::getInstance();
-    return servo->readDevice(fd, buf, n);
-}
-
 /* read_serial functions */
-
 void servo_switch::read_serial::read_data()
 {
     servo_switch* servo = servo_switch::getInstance();
@@ -172,21 +158,21 @@ void servo_switch::read_serial::read_data()
 
         // get message id
         uint8_t id = 0;
-        int idb = readSerialBytes(fd_ser, &id, 1);
+        int idb = servo->readDevice(fd_ser, &id, 1);
 
         // get message count
         uint8_t count = 0;
-        int ctb = readSerialBytes(fd_ser, &count, 1);
+        int ctb = servo->readDevice(fd_ser, &count, 1);
 
         // allocate space for message
         payload.resize(count);
         // get message payload
-        int pldb = readSerialBytes(fd_ser, &payload[0], count);
+        int pldb = servo->readDevice(fd_ser, &payload[0], count);
 
         // zero checksum
         checksum.assign(checksum.size(), 0);
         // get checksum
-        readSerialBytes(fd_ser, &checksum[0], 2);
+        servo->readDevice(fd_ser, &checksum[0], 2);
 
         servo->trace() << "ID ("<< idb <<"): " << id << " Count("<< ctb <<"): " << count << " payload("<< pldb<< "): " << count;
 
@@ -320,7 +306,7 @@ void servo_switch::read_serial::find_next_header()
     uint8_t buf;
     while (!synchronized && !servo->terminateRequested())
     {
-        readSerialBytes(fd_ser, &buf, 1);
+        servo->readDevice(fd_ser, &buf, 1);
         if (buf == 0x81) // first byte of header
             found_first_byte = true;
         else if (buf == 0xA1 && found_first_byte)
