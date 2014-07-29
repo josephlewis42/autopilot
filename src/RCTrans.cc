@@ -135,20 +135,6 @@ double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 5> setpoint)
     return normalizedPulse;
 }
 
-std::array<double, 6> RCTrans::getScaledArray()
-{
-    std::array<double, 6> norms;
-
-    norms[AILERON] = getAileron();
-    norms[ELEVATOR] = getElevator();
-    norms[THROTTLE] = getThrottle();
-    norms[RUDDER] = getRudder();
-    norms[GYRO] = getGyro();
-    norms[PITCH] = getPitch();
-
-    return norms;
-}
-
 std::vector<double> RCTrans::getScaledVector()
 {
     std::vector<double> norms(6);

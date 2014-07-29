@@ -100,7 +100,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
             msgs.push_back(msg);
         }
         {
-            std::array<double, 6> scaled(RCTrans::getScaledArray());
+            std::vector<double> scaled(RCTrans::getScaledVector());
             mavlink_message_t msg;
             mavlink_msg_rc_channels_scaled_pack(100, 200, &msg,
                                                 0,0,

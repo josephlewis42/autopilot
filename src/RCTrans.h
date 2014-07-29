@@ -81,8 +81,6 @@ public:
         return flightMode(servo_switch::getInstance()->getRaw(heli::CH8),
                           RadioCalibration::getInstance()->getFlightMode());
     }
-    /** function returns scaled values for all channels */
-    static std::array<double, 6> getScaledArray();
     /** returns a vector of scaled valued for all channels */
     static std::vector<double> getScaledVector();
     /// List provides index to channel mapping for the RCTrans::getScaled function.

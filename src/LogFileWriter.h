@@ -56,8 +56,6 @@ private:
     /// a function that writes the buffers out.
     void writeThread();
 
-    /// gets the path to the log file
-    Path getLogPath();
 
     LogfileWriter(std::string path);
     ~LogfileWriter();
@@ -70,8 +68,8 @@ public:
         _header = header;
     }
 
-    void newLogPoint();
-
+    /// gets the path to the log file
+    Path getLogPath();
 };
 
 #endif /* LOGFILEWRITER_H_ */

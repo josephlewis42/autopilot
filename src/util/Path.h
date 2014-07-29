@@ -37,7 +37,7 @@ class Path
     bool has_extension();
 
     /// Check if the path exists
-    bool exists ();
+    bool exists();
 
     /// Reinitialize path
     bool clear();
