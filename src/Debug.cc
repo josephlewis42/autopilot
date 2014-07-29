@@ -129,19 +129,11 @@ Debug::~Debug()
     switch(debug_level)
     {
     case WARNING:
-        if(lf != nullptr)
-        {
-            lf->logMessage(LOGFILE_NAME, message);
-        }
-        QGCSend::getInstance()->message_queue_push(message);
-        break;
-
     case CRITICAL:
         if(lf != nullptr)
         {
             lf->logMessage(LOGFILE_NAME, message);
         }
-
         QGCSend::getInstance()->message_queue_push(message);
         break;
 

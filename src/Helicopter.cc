@@ -252,20 +252,6 @@ uint16_t Helicopter::norm2pulse(double norm, std::array<uint16_t, 5> setpoint)
     return pulse;
 }
 
-std::array<uint16_t, 6> Helicopter::setScaled(std::array<double, 6> norm)
-{
-    std::array<uint16_t, 6> pulse;
-
-    pulse[AILERON] = setAileron(norm[0]);
-    pulse[ELEVATOR] = setElevator(norm[1]);
-    pulse[THROTTLE] = setThrottle(norm[2]);
-    pulse[RUDDER] = setRudder(norm[3]);
-    pulse[GYRO] = setGyro(norm[4]);
-    pulse[PITCH] = setPitch(norm[5]);
-
-    return pulse;
-}
-
 std::vector<uint16_t> Helicopter::setScaled(std::vector<double> norm)
 {
     std::vector<uint16_t> pulse(6);

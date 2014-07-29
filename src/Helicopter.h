@@ -91,8 +91,6 @@ public:
     	*/
     uint16_t setPitch(double norm);
 
-    /** returns an array of derived pulses (from their scaled values) for channels 1 - 6. */
-    std::array<uint16_t, 6> setScaled(std::array<double, 6> norm);
     /** @param norm vector of scaled pulse values for all 6 channels
      	   @return pulse vector of de-normalized pulse values for all 6 channels */
     std::vector<uint16_t> setScaled(blas::vector<double> norm)
