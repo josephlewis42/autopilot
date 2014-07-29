@@ -40,13 +40,6 @@
 #include "servo_switch.h"
 #include "RateLimiter.h"
 
-
-
-servo_switch* servo_switch::_instance = NULL;
-std::mutex servo_switch::_instance_lock;
-
-
-
 // As defined in section 4.2 of the February 2, 2007 SSC Manual
 enum ServoMessageID
 {
@@ -73,17 +66,6 @@ const std::string servo_switch::LOG_OUTPUT_PULSE_WIDTHS = "Output Pulse Widths";
 const std::string servo_switch::LOG_INPUT_RPM = "Engine RPM";
 
 
-
-servo_switch* servo_switch::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-    if (!_instance)
-    {
-        _instance = new servo_switch;
-    }
-    return _instance;
-}
-
 servo_switch::servo_switch()
     : Driver("Servo Switch","servo"),
       raw_inputs(9, 0),
@@ -109,11 +91,6 @@ servo_switch::servo_switch()
     {
         initFailed("Could not init serial port");
     }
-}
-
-servo_switch::~servo_switch()
-{
-
 }
 
 void servo_switch::writeToSystemState()
@@ -220,17 +197,7 @@ void servo_switch::read_serial::read_data()
         }
         else
         {
-            // sometimes on the commel motherboard the 13s are
-            // misread as 10s
-            if(checksum == compute_checksum(13, count, payload))
-            {
-                servo->trace() << "parsing incorrectly labeled message";
-                parse_message(13, payload);
-            }
-            else
-            {
-                servo->trace() << "bad checksum";
-            }
+            servo->trace() << "bad checksum";
         }
     }
 }
@@ -364,47 +331,42 @@ void servo_switch::read_serial::find_next_header()
 }
 /* send_serial functions */
 
-void servo_switch::send_serial::send_data()
+void servo_switch::send_serial::operator()()
 {
     servo_switch* servo = getInstance();
 
     RateLimiter rl(50);
-
     while(true)
     {
         rl.wait();
 
-        std::vector<uint8_t> pulse_message = get_pulse_message();
-        LogFile::getInstance()->logData(LOG_OUTPUT_PULSE_WIDTHS, servo->get_raw_outputs()); // log here to ensure raw outputs are only logged once every time data is sent
+        // Construct outgoing message.
+        std::vector<uint16_t> raw_outputs(servo->get_raw_outputs());
+        std::vector<uint8_t> pulse_message {0x81, 0xA1, 20};
+
+        pulse_message.push_back(raw_outputs.size() * 2);
+        for (uint32_t i = 0; i < raw_outputs.size(); i++)
+        {
+            pulse_message.push_back(static_cast<uint8_t>(raw_outputs[i] >> 8));
+            pulse_message.push_back(static_cast<uint8_t>(raw_outputs[i] & 0xFF));
+        }
+
+        std::vector<uint8_t> checksum = compute_checksum(20, raw_outputs.size() * 2,
+                                                         std::vector<uint8_t>(pulse_message.begin()+4,
+                                                                              pulse_message.end()));
+
+        pulse_message.push_back(checksum[0]);
+        pulse_message.push_back(checksum[1]);
+
+        // Log our data.
+        LogFile::getInstance()->logData(LOG_OUTPUT_PULSE_WIDTHS, raw_outputs);
+
+        // Send message to servo switch.
         while (write(servo->fd_ser1, &pulse_message[0], pulse_message.size()) < 0)
         {
             servo->debug("Error sending pulse output message to servo switch");
         }
+
         rl.finishedCriticalSection();
     }
-}
-
-std::vector<uint8_t> servo_switch::send_serial::get_pulse_message()
-{
-    std::vector<uint16_t> raw_outputs(getInstance()->get_raw_outputs());
-
-    std::vector<uint8_t> message;
-
-    message.push_back(0x81);
-    message.push_back(0xA1);
-    message.push_back(20);
-    message.push_back(raw_outputs.size()*2);
-
-    for (uint32_t i=0; i<raw_outputs.size(); i++)
-    {
-        message.push_back(static_cast<uint8_t>(raw_outputs[i]>>8));
-        message.push_back(static_cast<uint8_t>(raw_outputs[i] & 0xFF));
-    }
-
-    std::vector<uint8_t> checksum = compute_checksum(20, raw_outputs.size()*2, std::vector<uint8_t>(message.begin()+4, message.end()));
-
-    message.push_back(checksum[0]);
-    message.push_back(checksum[1]);
-
-    return message;
 }

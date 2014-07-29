@@ -33,6 +33,7 @@
 /* Project Headers */
 #include "Driver.h"
 #include "heli.h"
+#include "Singleton.h"
 
 
 
@@ -48,12 +49,10 @@
  * @date February 2012: Class creation
  * @date May 1, 2012: Added auxiliary input for engine speed
  */
-class servo_switch : public Driver
+class servo_switch : public Driver, public Singleton<servo_switch>
 {
+    friend Singleton<servo_switch>;
 public:
-    static servo_switch* getInstance();
-
-    virtual ~servo_switch();
 
     virtual void writeToSystemState() override;
 
@@ -79,14 +78,7 @@ public:
     class send_serial
     {
     public:
-        void operator()()
-        {
-            send_data();
-        }
-    private:
-
-        void send_data();
-        std::vector<uint8_t> get_pulse_message();
+        void operator()();
     };
 
     /** get the current pilot inputs
@@ -138,8 +130,6 @@ public:
 
 private:
     servo_switch();
-    static servo_switch* _instance;
-    static std::mutex _instance_lock;
 
     static const std::string LOG_INPUT_PULSE_WIDTHS ;
     static const std::string LOG_OUTPUT_PULSE_WIDTHS ;
