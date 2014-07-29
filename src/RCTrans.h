@@ -33,54 +33,10 @@
     \date July 14, 2011 : class creation
 	@date November 8, 2011: Fixed class so functions which do not access data members are static
 */
-
-
 class RCTrans
 {
 public:
     RCTrans();
-    /** function to obtain the current scaled Aileron value with respect to the calibration values */
-    static inline double getAileron()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH1),
-                          RadioCalibration::getInstance()->getAileron());
-    }
-    /** function to obtain the current scaled Elevator value with respect to the calibration values */
-    static inline double getElevator()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH2),
-                          RadioCalibration::getInstance()->getElevator());
-    }
-    /** function to obtain the current scaled Throttle value with respect to the calibration values */
-    static inline double getThrottle()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH3),
-                          RadioCalibration::getInstance()->getThrottle());
-    }
-    /** function to obtain the current scaled Rudder value with respect to the calibration values */
-    static inline double getRudder()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH4),
-                          RadioCalibration::getInstance()->getRudder());
-    }
-    /** function to obtain the current scaled Gyro value with respect to the calibration values */
-    static inline double getGyro()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH5),
-                          RadioCalibration::getInstance()->getGyro());
-    }
-    /** function to obtain the current scaled Pitch value with respect to the calibration values */
-    static inline double getPitch()
-    {
-        return pulse2norm(servo_switch::getInstance()->getRaw(heli::CH6),
-                          RadioCalibration::getInstance()->getPitch());
-    }
-    /** function to determine state of Pilot ready signal */
-    static inline int getFlightMode()
-    {
-        return flightMode(servo_switch::getInstance()->getRaw(heli::CH8),
-                          RadioCalibration::getInstance()->getFlightMode());
-    }
     /** returns a vector of scaled valued for all channels */
     static std::vector<double> getScaledVector();
     /// List provides index to channel mapping for the RCTrans::getScaled function.
@@ -92,12 +48,6 @@ public:
         RUDDER,
         GYRO,
         PITCH
-    };
-    /// Resolves Gyro mode to scaled value in RCTrans::pulse2norm.
-    enum TailGyro
-    {
-        AVCS_HEADING_HOLD_MODE = 0,
-        NORMAL_GYRO_MODE
     };
 
 private:
@@ -121,6 +71,20 @@ private:
         @param setpoint set points to interpret mode state.
         @return flightMode returns 0 = Manual, 1 = Autonomous, 2 = Rotomotion. */
     static int flightMode(uint16_t pulse, std::array<uint16_t, 3> setpoint);
+
+    /** function to determine state of Pilot ready signal */
+    static inline int getFlightMode()
+    {
+        return flightMode(servo_switch::getInstance()->getRaw(heli::CH8),
+                          RadioCalibration::getInstance()->getFlightMode());
+    }
+
+    /// Resolves Gyro mode to scaled value in RCTrans::pulse2norm.
+    enum TailGyro
+    {
+        AVCS_HEADING_HOLD_MODE = 0,
+        NORMAL_GYRO_MODE
+    };
 
 };
 #endif // RCTRANS_H

@@ -139,12 +139,18 @@ std::vector<double> RCTrans::getScaledVector()
 {
     std::vector<double> norms(6);
 
-    norms[AILERON] = getAileron();
-    norms[ELEVATOR] = getElevator();
-    norms[THROTTLE] = getThrottle();
-    norms[RUDDER] = getRudder();
-    norms[GYRO] = getGyro();
-    norms[PITCH] = getPitch();
+    norms[AILERON] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH1),
+                          RadioCalibration::getInstance()->getAileron());
+    norms[ELEVATOR] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH2),
+                          RadioCalibration::getInstance()->getElevator());
+    norms[THROTTLE] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH3),
+                          RadioCalibration::getInstance()->getThrottle());
+    norms[RUDDER] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH4),
+                          RadioCalibration::getInstance()->getRudder());
+    norms[GYRO] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH5),
+                          RadioCalibration::getInstance()->getGyro());
+    norms[PITCH] = pulse2norm(servo_switch::getInstance()->getRaw(heli::CH6),
+                          RadioCalibration::getInstance()->getPitch());
 
     return norms;
 }
