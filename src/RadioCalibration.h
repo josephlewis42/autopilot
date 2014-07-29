@@ -91,11 +91,17 @@ private:
      *
      * @param setpoints - new setpoint values
      * @param toset - the vector to copy to
-     * @param numvals - the quantity of numbers to copy over
      */
-    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 2>& toset);
-    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 3>& toset);
-    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 5>& toset);
+    template<std::size_t N>
+    void populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, N>& toset)
+    {
+        calibration_lock.lock();
+        for(uint32_t i = 0; i < N; i++)
+        {
+            toset[i] = setpoints[i];
+        }
+        calibration_lock.unlock();
+    };
 
     std::recursive_mutex calibration_lock;
     std::mutex calibration_file_lock;

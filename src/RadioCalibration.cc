@@ -140,36 +140,6 @@ std::array<uint16_t, 3> RadioCalibration::getFlightMode()
     return flight_Mode;
 }
 
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 2>& toset)
-{
-    calibration_lock.lock();
-    for(uint32_t i = 0; i < toset.size(); i++)
-    {
-        toset[i] = setpoints[i];
-    }
-    calibration_lock.unlock();
-}
-
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 3>& toset)
-{
-    calibration_lock.lock();
-    for(uint32_t i = 0; i < toset.size(); i++)
-    {
-        toset[i] = setpoints[i];
-    }
-    calibration_lock.unlock();
-}
-
-void RadioCalibration::populateVector(const std::vector<uint16_t>& setpoints, std::array<uint16_t, 5>& toset)
-{
-    calibration_lock.lock();
-    for(uint32_t i = 0; i < toset.size(); i++)
-    {
-        toset[i] = setpoints[i];
-    }
-    calibration_lock.unlock();
-}
-
 void RadioCalibration::loadFile()
 {
     Configuration* config = Configuration::getInstance();
