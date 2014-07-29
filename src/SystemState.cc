@@ -26,13 +26,3 @@ SystemState::SystemState()
  main_loop_load(0)
 {
 }
-
-SystemState* SystemState::_instance = NULL;
-
-SystemState* SystemState::getInstance()
-{
-    if(!_instance)
-        _instance = new SystemState;
-
-    return _instance;
-}

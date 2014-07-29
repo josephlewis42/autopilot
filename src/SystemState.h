@@ -34,16 +34,16 @@
 #include "GPSPosition.h"
 #include "heli.h"
 #include "gps_time.h"
+#include "Singleton.h"
 
 namespace blas = boost::numeric::ublas;
 
 
-class SystemState
+class SystemState : public Singleton<SystemState>
 {
+friend class Singleton<SystemState>;
 
 public:
-    // Instance manager
-    static SystemState* getInstance();
 
     // System state lock
     std::mutex state_lock;
@@ -52,7 +52,6 @@ public:
 
 
     // gx3 data
-    blas::vector<double> 	gx3_ned_origin;
     blas::vector<double> 	gx3_velocity;
     blas::vector<double> 	gx3_nav_euler;
     blas::vector<double> 	gx3_ahrs_euler;
@@ -123,7 +122,6 @@ public:
 
 private:
     SystemState();
-    static SystemState* _instance;
 };
 
 #endif //SYSTEMSTATE_H_
