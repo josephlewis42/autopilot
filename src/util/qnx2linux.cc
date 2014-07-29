@@ -20,6 +20,9 @@
 
 Logger qnx2LinuxLogger("QNX2Linux");
 
+void handleReadErrno();
+
+
 
 int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeout)
 {
@@ -28,11 +31,6 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
     {
         return 0;
     }
-
-    assert(min >= 0);
-    assert(n >= 0);
-    assert(fd >= 0);
-
 
     //debug() << "readcond " << n << std::hex << buf;
     struct termios orig;
@@ -63,26 +61,10 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
             if(bytesRead < 0)
             {
                 bytesRead = 0;
-                if(errno == EAGAIN || errno == EWOULDBLOCK)
-                    qnx2LinuxLogger.trace() << "Tried to do a blocking read from a nonblocking socket";
-                if(errno == EBADF)
-                    qnx2LinuxLogger.warning() << "Bad fd";
-                if(errno == EFAULT)
-                    qnx2LinuxLogger.warning() << "buf is outside your address space";
-                if(errno == EINTR)
-                    qnx2LinuxLogger.warning() << "Call interrupted before data read";
-                if(errno == EINVAL)
-                    qnx2LinuxLogger.warning() << "object is not suitable for reading";
-                if(errno == EIO)
-                    qnx2LinuxLogger.warning() << "I/O error";
-                if(errno == EISDIR)
-                    qnx2LinuxLogger.warning() << "fd is a directory";
+                handleReadErrno();
                 continue;
             }
             totalBytesRead += bytesRead;
-
-            //debug() << "bytes read" <<  totalBytesRead;
-            assert(totalBytesRead <= n);
 
             // if we've read enough, stop
             if(totalBytesRead == n)
@@ -92,7 +74,6 @@ int QNX2Linux::readcond(int fd, void * buf, int n, int min, int time, int timeou
 
             // QNX specification says this is 1/10th of a second.
             std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
-
         }
     }
 
@@ -109,33 +90,16 @@ int QNX2Linux::readUntilMin(int fd, void* buf, int n, int min)
 
     while(totalBytesRead < min)
     {
-        assert(totalBytesRead < n);
-
         int bytesRead = read(fd, &buffer[totalBytesRead], n - totalBytesRead);
 
         if(bytesRead < 0)
         {
             bytesRead = 0;
-            if(errno == EAGAIN || errno == EWOULDBLOCK)
-                qnx2LinuxLogger.trace() << "Tried to do a blocking read from a nonblocking socket";
-            if(errno == EBADF)
-                qnx2LinuxLogger.warning() << "Bad fd";
-            if(errno == EFAULT)
-                qnx2LinuxLogger.warning() << "buf is outside your address space";
-            if(errno == EINTR)
-                qnx2LinuxLogger.warning() << "Call interrupted before data read";
-            if(errno == EINVAL)
-                qnx2LinuxLogger.warning() << "object is not suitable for reading";
-            if(errno == EIO)
-                qnx2LinuxLogger.warning() << "I/O error";
-            if(errno == EISDIR)
-                qnx2LinuxLogger.warning() << "fd is a directory";
+            handleReadErrno();
             continue;
         }
 
         totalBytesRead += bytesRead;
-
-        assert(totalBytesRead <= n);
 
         // if we've read enough, stop
         if(totalBytesRead >= min)
@@ -148,6 +112,24 @@ int QNX2Linux::readUntilMin(int fd, void* buf, int n, int min)
 
     memcpy(buf, buffer, totalBytesRead);
     return totalBytesRead;
+}
+
+void handleReadErrno()
+{
+    if(errno == EAGAIN || errno == EWOULDBLOCK)
+        qnx2LinuxLogger.trace() << "Tried to do a blocking read from a nonblocking socket";
+    if(errno == EBADF)
+        qnx2LinuxLogger.warning() << "Bad fd";
+    if(errno == EFAULT)
+        qnx2LinuxLogger.warning() << "buf is outside your address space";
+    if(errno == EINTR)
+        qnx2LinuxLogger.warning() << "Call interrupted before data read";
+    if(errno == EINVAL)
+        qnx2LinuxLogger.warning() << "object is not suitable for reading";
+    if(errno == EIO)
+        qnx2LinuxLogger.warning() << "I/O error";
+    if(errno == EISDIR)
+        qnx2LinuxLogger.warning() << "fd is a directory";
 }
 
 #endif
