@@ -140,9 +140,6 @@ public:
         return log_folder;
     }
 
-    /// Starts a new logging directory for the software
-    void newLogPoint();
-
 private:
 
     long getMsSinceInit()
