@@ -17,6 +17,13 @@
  *     along with ANCL Autopilot.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+// boost headers
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string.hpp>
+
+
+// project headers
 #include "RadioCalibration.h"
 #include "Configuration.h"
 #include "Helicopter.h"
@@ -57,17 +64,6 @@ RadioCalibration::RadioCalibration()
 
     loadFile();
 }
-
-RadioCalibration* RadioCalibration::_instance = NULL;
-
-RadioCalibration* RadioCalibration::getInstance()
-{
-    if(!_instance)
-        _instance = new RadioCalibration;
-
-    return _instance;
-}
-
 
 // FIXME See if we can replace the indexes here with the values from Channel in heli.h - Joseph
 void RadioCalibration::setCalibration(const std::vector<std::vector<uint16_t> >& calibration_data)

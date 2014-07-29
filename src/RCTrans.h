@@ -37,7 +37,6 @@
 class RCTrans
 {
 public:
-    RCTrans();
     /** returns a vector of scaled valued for all channels */
     static std::vector<double> getScaledVector();
     /// List provides index to channel mapping for the RCTrans::getScaled function.

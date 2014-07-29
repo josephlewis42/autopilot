@@ -20,11 +20,6 @@
 
 #include "RCTrans.h"
 
-RCTrans::RCTrans()
-{
-
-}
-
 double RCTrans::pulse2norm(uint16_t pulse, std::array<uint16_t, 2> setpoint)
 {
     double pulseMicros = pulse;

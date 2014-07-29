@@ -21,6 +21,9 @@
 #include "Configuration.h"
 #include "SystemState.h"
 
+#include <boost/algorithm/string/trim.hpp>
+
+
 /* STL Headers */
 #include <fstream>
 #include <string>

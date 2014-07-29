@@ -20,21 +20,14 @@
 #ifndef RADIOCALIBRATION_H
 #define RADIOCALIBRATION_H
 
-/* Boost Headers */
-#include <thread>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string.hpp>
-
 /* STL Headers */
-#include <iostream>	// for debugging.
-#include <fstream>
 #include <string>
 #include <mutex>
 
 /* Project Headers */
 #include "heli.h"
 #include "Debug.h"
+#include "Singleton.h"
 
 /**
  * @brief This class contains the calibration data for the pulse normalization functions
@@ -43,9 +36,6 @@
  * read when the class is constructed (when the program starts) and is written to
  * each time a new calibration message is sent from QGroundControl.
  *
- * XML parsing is done using <a href="http://rapidxml.sourceforge.net/">RapidXML</a>
- * which is a lightweight and fast header-only parser.
- *
  * @author Bryan Godbolt <godbolt@ece.ualberta.ca>
  * @author Aakash Vasudevan <avasudev@ualberta.ca>
  * @author Nikos Vitzilaios <nvitzilaios@ualberta.ca>
@@ -53,11 +43,10 @@
  * @date July 14, 2011: Created class
  * @date October 21, 2011 : Added functionality for storing calibration data in XML file
  */
-class RadioCalibration
+class RadioCalibration : public Singleton<RadioCalibration>
 {
+    friend Singleton<RadioCalibration>;
 public:
-    /// Construct the class
-    static RadioCalibration* getInstance();
 
     /**
      * Writes all relevant values for this class to the unified System State object
@@ -83,7 +72,6 @@ public:
 
 private:
     RadioCalibration();
-    static RadioCalibration* _instance;
 
     /**
      * Locks the calibration, and transfers n points from

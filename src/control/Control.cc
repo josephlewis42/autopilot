@@ -20,6 +20,9 @@
 
 #include "Control.h"
 
+#include <boost/algorithm/string/trim.hpp>
+
+
 /* Project Headers */
 #include "SystemState.h"
 #include <servo_switch.h>
