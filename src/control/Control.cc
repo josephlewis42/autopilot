@@ -102,16 +102,6 @@ const std::string Control::CONTROL_MODE = "MODE_CONTROL";
 
 void Control::writeToSystemState()
 {
-    SystemState *state = SystemState::getInstance();
-    state->state_lock.lock();
-    state->control_mode = controller_mode;
-    state->control_reference_position = reference_position;
-    state->control_reference_attitude = reference_attitude;
-    state->control_effort = attitude_pid_controller().get_control_effort();
-    state->control_trajectory_type = trajectory_type;
-    state->control_pilot_mix = pilot_mix;
-    state->control_params = getParameters();
-    state->state_lock.unlock();
 }
 
 std::vector<Parameter> Control::getParameters()

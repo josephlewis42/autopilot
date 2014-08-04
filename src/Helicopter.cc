@@ -177,11 +177,13 @@ void Helicopter::saveFile()
 
 void Helicopter::writeToSystemState()
 {
+    /**
     SystemState *state = SystemState::getInstance();
     state->state_lock.lock();
     state->helicopter_gravity = gravity;
     state->helicopter_params = getParameters();
     state->state_lock.unlock();
+    **/
 }
 
 uint16_t Helicopter::norm2pulse(double norm, std::array<uint16_t, 3> setpoint)

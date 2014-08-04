@@ -20,8 +20,6 @@
 
 // System imports
 #include <vector>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <atomic>
 #include <mutex>
 #include <string.h>
@@ -36,8 +34,6 @@
 #include "gps_time.h"
 #include "Singleton.h"
 #include "EulerAngles.h"
-
-namespace blas = boost::numeric::ublas;
 
 /**
  * The SystemState keeps track of variables that multiple drivers wish to manipulate
