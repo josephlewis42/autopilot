@@ -35,10 +35,47 @@
 #include "heli.h"
 #include "gps_time.h"
 #include "Singleton.h"
+#include "EulerAngles.h"
 
 namespace blas = boost::numeric::ublas;
 
-
+/**
+ * The SystemState keeps track of variables that multiple drivers wish to manipulate
+ * and implements a location where controllers can get their data without being
+ * tied to a specific driver implementation or set of hardware. This class facilitates
+ * the following use cases:
+ *
+ * - a new driver is created and must be tested
+ * - a HIL simulator needs to take over with all sensors offline
+ * - we want to try a patch using logs from a prior flight.
+ * - we build in redundant systems of which we only want the most accurate one to be reporting
+ *   until it dies when a fallback comes in.
+ * - we can attach/remove filters between a device and the output
+ * - we can run the autopilot with missing components and it will know what to do rather than
+ *   being explicitly configured
+ * - the autopilot can be moved to platforms with a different set of sensors with no code change
+ * - sensors can be removed and replaced using an entirely different system e.g. running our
+ *   autopilot by plugging in an Ardupilot which we use sensor data from.
+ *
+ * The creators of MAVLink believe the following fields to be mostly sufficient for performing
+ * autopilot calculations:
+ *
+ * - attitude (roll, pitch, yaw)
+ * - roll/pitc/yaw speeds
+ * - lat/lon/altitude
+ * - ground x,y,z speed
+ * - indicated airspeed
+ * - true airspeed
+ * - x,y,z acceleration
+ * - servo/radio inputs/outputs
+ *
+ * These should be considered the minimal set of requirements for running a functioning
+ * autopilot system. Additionally we keep:
+ * - main loop load (we should consider choosing easier manuveurs if calculations are taking too long)
+ * - battery (could be used in decision making)
+ * - NED origin (used in some autopilot calculations)
+ *
+ **/
 class SystemState : public Singleton<SystemState>
 {
 friend class Singleton<SystemState>;
@@ -47,31 +84,6 @@ public:
 
     // System state lock
     std::mutex state_lock;
-
-    // Generic IMU Data
-
-
-    // gx3 data
-    blas::vector<double> 	gx3_velocity;
-    blas::vector<double> 	gx3_nav_euler;
-    blas::vector<double> 	gx3_ahrs_euler;
-    blas::matrix<double> 	gx3_nav_rotation;
-    blas::vector<double> 	gx3_nav_angular_rate;
-    blas::vector<double> 	gx3_ahrs_angular_rate;
-    bool 					gx3_use_nav_attitude;
-    std::string 			gx3_status_message;
-    IMU::GX3_MODE 			gx3_mode;
-
-    // novatel data
-    blas::vector<double> 	novatel_ned_velocity;
-    blas::vector<double> 	novatel_pos_sigma;
-    blas::vector<double> 	novatel_vel_sigma;
-    uint 					novatel_position_status;
-    uint 					novatel_position_type;
-    uint 					novatel_velocity_status;
-    uint 					novatel_velocity_type;
-    uint8_t 				novatel_num_sats;
-    gps_time 				novatel_gps_time;
 
     // servo data
     std::vector<uint16_t> 			servo_raw_inputs;
@@ -91,19 +103,6 @@ public:
     std::array<uint16_t, 5> radio_calibration_pitch;
     std::array<uint16_t, 3> radio_calibration_flightMode;
 
-    // helicopter param data
-    std::vector<Parameter> helicopter_params;
-    double                 helicopter_gravity;
-
-    // control data
-    heli::Controller_Mode 	control_mode;
-    blas::vector<double> 	control_reference_position;
-    blas::vector<double> 	control_reference_attitude;
-    blas::vector<double> 	control_effort;
-    heli::Trajectory_Type 	control_trajectory_type;
-    std::vector<double> 	control_pilot_mix;
-    std::vector<Parameter>  control_params;
-
     // Data from the helicopter.
     SystemStateParam<uint16_t> batteryVoltage_mV;
 
@@ -118,6 +117,15 @@ public:
 
     /// The mainloop load as a proportion
     SystemStateParam<float> main_loop_load;
+
+    /// The rate of change in roll
+    SystemStateParam<float> rollSpeed_radPerS;
+    /// The rate of change in pitch
+    SystemStateParam<float> pitchSpeed_radPerS;
+    /// The rate of change in yaw
+    SystemStateParam<float> yawSpeed_radPerS;
+    /// The rotation of the system
+    SystemStateObjParam<EulerAngles> rotation;
 
 
 private:

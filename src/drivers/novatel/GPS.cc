@@ -62,7 +62,8 @@ void GPS::writeToSystemState()
         GPSPosition pos(llh_position[0], llh_position[1], llh_position[2], max);
         state->position.set(pos, 0); // TODO find a suitable number for this
     }
-
+    /**
+    // TODO add the traits back in that we need.
     state->state_lock.lock();
 
     state->novatel_ned_velocity = ned_velocity;
@@ -75,6 +76,7 @@ void GPS::writeToSystemState()
     state->novatel_num_sats = num_sats;
     state->novatel_gps_time = _gps_time;
     state->state_lock.unlock();
+    **/
 }
 
 void GPS::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)

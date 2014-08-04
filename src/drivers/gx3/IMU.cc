@@ -316,6 +316,19 @@ void IMU::writeToSystemState()
 
     state->nedOrigin.set(getNedOriginPosition(), 0);
 
+    // set the rotation
+    auto euler = get_euler();
+    EulerAngles ea(euler[0], euler[1], euler[2]);
+    state->rotation.set(ea, 0);
+
+    // set the angular rates.
+    auto eulerrate =  get_euler_rate();
+    state->rollSpeed_radPerS.set(eulerrate[0], 0);
+    state->pitchSpeed_radPerS.set(eulerrate[1], 0);
+    state->yawSpeed_radPerS.set(eulerrate[2], 0);
+
+    /**
+
     state->state_lock.lock();
     state->gx3_velocity = velocity;
     state->gx3_nav_euler = get_nav_euler();
@@ -326,4 +339,6 @@ void IMU::writeToSystemState()
     state->gx3_use_nav_attitude = use_nav_attitude;
     state->gx3_mode = gx3_mode;
     state->state_lock.unlock();
+
+    **/
 }

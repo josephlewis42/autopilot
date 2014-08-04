@@ -23,6 +23,10 @@ SystemState::SystemState()
  position(1000 , GPSPosition(0,0,0,500)),
  nedOrigin(0, GPSPosition(0,0,0,500)),
  cpu_load(0),
- main_loop_load(0)
+ main_loop_load(0),
+ rollSpeed_radPerS(0),
+ pitchSpeed_radPerS(0),
+ yawSpeed_radPerS(0),
+ rotation(0, EulerAngles(0,0,0))
 {
 }
