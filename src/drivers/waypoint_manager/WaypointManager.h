@@ -11,21 +11,29 @@
 
 #include <atomic>  // Used for atomic types
 #include <mutex>   // Used for singleton design.
-#include "Driver.h" // All drivers implement this.
+#include "Plugin.h" // All drivers implement this.
 #include <vector>
 
+#include "Singleton.h"
+
 /**
- * Provides an interface to the performance of Linux.
+ * Provides an interface to missionlib provided with Mavlink.
  **/
-class WaypointManager: public Driver
+class WaypointManager: public Plugin, public Singleton<WaypointManager>
 {
+    friend Singleton<WaypointManager>;
 public:
     /**
     Returns the one allowed instance of this Driver
     **/
-    static WaypointManager* getInstance();
     virtual void sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber) override;
     virtual bool recvMavlinkMsg(const mavlink_message_t& msg) override;
+
+
+    virtual bool init() override;
+    virtual void loop() override;
+    virtual void teardown() override;
+
 
     void addMessage(mavlink_message_t msg)
     {
@@ -35,8 +43,6 @@ public:
 
 
 private:
-    static WaypointManager* _instance;
-    static std::mutex _instance_lock;
 
     WaypointManager();
     virtual ~WaypointManager();

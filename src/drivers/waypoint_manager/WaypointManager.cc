@@ -43,21 +43,8 @@ void mavlink_missionlib_send_message(mavlink_message_t* msg)
 
 void mavlink_missionlib_send_gcs_string(const char* string)
 {
-	const int len = 50;
-	mavlink_statustext_t status;
-	int i = 0;
-	while (i < len - 1)
-	{
-		status.text[i] = string[i];
-		if (string[i] == '\0')
-			break;
-		i++;
-	}
-	status.text[i] = '\0'; // Enforce null termination
-	mavlink_message_t msg;
 
-	mavlink_msg_statustext_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &status);
-	mavlink_missionlib_send_message(&msg);
+   WaypointManager::getInstance()->warning() << string;
 }
 
 uint64_t mavlink_missionlib_get_system_timestamp()
@@ -71,7 +58,7 @@ void mavlink_missionlib_current_waypoint_changed(uint16_t index, float param1,
 		float param2, float param3, float param4, float param5_lat_x,
 		float param6_lon_y, float param7_alt_z, uint8_t frame, uint16_t command)
 {
-    WaypointManager::getInstance()->warning("current waypoint modified");
+    WaypointManager::getInstance()->warning() << "current waypoint modified command: " << command;
 
 }
 
@@ -80,23 +67,8 @@ void mavlink_missionlib_current_waypoint_changed(uint16_t index, float param1,
 
 /// TRUE WAYPOINT MANAGER STUFF
 
-WaypointManager* WaypointManager::_instance = NULL;
-std::mutex WaypointManager::_instance_lock;
-
-WaypointManager* WaypointManager::getInstance()
-{
-    std::lock_guard<std::mutex> lock(_instance_lock);
-    if (_instance == NULL)
-    {
-        _instance = new WaypointManager;
-    }
-    return _instance;
-}
-
-
-
 WaypointManager::WaypointManager()
-    :Driver("Waypoint Manager","waypoint_manager")
+    :Plugin("Waypoint Manager","waypoint_manager", 2)
 {
     mavlink_wpm_init(&wpm);
 	mavlink_system.sysid = 100; // TODO make this dynamic
@@ -109,14 +81,37 @@ WaypointManager::~WaypointManager()
 
 }
 
+bool WaypointManager::init()
+{
+    return true;
+}
+
+void WaypointManager::loop()
+{
+    mavlink_wpm_loop(); // do waypoint timeouts.
+
+
+    // Check to see if we are at the waypoint/have completed it.
+        // on yes, goto the next point
+        // on nothing left, just hover
+}
+
+void WaypointManager::teardown()
+{
+    // notify QGC that we are going down?
+}
+
 void WaypointManager::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int sendRateHz, int msgNumber)
 {
     if(! isEnabled()) return;
 
+
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 20)) // limit to 10 hz then burst all messages
     {
         std::lock_guard<std::mutex> lock(_messageQueueLock);
         for(mavlink_message_t& msg : _messageQueue)
         {
+            debug() << "sending message with id: " << msg.msgid;
             msgs.push_back(msg);
         }
 
@@ -129,7 +124,7 @@ bool WaypointManager::recvMavlinkMsg(const mavlink_message_t& msg)
 {
     if(! isEnabled()) return false;
 
-//    warning() << "got message";
+    info() << "got message";
     mavlink_wpm_message_handler(&msg);
 
     return false;

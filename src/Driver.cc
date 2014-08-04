@@ -318,6 +318,13 @@ long Driver::getMsSinceInit() const
     return (long)(elapsed_seconds.count() * 1000);
 }
 
+long Driver::getMicrosSinceInit() const
+{
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::system_clock::now() - _driverInit).count();
+}
+
+
 
  /**
     * Alerts the user and system that the initialization of this driver failed, if

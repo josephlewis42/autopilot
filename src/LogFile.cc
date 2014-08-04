@@ -80,7 +80,7 @@ void LogFile::logMessage(const std::string& name, const std::string& msg)
 {
     std::stringstream dataStr;
 
-    dataStr << getMsSinceInit() << '\t';
+    dataStr << getMicrosSinceInit() << '\t';
     dataStr << msg;
     dataStr << std::endl;
 

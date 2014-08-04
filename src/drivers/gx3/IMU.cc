@@ -215,6 +215,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
 
 
     // UAlberta Position
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 20))
     {
         //trace() << "Sending mavlink_msg_ualberta_position_pack";
 
@@ -262,6 +263,7 @@ void IMU::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int uasId, int se
     }
 
     // UAlberta Attitude
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 20))
     {
         //trace() << "Sending mavlink_msg_ualberta_attitude";
 

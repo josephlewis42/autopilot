@@ -142,10 +142,10 @@ public:
 
 private:
 
-    long getMsSinceInit()
+    long getMicrosSinceInit()
     {
-        std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - startTime;
-        return (long)(elapsed_seconds.count() * 1000);
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now() - startTime).count();
     }
 
     /// Singleton constructor: allocates memory for internal data structures

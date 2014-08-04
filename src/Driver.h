@@ -155,6 +155,32 @@ public:
     };
 
     /**
+     * Utility function for checking if a message should be sent.
+     *
+     * @param messageNumber - the number of times the channel has transmitted so far
+     * @param channelRateHz - the rate at which the channel is sending messages
+     * @param desiredRateHz - the rate at which we would like to send messages,
+     * numbers <= 0 mean that the function will never return true.
+     *
+     * @return true if it is time to send a message, false if it is not.
+     **/
+    bool shouldSendMavlinkMessage(int messageNumber, int channelRateHz, int desiredRateHz)
+    {
+        if(desiredRateHz <= 0)
+        {
+            return false;
+        }
+
+        if(desiredRateHz > channelRateHz)
+        {
+            return true;
+        }
+
+        return (messageNumber % (channelRateHz / desiredRateHz) == 0);
+    }
+
+
+    /**
      * Override this method to get a copy of incoming mavlink messages.
      *
      * @param msg - the message to send
@@ -177,6 +203,11 @@ public:
     long getMsSinceInit() const;
 
     /**
+     * Gets the number of microseconds since the driver was insantitated.
+     **/
+    long getMicrosSinceInit() const;
+
+    /**
     * Alerts the user and system that the initialization of this driver failed, if
     * terminate_on_init_fail is set to true, terminates the platform.
     *
@@ -190,6 +221,8 @@ public:
      * @return true if the driver is enabled, false if it is not.
      **/
     bool isEnabled();
+
+
 };
 
 #endif /* DRIVER_H_ */

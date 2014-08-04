@@ -135,7 +135,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
                                          requested_params.front().getCompID(),
                                          &msg, (const char*)(requested_params.front().getParamID().c_str()),
                                          requested_params.front().getValue(),
-                                         MAV_VAR_FLOAT,
+                                         MAV_PARAM_TYPE_REAL32,
                                          1,   // num of params
                                          -1); // index
 
@@ -250,7 +250,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
                                                 &msg,
                                                 (const char*)(plist.at(i).at(j).getParamID().c_str()),
                                                 plist.at(i).at(j).getValue(),
-                                                MAV_VAR_FLOAT,
+                                                MAV_PARAM_TYPE_REAL32,
                                                 num_params,
                                                 index);
                 msgs.push_back(msg);

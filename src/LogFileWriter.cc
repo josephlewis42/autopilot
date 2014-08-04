@@ -127,7 +127,7 @@ void LogfileWriter::writeThread()
         {
             info() << "Creating log file " << filename.c_str();
             std::string header = _header;
-            output << "Time(ms)\t" << header << std::endl;
+            output << "Time(micros)\t" << header << std::endl;
         }
 
         while(! terminateRequested() && filename.exists())
