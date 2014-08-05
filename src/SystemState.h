@@ -82,10 +82,11 @@ public:
     std::mutex state_lock;
 
     // servo data
-    std::vector<uint16_t> 			servo_raw_inputs;
+
+
+    //std::vector<uint16_t> 			servo_raw_inputs;
     std::vector<uint16_t> 			servo_raw_outputs;
     std::atomic<heli::PILOT_MODE> 	servo_pilot_mode;
-    std::atomic<double> 			servo_engine_speed;
 
     // altimeter data
     float altimeter_height;
@@ -122,6 +123,9 @@ public:
     SystemStateParam<float> yawSpeed_radPerS;
     /// The rotation of the system
     SystemStateObjParam<EulerAngles> rotation;
+
+    /// The raw values for the servo.
+    SystemStateObjParam<std::array<uint16_t, 8> > servoRawInputs;
 
 
 private:

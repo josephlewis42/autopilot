@@ -90,11 +90,16 @@ servo_switch::servo_switch()
 void servo_switch::writeToSystemState()
 {
     SystemState *state = SystemState::getInstance();
+
+    auto vec = get_raw_inputs();
+    std::array<uint16_t, 8> raw;
+    std::copy_n(vec.begin(), 8, raw.begin());
+    state->servoRawInputs.set(raw, 0);
+
+
     state->state_lock.lock();
-    state->servo_raw_inputs = raw_inputs;
     state->servo_raw_outputs = raw_outputs;
     state->servo_pilot_mode.store(pilot_mode.load());
-    state->servo_engine_speed.store(engine_speed.load());
     state->state_lock.unlock();
 }
 
@@ -283,11 +288,7 @@ void servo_switch::read_serial::parse_aux_inputs(const std::vector<uint8_t>& pay
     double speed = 1 / (time_measurement*32.0*0.000001);
     std::vector<double> speeds;
     speeds.push_back(speed);
-    if (speed < 15000.0/60.0)
-    {
-        ss.set_engine_speed(speed);
-    }
-    speeds.push_back(ss.get_engine_speed());
+    speeds.push_back(speed);
 
     LogFile *log = LogFile::getInstance();
     log->logData(LOG_INPUT_RPM, speeds);

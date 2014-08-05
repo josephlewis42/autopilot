@@ -14,7 +14,7 @@
 #include <limits>
 #include <stdint.h>
 #include <chrono>
-
+#include <mutex>
 
 #include <boost/signals2.hpp>
 
@@ -77,6 +77,7 @@ public:
     **/
     bool set(T value, double error)
     {
+        std::lock_guard<std::mutex> lock(_setLock);
         onSet(value, error);
 
         if(error < 0)
@@ -113,6 +114,8 @@ public:
 
     void notifySet(SystemStateParam<T> & other)
     {
+        std::lock_guard<std::mutex> lock(_setLock);
+
         // the & captures all variables inside lambda by reference
         onSet.connect([&](T val, double err){other.set(val, err);});
     }
@@ -127,6 +130,7 @@ private:
     double _currentError;
     uint64_t _invalidationTimeMS;
     std::chrono::time_point<std::chrono::system_clock> _lastTime;
+    std::mutex _setLock;
 };
 
 #endif

@@ -32,7 +32,7 @@ std::atomic_bool Driver::_all_drivers_terminate(false);
 
 
 Driver::Driver(std::string name, std::string config_prefix)
-    : Logger(name + ": "),
+    : Logger(name),
       ConfigurationSubTree(config_prefix),
       _terminate(_all_drivers_terminate.load()),
       _config_prefix(config_prefix),
@@ -51,7 +51,7 @@ Driver::Driver(std::string name, std::string config_prefix)
     setLoggingLevel(configGeti("logging_level", 2));
 
     configDescribe("read_style",
-                   "0 - 3",
+                   "0:read until min, 1:readcond, 2:read(), 3:wait then read()",
                    "The style of serial port read to use for this driver.");
     _readDeviceType = configGeti("read_style", 2);
 
@@ -64,11 +64,6 @@ Driver::Driver(std::string name, std::string config_prefix)
                    "true/false",
                    "Defines whether the autopilot should terminate if this driver is enabled but fails to initialize.");
     _terminate_if_init_failed = configGetb("terminate_if_init_failed", true);
-
-    configDescribe("read_style_COMMENT",
-                   "string",
-                   "Description for the functionality of different serial read styles.");
-    configGets("read_style_COMMENT", "0:read until min, 1:readcond, 2:read(), 3:wait then read()");
 
     configDescribe("read_save_path",
                   "path to a file or blank to not save",

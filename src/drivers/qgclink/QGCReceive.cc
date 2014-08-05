@@ -321,7 +321,7 @@ void QGCLink::QGCReceive::receive()
 							break;
 						}
 						default:
-							qgc->warning("Received component id cannot be mapped to an on-board component.");
+							qgc->warning() << "Component id " << set.target_component << " cannot be mapped to an on-board component.";
 							break;
 						}
 					}

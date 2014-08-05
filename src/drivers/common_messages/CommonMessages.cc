@@ -116,7 +116,7 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
     if(shouldSendMavlinkMessage(msgNumber, sendRateHz, rcChannelRate.load()))
     {
         {
-            std::vector<uint16_t> raw(servo_switch::getInstance()->getRaw());
+            auto raw = state->servoRawInputs.get();
             mavlink_message_t msg;
             mavlink_msg_rc_channels_raw_pack(100, 200, &msg,
                                              0, 0,

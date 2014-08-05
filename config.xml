@@ -80,8 +80,8 @@
 	</channels>
 	<controller_params>
 		<mix>
-			<roll>0.250000</roll>
-			<pitch>0.250000</pitch>
+			<roll>0.062500</roll>
+			<pitch>0.062500</pitch>
 		</mix>
 		<mode>0</mode>
 		<trajectory>0</trajectory>
@@ -272,4 +272,28 @@
 			</read_settings>
 		</terminal>
 	</external_mavlink>
+	<fake_rc>
+		<logging_level>0</logging_level>
+		<read_style>2</read_style>
+		<enable>true</enable>
+		<terminate_if_init_failed>true</terminate_if_init_failed>
+		<read_save_path/>
+		<period_seconds>2</period_seconds>
+		<channel_1_low>1000</channel_1_low>
+		<channel_1_high>2000</channel_1_high>
+		<channel_2_low>1000</channel_2_low>
+		<channel_2_high>2000</channel_2_high>
+		<channel_3_low>1000</channel_3_low>
+		<channel_3_high>2000</channel_3_high>
+		<channel_4_low>1000</channel_4_low>
+		<channel_4_high>2000</channel_4_high>
+		<channel_5_low>1000</channel_5_low>
+		<channel_5_high>2000</channel_5_high>
+		<channel_6_low>1000</channel_6_low>
+		<channel_6_high>2000</channel_6_high>
+		<channel_7_low>1000</channel_7_low>
+		<channel_7_high>2000</channel_7_high>
+		<channel_8_low>1000</channel_8_low>
+		<channel_8_high>2000</channel_8_high>
+	</fake_rc>
 </configuration>

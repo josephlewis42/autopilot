@@ -290,7 +290,7 @@ void QGCSend::send_status(std::queue<std::vector<uint8_t> >* sendq)
 
     mavlink_msg_ualberta_sys_status_pack(qgc->getUasId(), 200, &msg,
                                          qgc_servo_source, qgc_filter_state, qgc_pilot_mode, qgc_control_mode,(get_attitude_source()?UALBERTA_NAV_FILTER:UALBERTA_AHRS),
-                                         servo_switch::getInstance()->get_engine_rpm(), servo_switch::getInstance()->get_main_rotor_rpm(), Helicopter::getInstance()->get_main_collective(), 0, 0, qgc_trajectory);
+                                         0, 0, Helicopter::getInstance()->get_main_collective(), 0, 0, qgc_trajectory);
 
     buf.resize(mavlink_msg_to_send_buffer(&buf[0], &msg));
 

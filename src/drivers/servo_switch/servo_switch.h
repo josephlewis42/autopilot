@@ -93,13 +93,13 @@ public:
     void setRaw(const std::vector<uint16_t>& raw_outputs)
     {
         set_raw_outputs(raw_outputs);
-        writeToSystemState();
+        //writeToSystemState();
     }
     inline void setRaw(heli::Channel ch, uint16_t pulse_width)
     {
         std::lock_guard<std::mutex> lock(raw_outputs_lock);
         raw_outputs[ch] = pulse_width;
-        writeToSystemState();
+        //writeToSystemState();
     }
 
     /// signal with new mode as argument
@@ -107,23 +107,6 @@ public:
     inline heli::PILOT_MODE get_pilot_mode()
     {
         return pilot_mode;
-    }
-
-    inline double get_engine_speed()
-    {
-        return engine_speed;
-    }
-    inline double get_engine_rpm()
-    {
-        return engine_speed * 60;
-    }
-    inline double get_main_rotor_speed()
-    {
-        return engine_speed * 13.0 / 90.0;
-    }
-    inline double get_main_rotor_rpm()
-    {
-        return get_engine_rpm() * 13.0 / 90.0;
     }
 
 private:
@@ -173,11 +156,7 @@ private:
     std::atomic<heli::PILOT_MODE> pilot_mode;
     void set_pilot_mode(heli::PILOT_MODE mode);
 
-    std::atomic<double> engine_speed;
-    inline void set_engine_speed(double speed)
-    {
-        engine_speed = speed;
-    }
+
 };
 
 #endif

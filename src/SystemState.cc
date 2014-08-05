@@ -27,6 +27,7 @@ SystemState::SystemState()
  rollSpeed_radPerS(0),
  pitchSpeed_radPerS(0),
  yawSpeed_radPerS(0),
- rotation(0, EulerAngles(0,0,0))
+ rotation(0, EulerAngles(0,0,0)),
+ servoRawInputs(0, std::array<uint16_t, 8>())
 {
 }
