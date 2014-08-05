@@ -75,6 +75,10 @@ CommonMessages::CommonMessages()
     _sendParams = false; // don't send params until requested
     _sendRCCalibration = false; // don't send calibration until requested
 
+
+    //SystemState* state = SystemState::getInstance();
+    //state->rotation.onSet.connect([&](EulerAngles val, double err){warning() << "updated eulers";});
+
 }
 
 CommonMessages::~CommonMessages()
@@ -86,9 +90,30 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
 {
     if(! isEnabled()) return;
 
+    SystemState* state = SystemState::getInstance();
 
 
-    if(msgNumber % (sendRateHz / rcChannelRate.load()) == 0)
+    // Send attitude
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 5))
+    {
+        mavlink_message_t msg;
+
+        auto angles = state->rotation.get();
+
+        mavlink_msg_attitude_pack(uasId, MAV_COMP_ID_IMU, &msg,
+                                 getMsSinceInit(),
+                                 angles.getRollRad(),
+                                 angles.getPitchRad(),
+                                 angles.getYawRad(),
+                                 state->rollSpeed_radPerS.get(),
+                                 state->pitchSpeed_radPerS.get(),
+                                 state->yawSpeed_radPerS.get());
+
+        msgs.push_back(msg);
+    }
+
+
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, rcChannelRate.load()))
     {
         {
             std::vector<uint16_t> raw(servo_switch::getInstance()->getRaw());
@@ -152,7 +177,6 @@ void CommonMessages::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int ua
         return;
     }
 
-    SystemState* state = SystemState::getInstance();
 
     state->batteryVoltage_mV.set(12 * 1000, 0);
 

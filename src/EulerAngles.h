@@ -37,6 +37,23 @@ class EulerAngles
 
         static EulerAngles fromQuaternion(double w, double x, double y, double z);
 
+        double getRollRad()
+        {
+            return _rollRad;
+        }
+
+
+        double getPitchRad()
+        {
+            return _pitchRad;
+        }
+
+
+        double getYawRad()
+        {
+            return _yawRad;
+        }
+
     private:
         double _rollRad, _pitchRad, _yawRad;
 };

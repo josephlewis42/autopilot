@@ -59,7 +59,7 @@ IMU::IMU()
      _position(),
      _ned_origin(),
      velocity(blas::zero_vector<double>(3)),
-     use_nav_attitude(true),
+     use_nav_attitude(false),
      nav_euler(blas::zero_vector<double>(3)),
      ahrs_euler(blas::zero_vector<double>(3)),
      nav_rotation(blas::identity_matrix<double>(3)),
@@ -316,9 +316,11 @@ void IMU::writeToSystemState()
 
     state->nedOrigin.set(getNedOriginPosition(), 0);
 
+
     // set the rotation
     auto euler = get_euler();
     EulerAngles ea(euler[0], euler[1], euler[2]);
+    debug() << "Roll: " << euler[0] << " Pitch: " << euler[1] << " Yaw: " << euler[2];
     state->rotation.set(ea, 0);
 
     // set the angular rates.

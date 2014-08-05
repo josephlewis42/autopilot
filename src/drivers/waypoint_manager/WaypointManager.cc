@@ -106,13 +106,14 @@ void WaypointManager::sendMavlinkMsg(std::vector<mavlink_message_t>& msgs, int u
     if(! isEnabled()) return;
 
 
-    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 20)) // limit to 10 hz then burst all messages
+    if(shouldSendMavlinkMessage(msgNumber, sendRateHz, 5)) // limit to 5 hz then burst all messages
     {
         std::lock_guard<std::mutex> lock(_messageQueueLock);
         for(mavlink_message_t& msg : _messageQueue)
         {
             debug() << "sending message with id: " << msg.msgid;
             msgs.push_back(msg);
+
         }
 
         _messageQueue.empty();
