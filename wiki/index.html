@@ -3927,7 +3927,7 @@ Error message and password prompt
 <div created="20140715205205369" modified="20140716204036419" title="$:/DefaultTiddlers">
 <pre>[[Getting Started]]</pre>
 </div>
-<div current-tiddler="Servo Switch" modified="20140722235042271" title="$:/HistoryList" type="application/json">
+<div current-tiddler="Servo Switch" modified="20140806183514781" title="$:/HistoryList" type="application/json">
 <pre>[
     {
         &quot;title&quot;: &quot;GettingStarted&quot;
@@ -5068,6 +5068,26 @@ Error message and password prompt
     },
     {
         &quot;title&quot;: &quot;Servo Switch&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Getting Started&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Servo Switch&quot;,
+        &quot;fromPageRect&quot;: {
+            &quot;top&quot;: 278,
+            &quot;left&quot;: 770,
+            &quot;width&quot;: 82,
+            &quot;right&quot;: 852,
+            &quot;bottom&quot;: 294,
+            &quot;height&quot;: 16
+        }
+    },
+    {
+        &quot;title&quot;: &quot;Draft of 'Servo Switch'&quot;
+    },
+    {
+        &quot;title&quot;: &quot;Servo Switch&quot;
     }
 ]</pre>
 </div>
@@ -5139,8 +5159,8 @@ Error message and password prompt
 <div created="20140715171824962" modified="20140722234912785" title="$:/temp/NewTagName">
 <pre></pre>
 </div>
-<div created="20140715171811348" modified="20140722150110180" title="$:/temp/search">
-<pre></pre>
+<div created="20140715171811348" modified="20140806182355770" title="$:/temp/search">
+<pre>servo</pre>
 </div>
 <div author="JeremyRuston" core-version="&gt;=5.0.0" dependents="$:/themes/tiddlywiki/vanilla" description="A clean theme that emphasises individual tiddlers" name="Snow White" plugin-type="theme" title="$:/themes/tiddlywiki/snowwhite" type="application/json" version="5.0.13-beta">
 <pre>{
@@ -5722,17 +5742,31 @@ running the autopilot
 ## Wait for 60 seconds for a full shutdown until unplugging the computer
 </pre>
 </div>
-<div created="20140722234900861" modified="20140722235042268" tags="box hardware" title="Servo Switch" type="text/x-markdown">
+<div created="20140722234900861" modified="20140806183514776" tags="box hardware" title="Servo Switch" type="text/x-markdown">
 <pre>Configuration
 -----------------
 
-This is a snapshot of the configuration that can be dumped over the serial interface when the device is started up in to configuration mode (typinng `ssconfig` on boot).
+This is a snapshot of the configuration that can be dumped over the serial interface when the device is started up in to configuration mode (typing `ssconfig` on boot).
 
     ---------- Start Of Image ----------
     010008000000000002030220020302300203024002030202020302020203026002030270
     020302800203028002030280020302800203028002030280020302800203028002030280
     020304800203048002030480020304800203048002030480020304800203048005D705F5
     044C05AA060E05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC
+    05DC05DC05DC05DC4E204E204E204E204E204E204E204E204E204E204E204E204E204E20
+    4E204E204E204E204E204E204E204E204E204E200000000000000000000000000A00000A
+    0A00AFC6
+
+    ----------  End Of Image  ----------
+
+Testing image
+------------------
+
+    ---------- Start Of Image ----------
+    010008000000000002020202020202020202020202020202020202020202020202020202
+    020202020202020202020202020202020202020202020202020202020202020202020202
+    0203048002030480020304800203048002030480020304800203048002030480000003E8
+    05DC07D0060E05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC05DC
     05DC05DC05DC05DC4E204E204E204E204E204E204E204E204E204E204E204E204E204E20
     4E204E204E204E204E204E204E204E204E204E200000000000000000000000000A00000A
     0A00AFC6

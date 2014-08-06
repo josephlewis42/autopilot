@@ -53,7 +53,7 @@ void FakeRc::loop()
     }
 
     auto state = SystemState::getInstance();
-    state->servoRawInputs.set(servoInputs, 0);
+    state->servoRawInputs.set(servoInputs, 200); // because this is fake data, we use an arbitrary large number.
 
     step++;
 }

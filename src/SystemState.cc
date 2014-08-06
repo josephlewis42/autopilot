@@ -19,15 +19,15 @@
 #include "SystemState.h"
 
 SystemState::SystemState()
-:batteryVoltage_mV(0),
+:batteryVoltage_mV(500),
  position(1000 , GPSPosition(0,0,0,500)),
- nedOrigin(0, GPSPosition(0,0,0,500)),
+ nedOrigin(2000, GPSPosition(0,0,0,500)),
  cpu_load(0),
- main_loop_load(0),
- rollSpeed_radPerS(0),
- pitchSpeed_radPerS(0),
- yawSpeed_radPerS(0),
- rotation(0, EulerAngles(0,0,0)),
- servoRawInputs(0, std::array<uint16_t, 8>())
+ main_loop_load(500),
+ rollSpeed_radPerS(500),
+ pitchSpeed_radPerS(500),
+ yawSpeed_radPerS(500),
+ rotation(500, EulerAngles(0,0,0)),
+ servoRawInputs(3000, std::array<uint16_t, 8>()) // wait 3 seconds before defaulting.
 {
 }
